@@ -1,0 +1,86 @@
+# Zork I: Quick Reference
+
+## !!! COMBAT - LIFE OR DEATH !!!
+When you see ANY of these, type "kill troll with sword" IMMEDIATELY:
+- "sword is glowing" = enemy nearby, prepare to fight!
+- "troll" mentioned = ATTACK NOW!
+- "brandishing a bloody axe" = troll will kill you if you don't attack!
+
+Keep typing "kill troll with sword" until you see:
+- "The troll dies" or "troll breathes his last"
+- "Your sword is no longer glowing" = safe to move
+
+DO NOT try to move when troll is present - you will DIE!
+
+## READING ROOM DESCRIPTIONS
+The game tells you which directions you can go:
+- "passage leads to the west" = GO WEST works
+- "staircase leading up" = GO UP works
+- "exits to south and east" = only SOUTH or EAST work
+- "There is a wall there" = BLOCKED, try another direction!
+
+## VALID COMMANDS
+
+### Movement
+- go north, go south, go east, go west, go up, go down
+- n, s, e, w, u, d (shortcuts)
+- enter, exit
+
+### Object Interaction
+- take [object] - pick up items
+- open [object] - open mailbox, door, case, trap door
+- read [object] - read leaflet
+- drop [object] - drop something
+- move [object] - move rug reveals trap door!
+- turn on lamp - REQUIRED before going underground!
+
+### Combat
+- kill troll with sword - REPEAT until troll dies!
+
+### Information
+- look - see room description
+- inventory - see what you carry
+
+## STEP-BY-STEP WALKTHROUGH
+
+### Phase 1: Starting (West of House)
+1. open mailbox
+2. take leaflet  
+3. go south
+4. go east
+5. open window
+6. enter
+
+### Phase 2: House
+7. go west
+8. take lamp
+9. take sword
+10. move rug
+11. open trap door
+12. turn on lamp (IMPORTANT!)
+13. go down
+
+### Phase 3: Underground
+14. go east → TROLL ROOM!
+15. kill troll with sword (REPEAT 3-4 times!)
+16. After troll dies: go east
+17. go north
+18. go down (to find more areas)
+
+### Finding the Gallery (has painting):
+From Troll Room after killing troll:
+- go north → East-West Passage  
+- go north → Ravine
+- go down → descend stairs
+- explore to find Gallery with painting treasure
+
+## TREASURES
+- Painting (Gallery)
+- Gold coffin (Egyptian Room)
+- Put treasures in trophy case (Living Room)
+
+## DON'T DO
+- Don't move when troll is present
+- Don't use examine room/floor/wall
+- Don't go directions not mentioned in room
+- Don't forget turn on lamp before going down
