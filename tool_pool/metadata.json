@@ -3,5 +3,10 @@
     "type": "action_filter",
     "description": "Filters legal actions to those that either win the game immediately for the current player or block an opponent's immediate win. By focusing MCTS on these critical tactical moves, the agent avoids losing simple threats and exploits winning chances it would otherwise miss.",
     "origin_game": "connect_four"
+  },
+  "corner_max_tile_evaluator": {
+    "type": "state_evaluator",
+    "description": "Assigns a higher evaluation when the largest tile (or highest\u2011valued feature) resides in one of the four corners of the board. Keeping the biggest tile in a corner encourages a monotonic \u201csnake\u201d layout, reduces fragmentation, and preserves merge opportunities, which directly addresses the observed dead\u2011ends caused by high tiles being scattered across the grid.",
+    "origin_game": "2048"
   }
 }
