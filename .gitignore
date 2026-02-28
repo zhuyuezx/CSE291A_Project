@@ -18,5 +18,12 @@ experiments/results.json
 .vscode/
 .idea/
 
+# Testing
+.pytest_cache/
+
+# Node
+node_modules/
+package-lock.json
+
 # OS
 .DS_Store
