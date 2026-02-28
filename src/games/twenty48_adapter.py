@@ -69,28 +69,35 @@ class TwentyFortyEightAdapter(GameAdapter):
       2. OpenSpiel says terminal (board stuck) → LOSS (-1.0)
     """
 
-    def __init__(self, win_tile: int = _2048_WIN_TILE):
+    def __init__(self, win_tile: int = _2048_WIN_TILE, max_steps: int = 8000):
         # Load via parent but override meta
         super().__init__("2048")
         self.win_tile = win_tile
+        self.max_steps = max_steps
         self.meta = _CUSTOM_META
         self._win_tile_log = math.log2(win_tile)  # used for aux normalization
+        self._step_counts: dict[int, int] = {}  # state id → step count
 
     # ------------------------------------------------------------------ #
     # Core overrides                                                       #
     # ------------------------------------------------------------------ #
 
     def is_terminal(self, state) -> bool:
-        """Terminal if we've won (2048 tile) or OpenSpiel says stuck."""
+        """Terminal if we've won (2048 tile), board stuck, or exceeded max_steps."""
         if _max_tile(state) >= self.win_tile:
             return True
-        return state.is_terminal()
+        if state.is_terminal():
+            return True
+        # Check step count via state history length
+        if self.max_steps > 0 and len(state.history()) >= self.max_steps:
+            return True
+        return False
 
     def returns(self, state) -> list[float]:
         """
         Binary return:
           +1.0 if max tile >= win_tile (WIN)
-          -1.0 otherwise (game over without win)
+          -1.0 otherwise (game over without win, or max_steps exceeded)
         Returns a 1-element list to match the single-player convention.
         """
         if _max_tile(state) >= self.win_tile:

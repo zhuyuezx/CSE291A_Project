@@ -10,10 +10,17 @@ class GameTrace:
     actions: list[int] = field(default_factory=list)
     outcome: list[float] | None = None
 
-    def to_string(self) -> str:
+    def to_string(self, sample_every: int = 1) -> str:
         lines = []
-        for i, (state_str, action) in enumerate(zip(self.states, self.actions)):
-            lines.append(f"Step {i}: Action={action}")
+        pairs = list(zip(self.states, self.actions))
+        # Sparse-sample: only include every Nth step
+        sampled = pairs[::sample_every] if sample_every > 1 else pairs
+        total = len(pairs)
+        if sample_every > 1:
+            lines.append(f"# Trace (every {sample_every} steps; {len(sampled)}/{total} shown)")
+        for i, (state_str, action) in enumerate(sampled):
+            real_step = i * sample_every
+            lines.append(f"Step {real_step}: Action={action}")
             lines.append(state_str)
             lines.append("")
         if self.outcome:

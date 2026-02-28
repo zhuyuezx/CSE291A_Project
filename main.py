@@ -37,11 +37,15 @@ def main():
     parser.add_argument("--no-tools", action="store_true", help="Run vanilla MCTS (no tools)")
     parser.add_argument("--max-trace-chars", type=int, default=12000,
                         help="Max characters of trace text to send to LLM (default: 12000)")
+    parser.add_argument("--max-steps", type=int, default=8000,
+                        help="Max steps per 2048 game before forced loss (default: 8000, 0=unlimited)")
+    parser.add_argument("--trace-sample-every", type=int, default=50,
+                        help="Sample every Nth step when building trace text for LLM (default: 50)")
     args = parser.parse_args()
 
     # Use custom adapter for 2048 (win on 2048 tile, binary ±1 reward)
     if args.game == "2048":
-        adapter = TwentyFortyEightAdapter()
+        adapter = TwentyFortyEightAdapter(max_steps=args.max_steps)
     else:
         adapter = GameAdapter(args.game)
     print(f"Game: {adapter.game_description()}")
@@ -168,7 +172,9 @@ def main():
             print("  ✗ No traces found. Try more games or fewer sims.")
             return
 
-        traces_text = "\n---\n".join(t.to_string() for t in traces)
+        traces_text = "\n---\n".join(
+            t.to_string(sample_every=args.trace_sample_every) for t in traces
+        )
         # Truncate to avoid LLM context window overflow
         MAX_TRACE_CHARS = args.max_trace_chars
         original_len = len(traces_text)
