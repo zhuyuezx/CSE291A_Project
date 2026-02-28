@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Configuration
+conf.yaml  # Contains API keys
+
+# Experiments
+experiments/results.json
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
