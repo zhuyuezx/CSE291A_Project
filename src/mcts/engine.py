@@ -106,7 +106,6 @@ class MCTSEngine:
     def _simulate(self, node: MCTSNode) -> float:
         """Simulate from node to terminal using rollout policy tools."""
         state = node.state.clone()
-        current_player = node.state.current_player() if not node.state.is_terminal() else 0
         # Walk up to find the root player
         n = node
         while n.parent is not None:
@@ -115,20 +114,23 @@ class MCTSEngine:
 
         evaluators = self.registry.get_tools(ToolType.STATE_EVALUATOR)
         rollout_policies = self.registry.get_tools(ToolType.ROLLOUT_POLICY)
+        has_aux = hasattr(self.adapter, "aux_reward")
 
         depth = 0
-        while not state.is_terminal() and depth < self.max_rollout_depth:
-            # Check for early cutoff via state evaluator
+        while not self.adapter.is_terminal(state) and depth < self.max_rollout_depth:
+            # Early cutoff via state evaluator
             if evaluators and depth > 5:
                 try:
                     scores = [t.run_fn(state) for t in evaluators]
                     avg_score = sum(scores) / len(scores)
                     if abs(avg_score) > 0.9:
-                        return avg_score if state.current_player() == root_player else -avg_score
+                        return avg_score if self.adapter.meta.is_single_player else (
+                            avg_score if state.current_player() == root_player else -avg_score
+                        )
                 except Exception:
                     pass
 
-            legal = state.legal_actions()
+            legal = self.adapter.legal_actions(state)
             if not legal:
                 break
 
@@ -147,12 +149,18 @@ class MCTSEngine:
             state.apply_action(action)
             depth += 1
 
-        if state.is_terminal():
-            raw = state.returns()[root_player] if not self.adapter.meta.is_single_player \
-                  else state.returns()[0]
-            return self.adapter.normalize_return(raw)
+        if self.adapter.is_terminal(state):
+            raw = self.adapter.returns(state)
+            # single-player → raw is [score]; two-player → [p0, p1]
+            val = raw[0] if self.adapter.meta.is_single_player else raw[root_player]
+            return self.adapter.normalize_return(val)
 
-        # Non-terminal (max depth): use evaluator or return 0
+        # Non-terminal cutoff: prefer aux_reward, then evaluators, then 0
+        if has_aux:
+            try:
+                return self.adapter.aux_reward(state)
+            except Exception:
+                pass
         if evaluators:
             try:
                 scores = [t.run_fn(state) for t in evaluators]

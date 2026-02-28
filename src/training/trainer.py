@@ -106,9 +106,10 @@ class Trainer:
             state = self.adapter.apply_action(state, action)
             self.recorder.record_step(state, action)
 
-        raw_return = state.returns()[0]
+        returns = self.adapter.returns(state)  # use adapter hook (supports custom adapters)
+        raw_return = returns[0]
         normalized = self.adapter.normalize_return(raw_return)
-        self.recorder.end_game(state.returns())
+        self.recorder.end_game(returns)
         self.total_games += 1
         self.plateau_detector.record(normalized)
         return normalized

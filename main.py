@@ -13,6 +13,7 @@ import os
 
 from src.config import load_config
 from src.games.adapter import GameAdapter
+from src.games.twenty48_adapter import TwentyFortyEightAdapter
 from src.mcts.engine import MCTSEngine
 from src.mcts.tool_registry import ToolRegistry
 from src.tools.manager import ToolPoolManager
@@ -34,9 +35,15 @@ def main():
     parser.add_argument("--uct-c", type=float, default=1.41, help="UCT exploration constant")
     parser.add_argument("--tool-pool", default="tool_pool", help="Tool pool directory")
     parser.add_argument("--no-tools", action="store_true", help="Run vanilla MCTS (no tools)")
+    parser.add_argument("--max-trace-chars", type=int, default=12000,
+                        help="Max characters of trace text to send to LLM (default: 12000)")
     args = parser.parse_args()
 
-    adapter = GameAdapter(args.game)
+    # Use custom adapter for 2048 (win on 2048 tile, binary ±1 reward)
+    if args.game == "2048":
+        adapter = TwentyFortyEightAdapter()
+    else:
+        adapter = GameAdapter(args.game)
     print(f"Game: {adapter.game_description()}")
 
     # Load tools
@@ -162,6 +169,12 @@ def main():
             return
 
         traces_text = "\n---\n".join(t.to_string() for t in traces)
+        # Truncate to avoid LLM context window overflow
+        MAX_TRACE_CHARS = args.max_trace_chars
+        original_len = len(traces_text)
+        if original_len > MAX_TRACE_CHARS:
+            traces_text = traces_text[:MAX_TRACE_CHARS] + "\n...[truncated for context window]"
+            print(f"  ⚠ Traces truncated: {original_len} → {MAX_TRACE_CHARS} chars")
         current_tools_desc = ", ".join(registry.list_all()) if registry.list_all() else "None"
         print(f"  Traces text: {len(traces_text)} chars")
         print(f"  Current tools: {current_tools_desc}")
