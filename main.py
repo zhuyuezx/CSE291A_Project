@@ -83,8 +83,79 @@ def main():
             print("PLATEAU DETECTED - tool evolution recommended")
 
     elif args.mode == "evolve":
-        print("\nEvolution mode requires LLM API configuration in conf.yaml")
-        print("Not yet fully integrated - use Phase 2 tasks")
+        from src.llm.client import LLMClient
+        from src.training.trace_recorder import TraceRecorder
+        from src.tools.generator import ToolGenerator
+
+        config = load_config("conf.yaml")
+        trace_client = LLMClient.from_config(config, "TRACE_ANALYZER")
+        code_client = LLMClient.from_config(config, "CODE_GENERATOR")
+        val_client = LLMClient.from_config(config, "TOOL_VALIDATOR")
+
+        generator = ToolGenerator(
+            trace_analyzer_client=trace_client,
+            code_generator_client=code_client,
+            validator_client=val_client,
+            game_name=args.game,
+        )
+        pool_manager = ToolPoolManager(args.tool_pool)
+
+        # Step 1: Play games and collect traces
+        print(f"\n[1/4] Playing {args.games} games to collect traces...")
+        trainer = Trainer(adapter, registry, simulations=args.sims, uct_c=args.uct_c)
+        result = trainer.train(num_games=args.games)
+        print(f"  Results: {result['wins']}W / {result['games'] - result['wins']}L")
+        print(f"  Win rate: {result['win_rate']:.1%}")
+
+        # Step 2: Select informative traces (losses / close games)
+        traces = trainer.recorder.select_informative_traces(player=0, n=5)
+        if not traces:
+            print("  No informative traces found (all wins). Try more games or fewer sims.")
+            return
+
+        traces_text = "\n---\n".join(t.to_string() for t in traces)
+        current_tools_desc = ", ".join(registry.list_all()) if registry.list_all() else "None"
+        print(f"  Selected {len(traces)} informative traces for analysis")
+
+        # Step 3: Generate a new tool via LLM
+        print(f"\n[2/4] Analyzing traces with LLM...")
+        gen_result = generator.generate_tool(
+            traces_text=traces_text,
+            game_description=adapter.game_description(),
+            current_tools_desc=current_tools_desc,
+        )
+
+        if not gen_result.valid:
+            print(f"  Tool generation failed: {gen_result.error}")
+            if gen_result.code:
+                print(f"  Last code attempt:\n{gen_result.code[:500]}")
+            return
+
+        print(f"  Generated tool: {gen_result.spec['name']} ({gen_result.spec['type']})")
+        print(f"  Description: {gen_result.spec['description']}")
+
+        # Step 4: Save the tool
+        print(f"\n[3/4] Saving tool to pool...")
+        path = pool_manager.save_tool(args.game, gen_result.spec["name"], gen_result.code)
+        pool_manager.update_metadata(gen_result.spec["name"], {
+            "type": gen_result.spec["type"],
+            "description": gen_result.spec["description"],
+            "origin_game": args.game,
+        })
+        print(f"  Saved to: {path}")
+
+        # Step 5: Quick A/B test
+        print(f"\n[4/4] Quick A/B test (10 games)...")
+        from src.tools.base import load_tool_from_file
+        new_registry = ToolRegistry()
+        new_registry.load_from_directory(f"{args.tool_pool}/{args.game}")
+        new_engine = MCTSEngine(adapter, new_registry, simulations=args.sims, uct_c=args.uct_c)
+        new_evaluator = Evaluator(adapter)
+        ab_result = new_evaluator.evaluate_vs_random(new_engine, num_games=10)
+        print(f"  With new tool: {ab_result['wins']}W / {ab_result['losses']}L / {ab_result['draws']}D ({ab_result['win_rate']:.0%})")
+        print(f"\n  Tool code:\n{'='*60}")
+        print(gen_result.code)
+        print(f"{'='*60}")
 
 
 if __name__ == "__main__":

@@ -1,1 +1,7 @@
-{}
+{
+  "immediate_win_block_filter": {
+    "type": "action_filter",
+    "description": "Filters legal actions to those that either win the game immediately for the current player or block an opponent's immediate win. By focusing MCTS on these critical tactical moves, the agent avoids losing simple threats and exploits winning chances it would otherwise miss.",
+    "origin_game": "connect_four"
+  }
+}

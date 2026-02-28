@@ -163,6 +163,14 @@ class ToolGenerator:
         if spec is None:
             return GenerationResult(valid=False, error="Failed to analyze traces")
 
+        # Validate spec has required keys
+        if "name" not in spec:
+            spec["name"] = "llm_generated_tool"
+        if "type" not in spec:
+            spec["type"] = "state_evaluator"
+        if "description" not in spec:
+            spec["description"] = "LLM-generated heuristic tool"
+
         # Step 2: Generate code
         code = self.generate_code(spec)
 
