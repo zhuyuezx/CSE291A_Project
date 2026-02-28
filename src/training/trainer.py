@@ -96,19 +96,43 @@ class Trainer:
 
         return returns[player]
 
+    def play_episode(self) -> float:
+        """Play one episode for single-player games. Returns normalized return."""
+        state = self.adapter.new_game()
+        self.recorder.start_game(state)
+
+        while not self.adapter.is_terminal(state):
+            action = self.engine.search(state)
+            state = self.adapter.apply_action(state, action)
+            self.recorder.record_step(state, action)
+
+        raw_return = state.returns()[0]
+        normalized = self.adapter.normalize_return(raw_return)
+        self.recorder.end_game(state.returns())
+        self.total_games += 1
+        self.plateau_detector.record(normalized)
+        return normalized
+
     def train(self, num_games: int, player: int = 0) -> dict:
         """Run training loop with plateau detection."""
+        scores = []
         wins = 0
         for i in range(num_games):
-            result = self.play_game_vs_random(player)
-            if result > 0:
-                wins += 1
+            if self.adapter.meta.is_single_player:
+                result = self.play_episode()
+            else:
+                result = self.play_game_vs_random(player)
+                if result > 0:
+                    wins += 1
+            scores.append(result)
 
             if self.plateau_detector.is_plateau() and self.on_plateau:
                 self.on_plateau(self)
 
-        return {
-            "games": num_games,
-            "wins": wins,
-            "win_rate": wins / num_games if num_games > 0 else 0,
-        }
+        avg = sum(scores) / len(scores) if scores else 0.0
+        metric = self.adapter.meta.metric_name
+        stats = {"games": num_games, metric: avg, "scores": scores}
+        if not self.adapter.meta.is_single_player:
+            stats["wins"] = wins
+            stats["win_rate"] = wins / num_games if num_games > 0 else 0
+        return stats

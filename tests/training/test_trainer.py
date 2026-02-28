@@ -38,3 +38,29 @@ def test_regression_detected():
     for _ in range(3):
         detector.record(0.5)  # dropped by 0.1 > 0.05
     assert detector.is_plateau()
+
+
+def test_trainer_single_player_game():
+    """Trainer should run a single-player episode without errors."""
+    from src.games.adapter import GameAdapter
+    from src.mcts.tool_registry import ToolRegistry
+    from src.training.trainer import Trainer
+
+    adapter = GameAdapter("pathfinding")
+    registry = ToolRegistry()
+    trainer = Trainer(adapter, registry, simulations=10)
+    result = trainer.play_episode()
+    assert isinstance(result, float)   # normalized return
+
+
+def test_trainer_single_player_train():
+    from src.games.adapter import GameAdapter
+    from src.mcts.tool_registry import ToolRegistry
+    from src.training.trainer import Trainer
+
+    adapter = GameAdapter("pathfinding")
+    registry = ToolRegistry()
+    trainer = Trainer(adapter, registry, simulations=10)
+    stats = trainer.train(num_games=5)
+    assert stats["games"] == 5
+    assert "success_rate" in stats

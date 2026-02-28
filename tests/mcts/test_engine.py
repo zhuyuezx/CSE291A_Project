@@ -60,3 +60,14 @@ def test_search_returns_policy():
     # Policy values should sum to ~1.0
     total = sum(policy.values())
     assert abs(total - 1.0) < 0.01
+
+
+def test_engine_on_pathfinding_single_player():
+    """Engine should work on a single-player game without errors."""
+    adapter = GameAdapter("pathfinding")
+    registry = ToolRegistry()
+    engine = MCTSEngine(adapter, registry, simulations=20,
+                        max_rollout_depth=adapter.meta.max_sim_depth)
+    state = adapter.new_game()
+    action = engine.search(state)
+    assert action in adapter.legal_actions(state)

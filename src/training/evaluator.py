@@ -2,14 +2,60 @@
 from __future__ import annotations
 
 import random
+from dataclasses import dataclass
 
 from src.games.adapter import GameAdapter
 from src.mcts.engine import MCTSEngine
 
 
+@dataclass
+class PerformanceResult:
+    game: str
+    metric_name: str        # "win_rate" | "avg_score" | "success_rate"
+    raw_value: float        # e.g. 14.3 avg pieces, 0.62 win rate
+    normalized_value: float # always [-1, 1]
+    n_games: int
+
+
 class Evaluator:
     def __init__(self, adapter: GameAdapter):
         self.adapter = adapter
+
+    def measure(self, engine: MCTSEngine, n_games: int = 100) -> PerformanceResult:
+        """Unified evaluation for both single-player and two-player games."""
+        scores_raw = []
+        wins = 0
+
+        for _ in range(n_games):
+            state = self.adapter.new_game()
+            while not self.adapter.is_terminal(state):
+                cp = self.adapter.current_player(state)
+                if self.adapter.meta.is_single_player or cp == 0:
+                    action = engine.search(state)
+                else:
+                    action = random.choice(self.adapter.legal_actions(state))
+                state = self.adapter.apply_action(state, action)
+
+            raw = state.returns()[0]
+            scores_raw.append(raw)
+            if raw > 0:
+                wins += 1
+
+        avg_raw = sum(scores_raw) / n_games
+        avg_norm = sum(self.adapter.normalize_return(r) for r in scores_raw) / n_games
+
+        if self.adapter.meta.is_single_player:
+            raw_value = avg_raw
+        else:
+            raw_value = wins / n_games  # win rate
+
+        return PerformanceResult(
+            game=self.adapter.game_name,
+            metric_name=self.adapter.meta.metric_name,
+            raw_value=raw_value,
+            normalized_value=avg_norm,
+            n_games=n_games,
+        )
 
     def evaluate_vs_random(
         self, engine: MCTSEngine, num_games: int = 100, player: int = 0

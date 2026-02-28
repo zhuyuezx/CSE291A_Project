@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import pyspiel
 
+from src.games.meta_registry import GAME_META, GameMeta
+
 
 class GameAdapter:
     """Thin wrapper around OpenSpiel games with a consistent interface."""
@@ -16,6 +18,10 @@ class GameAdapter:
         self.game_name = game_name
         self.num_players = self._game.num_players()
         self.num_distinct_actions = self._game.num_distinct_actions()
+        self.meta: GameMeta = GAME_META.get(
+            game_name,
+            GameMeta(game_name, self._game.num_players() == 1, -1.0, 1.0, "win_rate", 200),
+        )
 
     def new_game(self):
         return self._game.new_initial_state()
@@ -51,6 +57,14 @@ class GameAdapter:
             f"Actions: {self.num_distinct_actions}, "
             f"Max length: {self._game.max_game_length()}"
         )
+
+    def normalize_return(self, raw: float) -> float:
+        """Map raw game return to [-1, 1]. Clips values outside [min, max]."""
+        raw = max(self.meta.min_return, min(self.meta.max_return, raw))
+        span = self.meta.max_return - self.meta.min_return
+        if span == 0:
+            return 0.0
+        return 2.0 * (raw - self.meta.min_return) / span - 1.0
 
     @property
     def pyspiel_game(self):

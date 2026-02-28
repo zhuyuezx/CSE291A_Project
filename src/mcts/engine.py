@@ -148,8 +148,9 @@ class MCTSEngine:
             depth += 1
 
         if state.is_terminal():
-            returns = state.returns()
-            return returns[root_player]
+            raw = state.returns()[root_player] if not self.adapter.meta.is_single_player \
+                  else state.returns()[0]
+            return self.adapter.normalize_return(raw)
 
         # Non-terminal (max depth): use evaluator or return 0
         if evaluators:
