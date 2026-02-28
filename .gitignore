@@ -13,6 +13,7 @@ conf.yaml  # Contains API keys
 
 # Experiments
 experiments/results.json
+logs/
 
 # IDEs
 .vscode/
