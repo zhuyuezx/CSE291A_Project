@@ -92,18 +92,29 @@ class MCTSEngine:
             1. Selection  — walk the tree using UCB1
             2. Expansion  — add one child
             3. Simulation — rollout to terminal (or use evaluation)
-            4. Backprop   — propagate reward up the tree
+            4. Backprop   — propagate reward along the selected path
+
+        Uses explicit path tracking (rather than parent pointers) so that
+        transposition-table sharing and graph cycles are handled correctly.
+        This is essential for single-player puzzles with reversible moves.
         """
         root = self._get_node(state)
         perspective = state.current_player()
 
         for _ in range(self.iterations):
             node = root
+            path = [root]
+            visited_keys = {root.state.state_key()}
             ew = self.exploration_weight_fn(root.visits)
 
-            # 1. Selection
+            # 1. Selection — stop on cycle or unexpanded / terminal node
             while node.is_fully_expanded() and not node.state.is_terminal():
                 node = node.best_child(ew)
+                key = node.state.state_key()
+                if key in visited_keys:
+                    break                    # cycle in the graph
+                visited_keys.add(key)
+                path.append(node)
 
             # 2. Expansion
             if not node.state.is_terminal() and not node.is_fully_expanded():
@@ -113,18 +124,15 @@ class MCTSEngine:
                 child = self._get_node(next_state, node, action)
                 node.children[action] = child
                 node = child
+                path.append(node)
 
             # 3. Simulation / Evaluation
             reward = self._simulate(node.state, perspective)
 
-            # 4. Backpropagation
-            temp = node
-            while temp is not None:
-                temp.visits += 1
-                temp.value += reward
-                if temp.parent is None or temp == root.parent:
-                    break
-                temp = temp.parent
+            # 4. Backpropagation — walk the explicit path
+            for n in path:
+                n.visits += 1
+                n.value += reward
 
         best_action, _ = root.most_visited_child()
         return best_action
@@ -161,16 +169,28 @@ class MCTSEngine:
         mcts_player: int = 0,
         opponent_policy: Callable[[GameState], Any] | None = None,
         clear_table_each_game: bool = False,
+        clear_table_each_move: bool = False,
+        max_game_moves: int | None = None,
         verbose: bool = False,
     ) -> GameRecord:
         """
-        Play a full game: MCTS vs opponent.
+        Play a full game: MCTS vs opponent (two-player) or MCTS
+        solving a puzzle (single-player).
+
+        For single-player puzzles, current_player() always returns 0
+        and the opponent branch is never executed.
 
         Args:
             mcts_player:     Which player index MCTS controls.
             opponent_policy: Callable(state) -> action for the opponent.
-                             Defaults to uniform random.
+                             Defaults to uniform random. Ignored for
+                             single-player games.
             clear_table_each_game: Whether to wipe the TT before the game.
+            clear_table_each_move: Whether to wipe the TT between moves
+                                   (useful for puzzles where tree reuse
+                                   can waste memory).
+            max_game_moves:  Hard limit on total moves (safety net on top
+                             of the game's own is_terminal logic).
             verbose:         Print board each turn.
 
         Returns:
@@ -179,15 +199,23 @@ class MCTSEngine:
         if clear_table_each_game:
             self.clear_table()
 
-        if opponent_policy is None:
+        is_single_player = self.game.num_players() == 1
+
+        if opponent_policy is None and not is_single_player:
             opponent_policy = lambda s: random.choice(s.legal_actions())
 
         state = self.game.new_initial_state()
         game_rec = self.logger.new_game(self.game.name(), mcts_player)
         t0 = time.time()
+        move_count = 0
 
         while not state.is_terminal():
+            if max_game_moves is not None and move_count >= max_game_moves:
+                break
+
             if state.current_player() == mcts_player:
+                if clear_table_each_move:
+                    self.clear_table()
                 action = self.search(state)
                 # Log the MCTS decision
                 root = self._get_node(state)
@@ -196,19 +224,21 @@ class MCTSEngine:
                 action = opponent_policy(state)
 
             if verbose:
-                print(f"Turn {game_rec.total_moves + 1} | "
+                print(f"Turn {move_count + 1} | "
                       f"Player {state.current_player()} → action {action}")
                 print(state)
                 print()
 
             state.apply_action(action)
+            move_count += 1
 
         elapsed = time.time() - t0
         TraceLogger.finalise_game(game_rec, state, elapsed)
 
         if verbose:
-            print(f"Game over. Outcome: {game_rec.outcome} "
-                  f"(winner: Player {game_rec.winner})")
+            outcome_msg = (f"Solved!" if is_single_player and game_rec.winner == 0
+                           else f"Outcome: {game_rec.outcome} (winner: Player {game_rec.winner})")
+            print(f"Game over. {outcome_msg}")
 
         return game_rec
 
@@ -218,6 +248,8 @@ class MCTSEngine:
         mcts_player: int = 0,
         opponent_policy: Callable[[GameState], Any] | None = None,
         clear_table_each_game: bool = False,
+        clear_table_each_move: bool = False,
+        max_game_moves: int | None = None,
         verbose: bool = False,
     ) -> dict:
         """
@@ -225,17 +257,24 @@ class MCTSEngine:
 
         Returns:
             A dict with total_games, wins, losses, draws, win_rate.
+            For single-player puzzles, wins = solved, draws = unsolved.
         """
+        is_single_player = self.game.num_players() == 1
         for i in range(num_games):
             rec = self.play_game(
                 mcts_player=mcts_player,
                 opponent_policy=opponent_policy,
                 clear_table_each_game=clear_table_each_game,
+                clear_table_each_move=clear_table_each_move,
+                max_game_moves=max_game_moves,
                 verbose=verbose,
             )
             if verbose or (i + 1) % max(1, num_games // 10) == 0:
-                print(f"  Game {i+1}/{num_games}: "
-                      f"winner=P{rec.winner}, outcome={rec.outcome}")
+                label = ("solved" if is_single_player and rec.winner == 0
+                         else "unsolved" if is_single_player
+                         else f"winner=P{rec.winner}")
+                print(f"  Game {i+1}/{num_games}: {label}, "
+                      f"moves={rec.total_moves}")
 
         return self.logger.summary()
 

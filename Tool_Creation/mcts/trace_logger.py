@@ -160,18 +160,29 @@ class TraceLogger:
             data.append(gd)
         return json.dumps(data, indent=2, default=str)
 
+    def unsolved_games(self) -> list[GameRecord]:
+        """Return games that were not won — unsolved puzzles or draws."""
+        return [g for g in self.games if g.winner is None]
+
     def format_for_llm(self, max_games: int = 5, losses_only: bool = True) -> str:
         """
         Produce a concise text summary suitable for an LLM prompt.
 
         Args:
             max_games:   Maximum number of games to include in detail.
-            losses_only: If True, only include losing games.
+            losses_only: If True, only include losing/unsolved games.
+                         For single-player puzzles, this includes
+                         unsolved games (draws) when there are no losses.
 
         Returns:
             A human-readable report string.
         """
-        games = self.losing_games() if losses_only else self.games
+        if losses_only:
+            games = self.losing_games()
+            if not games:  # No losses — include unsolved (puzzles)
+                games = self.unsolved_games()
+        else:
+            games = self.games
         games = games[:max_games]
 
         lines = [
