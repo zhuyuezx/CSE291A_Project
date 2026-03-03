@@ -2,27 +2,46 @@
 MCTS Framework with LLM-optimizable heuristics.
 
 Architecture:
-    ┌────────────────────┐
-    │     MCTS Engine    │  ◄── pluggable heuristic functions
-    │  (mcts_engine.py)  │
-    └────────┬───────────┘
-             │ uses
-    ┌────────▼───────────┐     ┌───────────────────┐
-    │   Game Interface   │     │   Trace Logger     │
-    │ (game_interface.py)│     │ (trace_logger.py)  │
-    └────────────────────┘     └───────────────────┘
-             ▲ implements
-    ┌────────┴───────────┐
-    │  Connect Four /    │
-    │  other games       │
-    │  (games/*.py)      │
-    └────────────────────┘
+    ┌─────────────────────────────────────────────────────────┐
+    │                  OptimizationLoop                       │
+    │  Orchestrates: play → LLM → load → validate → adopt    │
+    └────┬──────────┬──────────────┬─────────────────────────┘
+         │          │              │
+    ┌────▼────┐ ┌───▼──────┐ ┌────▼────────────┐
+    │  MCTS   │ │   LLM    │ │ HeuristicLoader  │
+    │ Engine  │ │  Client   │ │  (extract/exec)  │
+    └────┬────┘ └───┬──────┘ └─────────────────┘
+         │          │
+    ┌────▼────┐ ┌───▼──────────┐
+    │  Game   │ │ PromptBuilder │
+    │Interface│ │  + Templates  │
+    └────┬────┘ └──────────────┘
+         ▲
+    ┌────┴───────────┐
+    │  games/*.py    │  (Connect Four, Sliding Puzzle, Sokoban)
+    └────────────────┘
 
-The "tools" the LLM agent optimizes are the heuristic functions
-in heuristics.py — evaluation, rollout policy, etc.
+Modules:
+    game_interface   — Abstract Game / GameState contracts
+    mcts_engine      — Core MCTS with pluggable heuristic slots
+    heuristics       — Default heuristic implementations
+    trace_logger     — Records gameplay decisions for LLM analysis
+    llm_client       — Ollama REST API client
+    prompt_builder   — Game-specific prompt templates + builder
+    heuristic_loader — Safe code extraction, compilation & validation
+    optimization_loop— Full play-analyse-improve cycle orchestrator
+    node             — MCTS tree node with UCB1
+    games/           — Concrete game implementations
 """
 
+# Core MCTS
 from .game_interface import Game, GameState
 from .node import MCTSNode
 from .mcts_engine import MCTSEngine
 from .trace_logger import TraceLogger
+
+# LLM integration
+from .llm_client import LLMClient, LLMResponse
+from .heuristic_loader import HeuristicLoader, HeuristicLoadError
+from .prompt_builder import PromptBuilder, PromptTemplate
+from .optimization_loop import OptimizationLoop, LoopResult, RoundResult

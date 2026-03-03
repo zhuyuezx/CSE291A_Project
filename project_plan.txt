@@ -1,0 +1,92 @@
+================================================================================
+  CSE291A Project Plan — MCTS + LLM Heuristic Optimization Loop
+================================================================================
+
+1. CORE IDEA
+   - Monte Carlo Tree Search (MCTS) as the base game-playing agent.
+   - An LLM analyzes gameplay traces and proposes improved heuristic
+     functions ("tools") that are hot-swapped into MCTS at runtime.
+   - The gameplay loop and the optimization loop are decoupled:
+       Gameplay:      MCTS plays N games (or 1 full gameplay) → collects traces
+       Optimization:  LLM reads traces → writes better heuristic code
+                      → validated → hot-swapped → next batch of games
+
+2. MCTS FRAMEWORK (Component 1 — Game Player)
+   - Standard MCTS pipeline: Selection → Expansion → Simulation → Backprop
+   - Four pluggable heuristic slots that the LLM can optimize:
+       (a) evaluation       — score a non-terminal state (short-circuit rollout)
+       (b) rollout_policy   — choose actions during simulation phase
+       (c) exploration_weight — adaptive UCB1 constant
+       (d) action_priority  — ordering for expansion
+   - Default: random rollouts, no evaluation, fixed C=1.41, random expansion
+   - Transposition table for caching across simulations
+   - Cycle detection (important for single-player puzzles)
+
+3. TOOLS = PYTHON CODE SNIPPETS (Heuristic Functions)
+   - A "tool" is a plain Python function matching a predefined signature.
+   - Can range from trivial (if-statement, Manhattan distance) to complex
+     (environment analysis, pattern recognition, deadlock detection).
+   - Hot-swapped via set_heuristic(slot_name, function) — no restart needed.
+   - The MCTS engine stores source code of each heuristic so the LLM can
+     see what's currently in use and iterate on it.
+
+4. LLM OPTIMIZATION LOOP (Component 2 — Strategy Improver)
+   - After each round of gameplay:
+       1. PromptBuilder assembles a game-specific prompt containing:
+          - Game rules & state API description
+          - Current heuristic source code
+          - Gameplay traces (especially unsolved/lost games)
+          - Previous attempt code + its performance (for iteration)
+       2. LLMClient sends the prompt to the model (Qwen 3.5 via Ollama)
+       3. HeuristicLoader extracts code from the response, compiles it
+          in a sandboxed namespace, and validates it on a test state
+       4. The candidate is validated by playing games — only adopted if
+          it outperforms the current best ("keep best" safeguard)
+   - Multiple rounds: each round builds on the traces produced by the
+     best heuristic found so far.
+
+5. GENERALITY — GAME-AGNOSTIC ARCHITECTURE
+   - Abstract Game / GameState interface:
+       new_initial_state(), legal_actions(), apply_action(), is_terminal(),
+       returns(), current_player(), state_key(), clone()
+   - Any game implementing this interface can plug into the framework.
+   - Game-specific knowledge lives only in:
+       (a) The Game/GameState subclass (rules + helpers)
+       (b) The PromptTemplate (describes the game to the LLM)
+   - The MCTS engine, optimization loop, loader, and LLM client are
+     fully game-agnostic.
+   - Prompt templates are registered per game; PromptBuilder auto-detects
+     from the game name.
+
+6. EVALUATION & BASELINES
+   Baseline: Naive MCTS with random rollouts (no heuristics).
+
+   Comparison axes:
+   (A) Fixed compute budget (same number of training steps / LLM rounds):
+       → Compare solve rate / win rate after K optimization rounds
+       → Metric: absolute improvement in percentage points
+
+   (B) Fixed performance target (e.g., 80% solve rate):
+       → Compare how many MCTS iterations / LLM rounds needed to reach it
+       → Metric: sample efficiency (games played to reach target)
+
+   Additional analyses:
+   - Ablation: which heuristic slot contributes most? (evaluation >> others)
+   - Scaling: does more MCTS iterations × better heuristic compound?
+   - Transfer: does a heuristic learned on easy levels help on harder ones?
+
+7. GAMES — START SIMPLE, SCALE UP
+   Phase 1: Single-player puzzles (controllable difficulty)
+     (a) Sliding Puzzle (8-puzzle, 3×3)
+         - Difficulty knob: scramble_moves (5 → 10 → 20 → 30)
+         - Known optimal heuristic: Manhattan distance → good LLM target
+         - Current results: baseline ~30-40% → LLM-improved ~40-50% (+10pp)
+     (b) Sokoban (推箱子)
+         - Difficulty knob: designed Microban levels (1-box → 2-box → 3-box)
+         - Rich heuristic space: box-to-target distance, deadlock detection
+         - Baseline 0% on 2-box levels — needs good evaluation to solve
+
+   Phase 2 (stretch): Two-player adversarial games
+     (c) Connect Four
+         - Already implemented and tested (80% → 96.7% vs random opponent)
+     (d) Potentially: Quoridor, chess
