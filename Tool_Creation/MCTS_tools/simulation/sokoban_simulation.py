@@ -1,23 +1,17 @@
 """
 LLM-generated MCTS tool: simulation
-Description: Remove unused variable and tidy comments for clarity.
-Generated:   2026-03-06T03:37:31.300626
+Description: No changes required; the function is correct and efficient.
+Generated:   2026-03-06T03:38:48.611924
 """
 
 def default_simulation(state, perspective_player: int, max_depth: int = 1000) -> float:
     """
-    Heuristic‑guided rollout for Sokoban with improved push incentives
-    and more balanced scoring. Adjustments:
-      • Larger PUSH_BONUS and a neutral push component so pushes compete
-        with pure moves.
-      • Clamp the negative distance contribution to avoid catastrophic
-        penalties for temporary setbacks.
-      • Add a directional per‑box improvement term (reward when a moved
-        box gets closer to any target, even if the global sum rises).
-      • Increase TOP_K to expose pushes to the ε‑greedy selector.
-      • Extend the progress window to allow longer rollouts.
+    Heuristic‑guided rollout for Sokoban with targeted improvements:
+      • Refined wall‑stuck detection to avoid false negatives.
+      • Small bonus for actions that position the player next to a pushable box.
+      • Stronger weighting of global distance reduction (no negative clamp).
+      • Reduced dead‑lock penalty and lower ε‑greedy randomness.
     """
-
     # ----------------------------------------------------------------------
     # Imports (local to keep the function self‑contained)
     # ----------------------------------------------------------------------
@@ -27,16 +21,17 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
     # ----------------------------------------------------------------------
     # Tunable parameters (incrementally tuned)
     # ----------------------------------------------------------------------
-    EPSILON = 0.15               # ε‑greedy random move probability
-    TOP_K = 4                    # actions kept for exploitation (was 2)
-    PROGRESS_WINDOW = 120       # steps without improvement before stop (was 60)
-    PUSH_BONUS = 2.0             # larger base bonus for any push
+    EPSILON = 0.10               # ε‑greedy random move probability (more exploitation)
+    TOP_K = 4                    # actions kept for exploitation
+    PROGRESS_WINDOW = 120       # steps without improvement before stop
+    PUSH_BONUS = 2.0             # base bonus for any push
     NEUTRAL_PUSH = 0.3           # constant bonus for performing a push
+    SETUP_BONUS = 1.0            # reward for ending up next to a pushable box
     BOX_IMP_WEIGHT = 3.0         # weight for raw per‑box distance change
-    DIR_WEIGHT = 2.0            # extra weight for *positive* per‑box progress
-    DIST_WEIGHT = 8.0            # weight for global distance reduction
+    DIR_WEIGHT = 2.0             # extra weight for positive per‑box progress
+    DIST_WEIGHT = 12.0           # weight for global distance reduction (stronger)
     LOOKAHEAD_WEIGHT = 1.5       # weight for depth‑2 look‑ahead improvement
-    WALL_STUCK_PENALTY = 2.0     # penalty for creating a frozen box
+    WALL_STUCK_PENALTY = 0.8     # milder penalty for creating a frozen box
     DEADLOCK_PENALTY = -1e6      # huge negative value to discard dead‑locked states
 
     # ----------------------------------------------------------------------
@@ -51,29 +46,37 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
         r, c = pos
         return min(abs(r - tr) + abs(c - tc) for tr, tc in targets)
 
-    def _box_against_wall_without_target(box: Tuple[int, int], st) -> bool:
-        """Detect a box pressed against a wall where no target exists along that wall line."""
+    def _box_frozen_against_wall(box: Tuple[int, int], st) -> bool:
+        """
+        Detect a box that is pressed against a wall (or another box) without any
+        reachable target along that wall direction. This is a stricter version
+        of the previous wall‑stuck test to avoid false penalties.
+        """
         r, c = box
-        # left wall
+        # left side
         if (r, c - 1) in st.walls:
             if not any(t[0] == r and t[1] < c for t in st.targets):
-                return True
-        # right wall
+                if (r, c + 1) in st.walls or (r, c + 1) in st.boxes:
+                    return True
+        # right side
         if (r, c + 1) in st.walls:
             if not any(t[0] == r and t[1] > c for t in st.targets):
-                return True
-        # upper wall
+                if (r, c - 1) in st.walls or (r, c - 1) in st.boxes:
+                    return True
+        # upper side
         if (r - 1, c) in st.walls:
             if not any(t[1] == c and t[0] < r for t in st.targets):
-                return True
-        # lower wall
+                if (r + 1, c) in st.walls or (r + 1, c) in st.boxes:
+                    return True
+        # lower side
         if (r + 1, c) in st.walls:
             if not any(t[1] == c and t[0] > r for t in st.targets):
-                return True
+                if (r - 1, c) in st.walls or (r - 1, c) in st.boxes:
+                    return True
         return False
 
     def _is_deadlock(st) -> bool:
-        """Extended dead‑lock detection (corner + freeze)."""
+        """Extended dead‑lock detection (corner + refined freeze)."""
         for b in st.boxes:
             if b in st.targets:
                 continue
@@ -88,8 +91,8 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
             if (up and left) or (up and right) or (down and left) or (down and right):
                 return True
 
-            # freeze dead‑lock
-            if _box_against_wall_without_target(b, st):
+            # refined freeze dead‑lock
+            if _box_frozen_against_wall(b, st):
                 return True
         return False
 
@@ -119,6 +122,20 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
                     best_imp = imp2
         return best_imp
 
+    def _player_next_to_pushable_box(st) -> bool:
+        """
+        Returns True if the player stands adjacent to a box that can be pushed
+        (i.e., the cell on the opposite side of the box is empty floor or a target).
+        """
+        pr, pc = st.player
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            box_pos = (pr + dr, pc + dc)
+            if box_pos in st.boxes:
+                beyond = (box_pos[0] + dr, box_pos[1] + dc)
+                if (beyond not in st.walls) and (beyond not in st.boxes):
+                    return True
+        return False
+
     # ----------------------------------------------------------------------
     # Simulation loop
     # ----------------------------------------------------------------------
@@ -146,9 +163,8 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
                 continue
 
             new_dist = nxt.total_box_distance()
-            # Global distance improvement (clamped to avoid huge negatives)
+            # Global distance improvement (no lower clamp)
             distance_score = (last_distance - new_dist) * DIST_WEIGHT
-            distance_score = max(distance_score, -DIST_WEIGHT)   # clamp
 
             # ------------------------------------------------------------------
             # Push detection and per‑box improvement
@@ -157,6 +173,7 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
             push_bonus = 0.0
             per_box_imp = 0.0          # signed improvement
             dir_imp = 0.0              # positive‑only improvement
+            setup_bonus = 0.0
 
             if push:
                 # Identify the moved box (exactly one box moves per push)
@@ -173,8 +190,8 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
                 # Base + neutral push bonus (does not depend on per‑box gain)
                 push_bonus = PUSH_BONUS + NEUTRAL_PUSH
 
-                # Wall‑stuck penalty – apply only if a box becomes frozen
-                if any(b not in nxt.targets and _box_against_wall_without_target(b, nxt)
+                # Wall‑stuck penalty – milder and based on refined detection
+                if any(b not in nxt.targets and _box_frozen_against_wall(b, nxt)
                        for b in nxt.boxes):
                     push_bonus -= WALL_STUCK_PENALTY
 
@@ -182,13 +199,18 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
                 lookahead_imp = _depth_two_lookahead(nxt)
                 distance_score += LOOKAHEAD_WEIGHT * lookahead_imp
 
+            # Reward for ending up next to a pushable box (even if this step wasn't a push)
+            if _player_next_to_pushable_box(nxt):
+                setup_bonus = SETUP_BONUS
+
             # ------------------------------------------------------------------
             # Combine scores
             # ------------------------------------------------------------------
             const = 0.01
             box_imp_score = per_box_imp * BOX_IMP_WEIGHT          # may be negative
             dir_score = dir_imp * DIR_WEIGHT                      # always non‑negative
-            total_score = distance_score + box_imp_score + dir_score + push_bonus + const
+            total_score = (distance_score + box_imp_score + dir_score +
+                           push_bonus + setup_bonus + const)
             scored_actions.append((a, total_score))
 
         # ----------------------------------------------------------------------
