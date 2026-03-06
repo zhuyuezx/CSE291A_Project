@@ -3,9 +3,13 @@ Core MCTS engine.
 
 Standard MCTS loop:  Select -> Expand -> Simulate -> Backpropagate
 
-Each phase is a pluggable "tool" — a single Python function loaded from
-MCTS_tools/<phase>/. The engine ships with defaults and supports hot-swap
-via set_tool() so the LLM can inject improved versions at runtime.
+Each phase is a pluggable "tool" -- a single Python function loaded from
+MCTS_tools/<phase>/. Tool paths are specified in tool_config.json so
+nothing is hardcoded. The engine supports hot-swap via set_tool() so the
+LLM can inject improved versions at runtime.
+
+When logging=True, the engine automatically records every game played
+via play_game() / play_many() into JSON trace files under records/.
 
 Tool slots:
     selection(node, exploration_weight)        -> MCTSNode
@@ -18,7 +22,9 @@ from __future__ import annotations
 
 import importlib.util
 import inspect
+import json
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
@@ -26,24 +32,24 @@ from .node import MCTSNode
 from .games.game_interface import Game, GameState
 
 
-# ── Locate the MCTS_tools directory ──────────────────────────────────
-_TOOLS_DIR = Path(__file__).resolve().parent.parent / "MCTS_tools"
+# ── Load tool configuration from JSON ────────────────────────────────
+_CONFIG_PATH = Path(__file__).resolve().parent / "tool_config.json"
 
-# Phase name -> subfolder
-_PHASE_DIRS = {
-    "selection":        _TOOLS_DIR / "selection",
-    "expansion":        _TOOLS_DIR / "expansion",
-    "simulation":       _TOOLS_DIR / "simulation",
-    "backpropagation":  _TOOLS_DIR / "backpropagation",
-}
+def _load_config() -> dict:
+    """Read and return the tool configuration."""
+    with open(_CONFIG_PATH) as f:
+        return json.load(f)
 
-# Default file names (loaded at engine construction)
-_DEFAULTS = {
-    "selection":        "default_selection.py",
-    "expansion":        "default_expansion.py",
-    "simulation":       "default_simulation.py",
-    "backpropagation":  "default_backpropagation.py",
-}
+_CONFIG = _load_config()
+
+# Resolve tools_dir relative to the config file's directory
+_TOOLS_DIR = (Path(_CONFIG_PATH).parent / _CONFIG["tools_dir"]).resolve()
+
+
+def _get_default_path(phase: str) -> Path:
+    """Return the absolute path to the default tool file for a phase."""
+    phase_cfg = _CONFIG["phases"][phase]
+    return _TOOLS_DIR / phase_cfg["folder"] / phase_cfg["default"]
 
 
 def _load_function_from_file(filepath: str | Path, func_name: str | None = None) -> Callable:
@@ -98,7 +104,7 @@ class MCTSEngine:
         engine.load_tool("simulation", "MCTS_tools/simulation/manhattan_sim.py")
     """
 
-    PHASES = ("selection", "expansion", "simulation", "backpropagation")
+    PHASES = tuple(_CONFIG["phases"].keys())
 
     def __init__(
         self,
@@ -106,17 +112,27 @@ class MCTSEngine:
         iterations: int = 100,
         max_rollout_depth: int = 50,
         exploration_weight: float = 1.41,
+        logging: bool = False,
+        records_dir: str | Path | None = None,
     ):
         self.game = game
         self.iterations = iterations
         self.max_rollout_depth = max_rollout_depth
         self.exploration_weight = exploration_weight
+        self.logging = logging
 
-        # Load default tools from MCTS_tools/
+        # Logger is created lazily only when logging is enabled
+        self._logger = None
+        self._records_dir = records_dir
+        if self.logging:
+            from .trace_logger import TraceLogger
+            self._logger = TraceLogger(records_dir=records_dir)
+
+        # Load default tools from paths specified in tool_config.json
         self._tools: dict[str, Callable] = {}
         self._tool_paths: dict[str, str] = {}   # phase -> filepath (for source display)
         for phase in self.PHASES:
-            default_path = _PHASE_DIRS[phase] / _DEFAULTS[phase]
+            default_path = _get_default_path(phase)
             fn = _load_function_from_file(default_path)
             self._tools[phase] = fn
             self._tool_paths[phase] = str(default_path)
@@ -176,10 +192,10 @@ class MCTSEngine:
         return sources
 
     def reset_tool(self, phase: str) -> None:
-        """Reset a phase tool to its default from MCTS_tools/."""
+        """Reset a phase tool to its default from tool_config.json."""
         if phase not in self.PHASES:
             raise KeyError(f"Unknown phase '{phase}'.")
-        default_path = _PHASE_DIRS[phase] / _DEFAULTS[phase]
+        default_path = _get_default_path(phase)
         fn = _load_function_from_file(default_path)
         self._tools[phase] = fn
         self._tool_paths[phase] = str(default_path)
@@ -195,6 +211,16 @@ class MCTSEngine:
         Returns:
             The action with the most visits from the root.
         """
+        _, action = self._search_internal(root_state)
+        return action
+
+    def _search_internal(self, root_state: GameState) -> tuple[MCTSNode, Any]:
+        """
+        Run MCTS and return (root_node, best_action).
+
+        The root node is needed when logging is enabled so we can
+        capture per-child statistics without duplicating the search loop.
+        """
         root = MCTSNode(root_state.clone())
 
         select_fn = self._tools["selection"]
@@ -203,24 +229,25 @@ class MCTSEngine:
         backprop_fn = self._tools["backpropagation"]
 
         for _ in range(self.iterations):
-            # 1. Selection — walk tree via UCB1
+            # 1. Selection -- walk tree via UCB1
             node = select_fn(root, self.exploration_weight)
 
-            # 2. Expansion — add a child if node has untried actions
+            # 2. Expansion -- add a child if node has untried actions
             if not node.is_terminal:
                 node = expand_fn(node)
 
-            # 3. Simulation — random rollout from the node
+            # 3. Simulation -- random rollout from the node
             reward = simulate_fn(
                 node.state,
                 root_state.current_player(),
                 self.max_rollout_depth,
             )
 
-            # 4. Backpropagation — update stats from leaf to root
+            # 4. Backpropagation -- update stats from leaf to root
             backprop_fn(node, reward)
 
-        return root.most_visited_child().parent_action
+        best_action = root.most_visited_child().parent_action
+        return root, best_action
 
     # ------------------------------------------------------------------
     # High-level play helpers
@@ -230,14 +257,54 @@ class MCTSEngine:
         """
         Play one full game from initial state using MCTS for every move.
 
+        When self.logging is True, a detailed trace JSON file is written
+        to the records directory automatically.
+
         Returns:
             Dict with keys: solved, steps, returns, moves.
+            When logging: also includes 'log_file' and 'trace'.
         """
         state = self.game.new_initial_state()
         moves: list[Any] = []
 
+        # Start trace if logging
+        if self.logging and self._logger is not None:
+            self._logger.begin_game({
+                "game": self.game.name(),
+                "timestamp": datetime.now().isoformat(),
+                "iterations": self.iterations,
+                "max_rollout_depth": self.max_rollout_depth,
+                "exploration_weight": self.exploration_weight,
+                "tools": {
+                    phase: self._tool_paths.get(phase, "unknown")
+                    for phase in self.PHASES
+                },
+            })
+
         while not state.is_terminal():
-            action = self.search(state)
+            root, action = self._search_internal(state)
+            
+            # Record move trace if logging
+            if self.logging and self._logger is not None:
+                children_stats = {}
+                for a, child in root.children.items():
+                    children_stats[str(a)] = {
+                        "visits": child.visits,
+                        "value": round(child.value, 4),
+                        "avg_value": round(child.value / child.visits, 4)
+                            if child.visits > 0 else 0.0,
+                    }
+                self._logger.record_move({
+                    "move_number": len(moves) + 1,
+                    "player": state.current_player(),
+                    "state_before": str(state),
+                    "state_key": state.state_key(),
+                    "legal_actions": [str(a) for a in state.legal_actions()],
+                    "action_chosen": str(action),
+                    "root_visits": root.visits,
+                    "children_stats": children_stats,
+                })
+
             state.apply_action(action)
             moves.append(action)
 
@@ -247,12 +314,25 @@ class MCTSEngine:
                 print()
 
         solved = state.returns()[0] > 0  # player 0 won / solved
-        return {
+        result: dict[str, Any] = {
             "solved": solved,
             "steps": len(moves),
             "returns": state.returns(),
             "moves": moves,
         }
+
+        # Finalize trace if logging
+        if self.logging and self._logger is not None:
+            trace = self._logger.end_game({
+                "solved": solved,
+                "steps": len(moves),
+                "returns": state.returns(),
+                "final_state": str(state),
+            })
+            result["log_file"] = trace.get("log_file")
+            result["trace"] = trace
+
+        return result
 
     def play_many(
         self,
