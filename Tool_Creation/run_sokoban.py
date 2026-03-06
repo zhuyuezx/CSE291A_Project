@@ -43,8 +43,8 @@ def parse_args() -> argparse.Namespace:
         help="Number of games to play. Default: 1",
     )
     p.add_argument(
-        "--max-rollout-depth", type=int, default=50,
-        help="Max rollout depth for simulation. Default: 50",
+        "--max-rollout-depth", type=int, default=500,
+        help="Max rollout depth for simulation. Default: 500",
     )
     p.add_argument(
         "--phase", default="simulation",

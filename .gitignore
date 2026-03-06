@@ -3,3 +3,4 @@ Tool_Creation/mcts/records
 __pycache__/
 # Environment variables (API keys)
 .env
+Tool_Creation/LLM/results

@@ -31,6 +31,7 @@ Usage::
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 import json
 import os
 import re
@@ -38,6 +39,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+import random
 
 try:
     from dotenv import load_dotenv
@@ -181,7 +183,7 @@ class LLMQuerier:
             elapsed_seconds — time taken
             status       — 'success' or 'error'
         """
-        return asyncio.run(self._query_async(prompt, required_func_name))
+        return self._run_async(self._query_async(prompt, required_func_name))
 
     def query_batch(
         self,
@@ -205,9 +207,65 @@ class LLMQuerier:
         -------
         List of result dicts (same format as query()).
         """
-        return asyncio.run(
+        return self._run_async(
             self._query_batch_async(prompts, required_func_name, concurrency)
         )
+
+    def query_two_step(
+        self,
+        analysis_prompt: str,
+        generation_prompt_fn,
+        required_func_name: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Two-step LLM pipeline: analyse traces, then generate code.
+
+        Parameters
+        ----------
+        analysis_prompt : str
+            Step-1 prompt that asks the LLM to analyse gameplay traces
+            and output a structured analysis (no code).
+        generation_prompt_fn : callable(str) -> str
+            A function that takes the step-1 analysis text and returns
+            the step-2 code-generation prompt. Typically
+            ``lambda analysis: builder.build_generation_prompt(analysis, ...)``.
+        required_func_name : str, optional
+            Expected function name for validation of the step-2 code.
+
+        Returns
+        -------
+        dict with keys:
+            step1_analysis  — the raw analysis text from step 1
+            step1_elapsed   — seconds for step 1
+            response        — full step-2 LLM text (code generation)
+            code            — extracted Python code
+            validation      — dict with 'valid' and 'error'
+            parsed          — structured parse of the step-2 response
+            model           — model used
+            elapsed_seconds — total time for both steps
+            status          — 'success' or 'error'
+        """
+        total_start = time.time()
+
+        # ── Step 1: Analysis ──
+        step1_result = self.query(analysis_prompt)
+        if step1_result["status"] == "error":
+            step1_result["step1_analysis"] = None
+            step1_result["step1_elapsed"] = step1_result["elapsed_seconds"]
+            return step1_result
+
+        analysis_text = step1_result["response"] or ""
+        step1_elapsed = step1_result["elapsed_seconds"]
+
+        # ── Step 2: Code generation using analysis ──
+        gen_prompt = generation_prompt_fn(analysis_text)
+        step2_result = self.query(gen_prompt, required_func_name=required_func_name)
+
+        # Merge into a single result
+        step2_result["step1_analysis"] = analysis_text
+        step2_result["step1_elapsed"] = step1_elapsed
+        step2_result["elapsed_seconds"] = round(time.time() - total_start, 2)
+        return step2_result
 
     def save(
         self,
@@ -232,6 +290,30 @@ class LLMQuerier:
         return filepath
 
     # ------------------------------------------------------------------
+    # Event-loop helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _run_async(coro):
+        """
+        Run *coro* to completion and return its result.
+
+        Works in both plain scripts (no running loop) and inside Jupyter /
+        IPykernel which keeps its own event loop alive.  In the latter case
+        the coroutine is submitted to a fresh loop in a background thread so
+        that asyncio.run() never clashes with the already-running loop.
+        """
+        try:
+            asyncio.get_running_loop()
+            # A loop is already running (e.g. Jupyter). Spin up a thread.
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                fut = pool.submit(asyncio.run, coro)
+                return fut.result()
+        except RuntimeError:
+            # No running loop — plain script context.
+            return asyncio.run(coro)
+
+    # ------------------------------------------------------------------
     # Async internals
     # ------------------------------------------------------------------
 
@@ -242,7 +324,8 @@ class LLMQuerier:
     ) -> dict[str, Any]:
         """Single async query."""
         client = AsyncOpenAI(
-            api_key=self.api_keys[0],
+            # randomly pick one key for single query (no retries here)
+            api_key=random.choice(self.api_keys),
             base_url=self.base_url,
         )
 
@@ -263,10 +346,15 @@ class LLMQuerier:
                 if code else {"valid": False, "error": "No code block found in response."}
             )
 
+            # Also parse structured header fields if present
+            from .tool_manager import parse_response as _parse
+            parsed = _parse(text)
+
             return {
                 "response": text,
                 "code": code,
                 "validation": validation,
+                "parsed": parsed,
                 "model": self.model,
                 "elapsed_seconds": round(elapsed, 2),
                 "status": "success",

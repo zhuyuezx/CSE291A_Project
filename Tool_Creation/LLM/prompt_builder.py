@@ -79,7 +79,7 @@ class PromptBuilder:
         max_moves_per_trace: int | None = None,
     ) -> str:
         """
-        Assemble the full prompt string.
+        Assemble the full prompt string (single-step, legacy).
 
         Parameters
         ----------
@@ -123,6 +123,89 @@ class PromptBuilder:
         # ── Section 6: Task instruction ──
         sections.append(self._build_task_section())
 
+        return "\n\n".join(sections)
+
+    # ------------------------------------------------------------------
+    # Two-step prompt API
+    # ------------------------------------------------------------------
+
+    def build_analysis_prompt(
+        self,
+        record_files: list[str | Path] | None = None,
+        tool_source: str | None = None,
+        all_tool_sources: dict[str, str] | None = None,
+        max_moves_per_trace: int | None = None,
+        additional_context: str | None = None,
+    ) -> str:
+        """
+        Step 1 prompt: ask the LLM to *analyse* the gameplay traces.
+
+        Provides game rules, current tool source, and traces, then asks
+        for a structured analysis covering weaknesses, root causes, and
+        concrete improvement ideas — but **no code** yet.
+
+        Parameters
+        ----------
+        additional_context : str, optional
+            Free-form context to include (e.g. previous iteration results,
+            improvement history, etc.).
+
+        Returns
+        -------
+        str : the analysis prompt.
+        """
+        sections: list[str] = []
+        sections.append(self._build_system_section())
+        sections.append(self._build_game_rules_section())
+        if all_tool_sources:
+            sections.append(self._build_all_tools_section(all_tool_sources))
+        sections.append(self._build_tool_source_section(tool_source))
+        traces = self._load_traces(record_files)
+        sections.append(self._build_traces_section(traces, max_moves_per_trace))
+        if additional_context:
+            sections.append(self._build_additional_context_section(additional_context))
+        sections.append(self._build_analysis_task_section())
+        return "\n\n".join(sections)
+
+    def build_generation_prompt(
+        self,
+        analysis: str,
+        tool_source: str | None = None,
+        all_tool_sources: dict[str, str] | None = None,
+        additional_context: str | None = None,
+    ) -> str:
+        """
+        Step 2 prompt: generate improved code based on the step-1 analysis.
+
+        Provides game rules, current tool source, the analysis from step 1,
+        and asks the LLM to produce the improved function code in the
+        structured output format.
+
+        Parameters
+        ----------
+        analysis : str
+            The full analysis text returned by the LLM in step 1.
+        tool_source : str, optional
+            Source code of the target phase tool.
+        all_tool_sources : dict[str, str], optional
+            Source code of all 4 MCTS phase tools.
+        additional_context : str, optional
+            Free-form context (e.g. previous iteration results).
+
+        Returns
+        -------
+        str : the code-generation prompt.
+        """
+        sections: list[str] = []
+        sections.append(self._build_system_section())
+        sections.append(self._build_game_rules_section())
+        if all_tool_sources:
+            sections.append(self._build_all_tools_section(all_tool_sources))
+        sections.append(self._build_tool_source_section(tool_source))
+        if additional_context:
+            sections.append(self._build_additional_context_section(additional_context))
+        sections.append(self._build_analysis_reference_section(analysis))
+        sections.append(self._build_task_section())
         return "\n\n".join(sections)
 
     def save(self, prompt: str, filepath: str | Path | None = None) -> Path:
@@ -227,8 +310,127 @@ class PromptBuilder:
             f"3. Only use the Python standard library (no external packages).\n"
             f"4. Address specific weaknesses you observed in the gameplay\n"
             f"   traces (e.g., deadlocks, wasted moves, poor exploration).\n\n"
-            f"Return ONLY the Python function code, enclosed in a\n"
-            f"```python ... ``` code block."
+            f"CRITICAL — How the simulation phase works in MCTS:\n"
+            f"  - The simulation function is called from a LEAF node in the\n"
+            f"    MCTS search tree.  It receives a game state and must return\n"
+            f"    a FLOAT reward that gets BACKPROPAGATED up the tree to\n"
+            f"    update Q-values for each ancestor action.\n"
+            f"  - MCTS picks the root action with the highest average reward\n"
+            f"    across all simulations that passed through it.\n"
+            f"  - Therefore the simulation MUST produce DIVERSE outcomes for\n"
+            f"    different game states so that Q-values DIFFERENTIATE between\n"
+            f"    root actions.  If every simulation returns nearly the same\n"
+            f"    reward (~0.6), MCTS cannot tell which action is best and the\n"
+            f"    player wanders randomly.\n\n"
+            f"Common MISTAKES to avoid:\n"
+            f"  ✗ Purely random rollout with NO heuristic guidance.\n"
+            f"  ✗ Only selecting among push-actions randomly. You must use\n"
+            f"    1-step lookahead to EVALUATE each action via heuristic.\n"
+            f"  ✗ Running a long rollout that averages out initial differences.\n"
+            f"  ✗ Using only box metrics without considering player position.\n\n"
+            f"Good strategies for simulation:\n"
+            f"  ✓ Epsilon-greedy with 1-STEP LOOKAHEAD (BEST approach):\n"
+            f"    At each rollout step, with probability ε take a random\n"
+            f"    action, otherwise do 1-step lookahead: for EACH legal\n"
+            f"    action, CLONE the state, apply the action to the clone,\n"
+            f"    evaluate the clone with a heuristic, and pick the action\n"
+            f"    that gives the highest heuristic score. This is critical\n"
+            f"    because it lets the agent SEE which move leads to the best\n"
+            f"    position (e.g. closer to a useful push). Without lookahead,\n"
+            f"    the agent just picks randomly among 'push' actions and\n"
+            f"    ignores player-positioning moves entirely.\n"
+            f"  ✓ Short rollout (10-20 steps) + heuristic evaluation at the\n"
+            f"    end rather than using state.returns().\n"
+            f"  ✓ Direct evaluation with NO rollout: just evaluate the given\n"
+            f"    state with the heuristic. Fast and differentiates well.\n\n"
+            f"CRITICAL heuristic factor — PLAYER POSITION:\n"
+            f"  Box-only metrics (boxes_on_targets, total_box_distance) are\n"
+            f"  IDENTICAL for all root actions that just move the player.\n"
+            f"  This makes Q-values flat and causes the agent to wander.\n"
+            f"  Your heuristic MUST also reward the player for being CLOSE TO\n"
+            f"  a useful push position — i.e., a cell adjacent to a box such\n"
+            f"  that pushing from that cell moves the box TOWARD a target.\n"
+            f"  Compute this for each box not on a target: find adjacent\n"
+            f"  cells from which pushing would reduce Manhattan distance to\n"
+            f"  a free target. Reward proximity of the player to the nearest\n"
+            f"  such push-cell. Give this factor 10-15%% weight.\n\n"
+            f"EXAMPLE 1-step lookahead pseudocode for the greedy step:\n"
+            f"  best_action, best_score = None, -inf\n"
+            f"  for action in legal_actions:\n"
+            f"      trial = state.clone()\n"
+            f"      trial.apply_action(action)\n"
+            f"      if is_deadlocked(trial): score = -1\n"
+            f"      else: score = heuristic(trial)\n"
+            f"      if score > best_score: best_action, best_score = action, score\n\n"
+            f"You MUST format your response EXACTLY as follows (including\n"
+            f"the header lines). Do NOT deviate from this format:\n\n"
+            f"ACTION: modify\n"
+            f"FILE_NAME: <filename>.py\n"
+            f"FUNCTION_NAME: <entry_point_function_name>\n"
+            f"DESCRIPTION: <one-line summary of what changed and why>\n"
+            f"```python\n"
+            f"<your complete improved function code here>\n"
+            f"```\n\n"
+            f"Rules for the header fields:\n"
+            f"- ACTION must be either 'create' (brand new tool) or 'modify'\n"
+            f"  (improving the existing tool shown above).\n"
+            f"- FILE_NAME must end in .py and contain only [a-z0-9_].\n"
+            f"- FUNCTION_NAME must match the main function defined in the code.\n"
+            f"- The code block must be valid Python that can run standalone."
+        )
+
+    def _build_analysis_task_section(self) -> str:
+        """Step 1 task: analyse traces and produce structured findings."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"TASK — ANALYSIS ONLY (no code)\n"
+            f"{sep}\n"
+            f"Carefully study the game rules, the current '{self.target_phase}'\n"
+            f"heuristic code, and the gameplay traces above.\n\n"
+            f"Produce a structured analysis with the following sections:\n\n"
+            f"1. OBSERVED WEAKNESSES\n"
+            f"   List the main problems you see in the traces (e.g. the agent\n"
+            f"   loops, Q-values are flat, boxes get deadlocked, the agent\n"
+            f"   ignores useful pushes, etc.). Cite specific move numbers\n"
+            f"   and Q-value patterns as evidence.\n\n"
+            f"2. ROOT CAUSES\n"
+            f"   For each weakness, explain WHY the current heuristic produces\n"
+            f"   that behaviour. Point to specific lines or logic in the\n"
+            f"   current code.\n\n"
+            f"3. IMPROVEMENT PLAN\n"
+            f"   Describe concrete changes to the '{self.target_phase}' function\n"
+            f"   that would fix the root causes. Be specific about:\n"
+            f"   - What rollout strategy to use (random / greedy / ε-greedy /\n"
+            f"     no rollout / 1-step lookahead, etc.)\n"
+            f"   - What heuristic components to include and their weights\n"
+            f"   - What deadlock / pruning checks to add\n"
+            f"   - What hyperparameters to set (ε value, rollout length, etc.)\n\n"
+            f"Keep your analysis concise (under 800 words). Do NOT write any\n"
+            f"Python code — just the analysis text."
+        )
+
+    def _build_additional_context_section(self, context: str) -> str:
+        """Include free-form additional context (e.g. iteration history)."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"ADDITIONAL CONTEXT\n"
+            f"{sep}\n"
+            f"{context}"
+        )
+
+    def _build_analysis_reference_section(self, analysis: str) -> str:
+        """Include the step-1 analysis in the step-2 generation prompt."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"PRIOR ANALYSIS (from step 1)\n"
+            f"{sep}\n"
+            f"Below is a detailed analysis of the gameplay traces and the\n"
+            f"current heuristic's weaknesses. Use this analysis to guide\n"
+            f"your code improvements.\n\n"
+            f"{analysis}"
         )
 
     # ------------------------------------------------------------------

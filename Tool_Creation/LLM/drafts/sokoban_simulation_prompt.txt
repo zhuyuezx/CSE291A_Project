@@ -56,8 +56,34 @@ Each state is described by:
     (sum of Manhattan distance from each box to its nearest target).
 
 == Reward ==
-  - Solved (all boxes on targets): return 1.0
-  - Otherwise (deadlock, max steps, or game still running): return 0.0
+The state.returns() method returns a SHAPED continuous reward in [0, 1]:
+  - Solved (all boxes on targets): 1.0
+  - Deadlocked (box stuck in non-target corner): 0.0
+  - Otherwise: a weighted combination of:
+       70% — fraction of boxes on target  (boxes_on_targets / num_targets)
+       30% — distance score  (1 − total_box_distance / max_dist)
+    This gives a fine-grained gradient even when the puzzle is not yet solved.
+
+== GameState API ==
+Public attributes (not methods):
+  walls     : frozenset[tuple[int,int]]   – wall positions
+  targets   : frozenset[tuple[int,int]]   – target positions
+  boxes     : set[tuple[int,int]]         – current box positions
+  player    : tuple[int,int]              – current player position
+  height, width : int                     – grid dimensions
+  num_targets   : int                     – number of targets
+  steps, max_steps : int                  – current / maximum step count
+
+Public methods (call with parentheses):
+  clone()            → new independent copy of the state
+  legal_actions()    → list[int]  (subset of {0,1,2,3})
+  apply_action(a)    → None (mutates the state in-place)
+  is_terminal()      → bool
+  returns()          → list[float]  (shaped reward, see above)
+  current_player()   → int (always 0, single-player game)
+  state_key()        → str (hashable key for transposition)
+  boxes_on_targets() → int
+  total_box_distance() → int  (sum of min Manhattan dist per box)
 
 == Key Strategic Concepts ==
   - Avoid pushing boxes into corners (unless the corner IS a target).
@@ -75,7 +101,7 @@ Each state is described by:
 TARGET HEURISTIC TO IMPROVE (simulation)
 ------------------------------------------------------------
 ```python
-def default_simulation(state, perspective_player: int, max_depth: int = 500) -> float:
+def default_simulation(state, perspective_player: int, max_depth: int = 1000) -> float:
     """
     Random rollout simulation.
 
@@ -101,621 +127,622 @@ GAMEPLAY TRACES
 ------------------------------------------------------------
 
 --- Trace #1 ---
-Game:       Sokoban (level7)
-Timestamp:  2026-03-05T20:19:19.152839
-Iterations: 200
+Game:       Sokoban (level3)
+Timestamp:  2026-03-05T23:42:42.014318
+Iterations: 1000
 Solved:     False
 Steps:      200
-Returns:    [0.7435897435897436]
+Returns:    [0.6071428571428572]
 
-  Move 1: action=2, total_visits=200
-    State: Step 0/200 | Boxes on target: 0/3 | Total distance: 5
-    Children: [3(v=69, avg=0.200), 2(v=131, avg=0.308)]
-  Move 2: action=2, total_visits=200
-    State: Step 1/200 | Boxes on target: 0/3 | Total distance: 5
-    Children: [3(v=60, avg=0.278), 2(v=87, avg=0.345), 0(v=53, avg=0.246)]
-  Move 3: action=0, total_visits=200
-    State: Step 2/200 | Boxes on target: 0/3 | Total distance: 5
-    Children: [3(v=52, avg=0.305), 2(v=48, avg=0.286), 0(v=100, avg=0.433)]
-  Move 4: action=1, total_visits=200
-    State: Step 3/200 | Boxes on target: 1/3 | Total distance: 4
-    Children: [2(v=91, avg=0.422), 1(v=109, avg=0.452)]
-  Move 5: action=3, total_visits=200
-    State: Step 4/200 | Boxes on target: 1/3 | Total distance: 4
-    Children: [3(v=80, avg=0.466), 2(v=63, avg=0.421), 0(v=57, avg=0.399)]
-  Move 6: action=0, total_visits=200
-    State: Step 5/200 | Boxes on target: 1/3 | Total distance: 4
-    Children: [3(v=60, avg=0.452), 2(v=44, avg=0.373), 0(v=96, avg=0.538)]
-  Move 7: action=2, total_visits=200
-    State: Step 6/200 | Boxes on target: 1/3 | Total distance: 3
-    Children: [2(v=101, avg=0.535), 1(v=99, avg=0.533)]
-  Move 8: action=1, total_visits=200
-    State: Step 7/200 | Boxes on target: 1/3 | Total distance: 3
-    Children: [3(v=65, avg=0.504), 2(v=65, avg=0.505), 1(v=70, avg=0.516)]
-  Move 9: action=3, total_visits=200
-    State: Step 8/200 | Boxes on target: 1/3 | Total distance: 3
-    Children: [3(v=68, avg=0.524), 2(v=68, avg=0.527), 0(v=64, avg=0.514)]
-  Move 10: action=3, total_visits=200
-    State: Step 9/200 | Boxes on target: 1/3 | Total distance: 3
-    Children: [3(v=68, avg=0.543), 2(v=66, avg=0.536), 0(v=66, avg=0.537)]
-  Move 11: action=3, total_visits=200
-    State: Step 10/200 | Boxes on target: 1/3 | Total distance: 3
-    Children: [3(v=106, avg=0.568), 2(v=94, avg=0.547)]
-  Move 12: action=0, total_visits=200
-    State: Step 11/200 | Boxes on target: 1/3 | Total distance: 3
-    Children: [3(v=57, avg=0.548), 2(v=52, avg=0.530), 0(v=91, avg=0.645)]
-  Move 13: action=3, total_visits=200
-    State: Step 12/200 | Boxes on target: 1/3 | Total distance: 2
-    Children: [3(v=117, avg=0.684), 1(v=83, avg=0.626)]
-  Move 14: action=0, total_visits=200
-    State: Step 13/200 | Boxes on target: 1/3 | Total distance: 2
-    Children: [2(v=57, avg=0.645), 1(v=59, avg=0.652), 0(v=84, avg=0.719)]
-  Move 15: action=2, total_visits=200
-    State: Step 14/200 | Boxes on target: 1/3 | Total distance: 2
-    Children: [2(v=120, avg=0.744), 1(v=80, avg=0.673)]
-  Move 16: action=3, total_visits=200
-    State: Step 15/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 17: action=2, total_visits=200
-    State: Step 16/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 18: action=3, total_visits=200
-    State: Step 17/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 19: action=2, total_visits=200
-    State: Step 18/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 20: action=3, total_visits=200
-    State: Step 19/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 21: action=2, total_visits=200
-    State: Step 20/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 22: action=3, total_visits=200
-    State: Step 21/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 23: action=2, total_visits=200
-    State: Step 22/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 24: action=3, total_visits=200
-    State: Step 23/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 25: action=2, total_visits=200
-    State: Step 24/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 26: action=3, total_visits=200
-    State: Step 25/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 27: action=2, total_visits=200
-    State: Step 26/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 28: action=3, total_visits=200
-    State: Step 27/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 29: action=2, total_visits=200
-    State: Step 28/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 30: action=3, total_visits=200
-    State: Step 29/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 31: action=2, total_visits=200
-    State: Step 30/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 32: action=3, total_visits=200
-    State: Step 31/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 33: action=2, total_visits=200
-    State: Step 32/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 34: action=3, total_visits=200
-    State: Step 33/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 35: action=2, total_visits=200
-    State: Step 34/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 36: action=3, total_visits=200
-    State: Step 35/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 37: action=2, total_visits=200
-    State: Step 36/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 38: action=3, total_visits=200
-    State: Step 37/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 39: action=2, total_visits=200
-    State: Step 38/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 40: action=3, total_visits=200
-    State: Step 39/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 41: action=2, total_visits=200
-    State: Step 40/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 42: action=3, total_visits=200
-    State: Step 41/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 43: action=2, total_visits=200
-    State: Step 42/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 44: action=3, total_visits=200
-    State: Step 43/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 45: action=2, total_visits=200
-    State: Step 44/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 46: action=3, total_visits=200
-    State: Step 45/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 47: action=2, total_visits=200
-    State: Step 46/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 48: action=3, total_visits=200
-    State: Step 47/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 49: action=2, total_visits=200
-    State: Step 48/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 50: action=3, total_visits=200
-    State: Step 49/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 51: action=2, total_visits=200
-    State: Step 50/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 52: action=3, total_visits=200
-    State: Step 51/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 53: action=2, total_visits=200
-    State: Step 52/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 54: action=3, total_visits=200
-    State: Step 53/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 55: action=2, total_visits=200
-    State: Step 54/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 56: action=3, total_visits=200
-    State: Step 55/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 57: action=2, total_visits=200
-    State: Step 56/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 58: action=3, total_visits=200
-    State: Step 57/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 59: action=2, total_visits=200
-    State: Step 58/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 60: action=3, total_visits=200
-    State: Step 59/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 61: action=2, total_visits=200
-    State: Step 60/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 62: action=3, total_visits=200
-    State: Step 61/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 63: action=2, total_visits=200
-    State: Step 62/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 64: action=3, total_visits=200
-    State: Step 63/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 65: action=2, total_visits=200
-    State: Step 64/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 66: action=3, total_visits=200
-    State: Step 65/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 67: action=2, total_visits=200
-    State: Step 66/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 68: action=3, total_visits=200
-    State: Step 67/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 69: action=2, total_visits=200
-    State: Step 68/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 70: action=3, total_visits=200
-    State: Step 69/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 71: action=2, total_visits=200
-    State: Step 70/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 72: action=3, total_visits=200
-    State: Step 71/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 73: action=2, total_visits=200
-    State: Step 72/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 74: action=3, total_visits=200
-    State: Step 73/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 75: action=2, total_visits=200
-    State: Step 74/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 76: action=3, total_visits=200
-    State: Step 75/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 77: action=2, total_visits=200
-    State: Step 76/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 78: action=3, total_visits=200
-    State: Step 77/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 79: action=2, total_visits=200
-    State: Step 78/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 80: action=3, total_visits=200
-    State: Step 79/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 81: action=2, total_visits=200
-    State: Step 80/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 82: action=3, total_visits=200
-    State: Step 81/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 83: action=2, total_visits=200
-    State: Step 82/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 84: action=3, total_visits=200
-    State: Step 83/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 85: action=2, total_visits=200
-    State: Step 84/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 86: action=3, total_visits=200
-    State: Step 85/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 87: action=2, total_visits=200
-    State: Step 86/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 88: action=3, total_visits=200
-    State: Step 87/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 89: action=2, total_visits=200
-    State: Step 88/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 90: action=3, total_visits=200
-    State: Step 89/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 91: action=2, total_visits=200
-    State: Step 90/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 92: action=3, total_visits=200
-    State: Step 91/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 93: action=2, total_visits=200
-    State: Step 92/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 94: action=3, total_visits=200
-    State: Step 93/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 95: action=2, total_visits=200
-    State: Step 94/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 96: action=3, total_visits=200
-    State: Step 95/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 97: action=2, total_visits=200
-    State: Step 96/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 98: action=3, total_visits=200
-    State: Step 97/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 99: action=2, total_visits=200
-    State: Step 98/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 100: action=3, total_visits=200
-    State: Step 99/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 101: action=2, total_visits=200
-    State: Step 100/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 102: action=3, total_visits=200
-    State: Step 101/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 103: action=2, total_visits=200
-    State: Step 102/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 104: action=3, total_visits=200
-    State: Step 103/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 105: action=2, total_visits=200
-    State: Step 104/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 106: action=3, total_visits=200
-    State: Step 105/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 107: action=2, total_visits=200
-    State: Step 106/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 108: action=3, total_visits=200
-    State: Step 107/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 109: action=2, total_visits=200
-    State: Step 108/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 110: action=3, total_visits=200
-    State: Step 109/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 111: action=2, total_visits=200
-    State: Step 110/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 112: action=3, total_visits=200
-    State: Step 111/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 113: action=2, total_visits=200
-    State: Step 112/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 114: action=3, total_visits=200
-    State: Step 113/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 115: action=2, total_visits=200
-    State: Step 114/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 116: action=3, total_visits=200
-    State: Step 115/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 117: action=2, total_visits=200
-    State: Step 116/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 118: action=3, total_visits=200
-    State: Step 117/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 119: action=2, total_visits=200
-    State: Step 118/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 120: action=3, total_visits=200
-    State: Step 119/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 121: action=2, total_visits=200
-    State: Step 120/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 122: action=3, total_visits=200
-    State: Step 121/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 123: action=2, total_visits=200
-    State: Step 122/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 124: action=3, total_visits=200
-    State: Step 123/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 125: action=2, total_visits=200
-    State: Step 124/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 126: action=3, total_visits=200
-    State: Step 125/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 127: action=2, total_visits=200
-    State: Step 126/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 128: action=3, total_visits=200
-    State: Step 127/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 129: action=2, total_visits=200
-    State: Step 128/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 130: action=3, total_visits=200
-    State: Step 129/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 131: action=2, total_visits=200
-    State: Step 130/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 132: action=3, total_visits=200
-    State: Step 131/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 133: action=2, total_visits=200
-    State: Step 132/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 134: action=3, total_visits=200
-    State: Step 133/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 135: action=2, total_visits=200
-    State: Step 134/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 136: action=3, total_visits=200
-    State: Step 135/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 137: action=2, total_visits=200
-    State: Step 136/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 138: action=3, total_visits=200
-    State: Step 137/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 139: action=2, total_visits=200
-    State: Step 138/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 140: action=3, total_visits=200
-    State: Step 139/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 141: action=2, total_visits=200
-    State: Step 140/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 142: action=3, total_visits=200
-    State: Step 141/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 143: action=2, total_visits=200
-    State: Step 142/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 144: action=3, total_visits=200
-    State: Step 143/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 145: action=2, total_visits=200
-    State: Step 144/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 146: action=3, total_visits=200
-    State: Step 145/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 147: action=2, total_visits=200
-    State: Step 146/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 148: action=3, total_visits=200
-    State: Step 147/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 149: action=2, total_visits=200
-    State: Step 148/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 150: action=3, total_visits=200
-    State: Step 149/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 151: action=2, total_visits=200
-    State: Step 150/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 152: action=3, total_visits=200
-    State: Step 151/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 153: action=2, total_visits=200
-    State: Step 152/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 154: action=3, total_visits=200
-    State: Step 153/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 155: action=2, total_visits=200
-    State: Step 154/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 156: action=3, total_visits=200
-    State: Step 155/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 157: action=2, total_visits=200
-    State: Step 156/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 158: action=3, total_visits=200
-    State: Step 157/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 159: action=2, total_visits=200
-    State: Step 158/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 160: action=3, total_visits=200
-    State: Step 159/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 161: action=2, total_visits=200
-    State: Step 160/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 162: action=3, total_visits=200
-    State: Step 161/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 163: action=2, total_visits=200
-    State: Step 162/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 164: action=3, total_visits=200
-    State: Step 163/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 165: action=2, total_visits=200
-    State: Step 164/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 166: action=3, total_visits=200
-    State: Step 165/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 167: action=2, total_visits=200
-    State: Step 166/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 168: action=3, total_visits=200
-    State: Step 167/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 169: action=2, total_visits=200
-    State: Step 168/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 170: action=3, total_visits=200
-    State: Step 169/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 171: action=2, total_visits=200
-    State: Step 170/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 172: action=3, total_visits=200
-    State: Step 171/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 173: action=2, total_visits=200
-    State: Step 172/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 174: action=3, total_visits=200
-    State: Step 173/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 175: action=2, total_visits=200
-    State: Step 174/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 176: action=3, total_visits=200
-    State: Step 175/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 177: action=2, total_visits=200
-    State: Step 176/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 178: action=3, total_visits=200
-    State: Step 177/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 179: action=2, total_visits=200
-    State: Step 178/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 180: action=3, total_visits=200
-    State: Step 179/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 181: action=2, total_visits=200
-    State: Step 180/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 182: action=3, total_visits=200
-    State: Step 181/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 183: action=2, total_visits=200
-    State: Step 182/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 184: action=3, total_visits=200
-    State: Step 183/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 185: action=2, total_visits=200
-    State: Step 184/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 186: action=3, total_visits=200
-    State: Step 185/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 187: action=2, total_visits=200
-    State: Step 186/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 188: action=3, total_visits=200
-    State: Step 187/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 189: action=2, total_visits=200
-    State: Step 188/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 190: action=3, total_visits=200
-    State: Step 189/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 191: action=2, total_visits=200
-    State: Step 190/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 192: action=3, total_visits=200
-    State: Step 191/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 193: action=2, total_visits=200
-    State: Step 192/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 194: action=3, total_visits=200
-    State: Step 193/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 195: action=2, total_visits=200
-    State: Step 194/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 196: action=3, total_visits=200
-    State: Step 195/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 197: action=2, total_visits=200
-    State: Step 196/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 198: action=3, total_visits=200
-    State: Step 197/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 199: action=2, total_visits=200
-    State: Step 198/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [2(v=100, avg=0.744), 1(v=100, avg=0.744)]
-  Move 200: action=3, total_visits=200
-    State: Step 199/200 | Boxes on target: 2/3 | Total distance: 1
-    Children: [3(v=100, avg=0.744), 1(v=100, avg=0.744)]
+  Move 1: action=3, total_visits=1000
+    State: Step 0/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=500, avg=0.022), 2(v=500, avg=0.022)]
+  Move 2: action=2, total_visits=1000
+    State: Step 1/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=334, avg=0.024), 2(v=341, avg=0.026), 0(v=325, avg=0.021)]
+  Move 3: action=2, total_visits=1000
+    State: Step 2/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=492, avg=0.022), 2(v=508, avg=0.025)]
+  Move 4: action=3, total_visits=1000
+    State: Step 3/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=344, avg=0.025), 2(v=325, avg=0.019), 0(v=331, avg=0.021)]
+  Move 5: action=3, total_visits=1000
+    State: Step 4/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=504, avg=0.022), 2(v=496, avg=0.021)]
+  Move 6: action=3, total_visits=1000
+    State: Step 5/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=341, avg=0.026), 2(v=331, avg=0.023), 0(v=328, avg=0.022)]
+  Move 7: action=2, total_visits=1000
+    State: Step 6/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=501, avg=0.026), 0(v=499, avg=0.025)]
+  Move 8: action=2, total_visits=1000
+    State: Step 7/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=335, avg=0.025), 2(v=340, avg=0.027), 0(v=325, avg=0.022)]
+  Move 9: action=2, total_visits=1000
+    State: Step 8/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=491, avg=0.019), 2(v=509, avg=0.022)]
+  Move 10: action=2, total_visits=1000
+    State: Step 9/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=329, avg=0.021), 2(v=340, avg=0.025), 0(v=331, avg=0.022)]
+  Move 11: action=0, total_visits=1000
+    State: Step 10/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=498, avg=0.020), 0(v=502, avg=0.021)]
+  Move 12: action=0, total_visits=1000
+    State: Step 11/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=334, avg=0.021), 1(v=320, avg=0.016), 0(v=346, avg=0.024)]
+  Move 13: action=3, total_visits=1000
+    State: Step 12/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=340, avg=0.022), 1(v=321, avg=0.016), 0(v=339, avg=0.021)]
+  Move 14: action=0, total_visits=1000
+    State: Step 13/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=252, avg=0.024), 2(v=244, avg=0.020), 1(v=234, avg=0.015), 0(v=270, avg=0.031)]
+  Move 15: action=1, total_visits=1000
+    State: Step 14/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=315, avg=0.020), 2(v=339, avg=0.028), 1(v=346, avg=0.029)]
+  Move 16: action=2, total_visits=1000
+    State: Step 15/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=238, avg=0.019), 2(v=269, avg=0.034), 1(v=248, avg=0.025), 0(v=245, avg=0.023)]
+  Move 17: action=1, total_visits=1000
+    State: Step 16/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=321, avg=0.018), 1(v=343, avg=0.024), 0(v=336, avg=0.022)]
+  Move 18: action=1, total_visits=1000
+    State: Step 17/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=318, avg=0.018), 1(v=344, avg=0.026), 0(v=338, avg=0.025)]
+  Move 19: action=3, total_visits=1000
+    State: Step 18/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=509, avg=0.023), 0(v=491, avg=0.021)]
+  Move 20: action=3, total_visits=1000
+    State: Step 19/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=343, avg=0.027), 2(v=323, avg=0.021), 0(v=334, avg=0.024)]
+  Move 21: action=3, total_visits=1000
+    State: Step 20/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=515, avg=0.032), 2(v=485, avg=0.027)]
+  Move 22: action=0, total_visits=1000
+    State: Step 21/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=336, avg=0.028), 2(v=322, avg=0.023), 0(v=342, avg=0.029)]
+  Move 23: action=1, total_visits=1000
+    State: Step 22/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=255, avg=0.027), 2(v=244, avg=0.022), 1(v=260, avg=0.029), 0(v=241, avg=0.021)]
+  Move 24: action=3, total_visits=1000
+    State: Step 23/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=355, avg=0.030), 2(v=328, avg=0.022), 0(v=317, avg=0.018)]
+  Move 25: action=2, total_visits=1000
+    State: Step 24/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=522, avg=0.030), 0(v=478, avg=0.022)]
+  Move 26: action=2, total_visits=1000
+    State: Step 25/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=329, avg=0.024), 2(v=338, avg=0.026), 0(v=333, avg=0.025)]
+  Move 27: action=2, total_visits=1000
+    State: Step 26/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=495, avg=0.021), 2(v=505, avg=0.023)]
+  Move 28: action=2, total_visits=1000
+    State: Step 27/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=323, avg=0.024), 2(v=339, avg=0.029), 0(v=338, avg=0.028)]
+  Move 29: action=0, total_visits=1000
+    State: Step 28/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=490, avg=0.024), 0(v=510, avg=0.027)]
+  Move 30: action=1, total_visits=1000
+    State: Step 29/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=325, avg=0.022), 1(v=338, avg=0.026), 0(v=337, avg=0.026)]
+  Move 31: action=3, total_visits=1000
+    State: Step 30/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=507, avg=0.026), 0(v=493, avg=0.024)]
+  Move 32: action=3, total_visits=1000
+    State: Step 31/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=338, avg=0.032), 2(v=328, avg=0.029), 0(v=334, avg=0.031)]
+  Move 33: action=2, total_visits=1000
+    State: Step 32/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=489, avg=0.031), 2(v=511, avg=0.035)]
+  Move 34: action=2, total_visits=1000
+    State: Step 33/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=330, avg=0.024), 2(v=343, avg=0.028), 0(v=327, avg=0.023)]
+  Move 35: action=3, total_visits=1000
+    State: Step 34/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=512, avg=0.028), 0(v=488, avg=0.024)]
+  Move 36: action=2, total_visits=1000
+    State: Step 35/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=335, avg=0.029), 2(v=349, avg=0.034), 0(v=316, avg=0.024)]
+  Move 37: action=3, total_visits=1000
+    State: Step 36/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=515, avg=0.027), 0(v=485, avg=0.022)]
+  Move 38: action=0, total_visits=1000
+    State: Step 37/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=329, avg=0.027), 2(v=333, avg=0.028), 0(v=338, avg=0.029)]
+  Move 39: action=1, total_visits=1000
+    State: Step 38/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=247, avg=0.026), 2(v=244, avg=0.024), 1(v=258, avg=0.031), 0(v=251, avg=0.027)]
+  Move 40: action=3, total_visits=1000
+    State: Step 39/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=345, avg=0.031), 2(v=320, avg=0.023), 0(v=335, avg=0.028)]
+  Move 41: action=2, total_visits=1000
+    State: Step 40/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=499, avg=0.027), 2(v=501, avg=0.027)]
+  Move 42: action=2, total_visits=1000
+    State: Step 41/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=330, avg=0.032), 2(v=346, avg=0.036), 0(v=324, avg=0.032)]
+  Move 43: action=0, total_visits=1000
+    State: Step 42/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=485, avg=0.030), 0(v=515, avg=0.035)]
+  Move 44: action=3, total_visits=1000
+    State: Step 43/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=350, avg=0.042), 1(v=316, avg=0.032), 0(v=334, avg=0.037)]
+  Move 45: action=0, total_visits=1000
+    State: Step 44/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=237, avg=0.021), 2(v=260, avg=0.031), 1(v=240, avg=0.022), 0(v=263, avg=0.033)]
+  Move 46: action=0, total_visits=1000
+    State: Step 45/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=245, avg=0.022), 2(v=254, avg=0.026), 1(v=246, avg=0.022), 0(v=255, avg=0.026)]
+  Move 47: action=2, total_visits=1000
+    State: Step 46/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=335, avg=0.030), 2(v=350, avg=0.035), 1(v=315, avg=0.024)]
+  Move 48: action=1, total_visits=1000
+    State: Step 47/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=490, avg=0.028), 1(v=510, avg=0.031)]
+  Move 49: action=0, total_visits=1000
+    State: Step 48/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=320, avg=0.026), 1(v=338, avg=0.032), 0(v=342, avg=0.033)]
+  Move 50: action=1, total_visits=1000
+    State: Step 49/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=489, avg=0.026), 1(v=511, avg=0.030)]
+  Move 51: action=0, total_visits=1000
+    State: Step 50/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=316, avg=0.028), 1(v=326, avg=0.031), 0(v=358, avg=0.041)]
+  Move 52: action=1, total_visits=1000
+    State: Step 51/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=489, avg=0.032), 1(v=511, avg=0.035)]
+  Move 53: action=1, total_visits=1000
+    State: Step 52/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=319, avg=0.029), 1(v=344, avg=0.036), 0(v=337, avg=0.034)]
+  Move 54: action=1, total_visits=1000
+    State: Step 53/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=328, avg=0.038), 1(v=348, avg=0.044), 0(v=324, avg=0.037)]
+  Move 55: action=3, total_visits=1000
+    State: Step 54/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=505, avg=0.033), 0(v=495, avg=0.031)]
+  Move 56: action=0, total_visits=1000
+    State: Step 55/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=319, avg=0.031), 2(v=326, avg=0.033), 0(v=355, avg=0.042)]
+  Move 57: action=1, total_visits=1000
+    State: Step 56/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=222, avg=0.020), 2(v=250, avg=0.034), 1(v=278, avg=0.047), 0(v=250, avg=0.035)]
+  Move 58: action=3, total_visits=1000
+    State: Step 57/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=360, avg=0.043), 2(v=342, avg=0.038), 0(v=298, avg=0.024)]
+  Move 59: action=2, total_visits=1000
+    State: Step 58/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=489, avg=0.033), 2(v=511, avg=0.036)]
+  Move 60: action=2, total_visits=1000
+    State: Step 59/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=305, avg=0.029), 2(v=370, avg=0.048), 0(v=325, avg=0.035)]
+  Move 61: action=0, total_visits=1000
+    State: Step 60/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=487, avg=0.038), 0(v=513, avg=0.043)]
+  Move 62: action=3, total_visits=1000
+    State: Step 61/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=337, avg=0.036), 1(v=330, avg=0.034), 0(v=333, avg=0.035)]
+  Move 63: action=1, total_visits=1000
+    State: Step 62/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=256, avg=0.040), 2(v=240, avg=0.032), 1(v=272, avg=0.046), 0(v=232, avg=0.028)]
+  Move 64: action=0, total_visits=1000
+    State: Step 63/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=311, avg=0.032), 2(v=334, avg=0.040), 0(v=355, avg=0.046)]
+  Move 65: action=1, total_visits=1000
+    State: Step 64/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=226, avg=0.024), 2(v=256, avg=0.039), 1(v=260, avg=0.041), 0(v=258, avg=0.040)]
+  Move 66: action=3, total_visits=1000
+    State: Step 65/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=360, avg=0.056), 2(v=315, avg=0.043), 0(v=325, avg=0.046)]
+  Move 67: action=2, total_visits=1000
+    State: Step 66/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=499, avg=0.043), 2(v=501, avg=0.043)]
+  Move 68: action=3, total_visits=1000
+    State: Step 67/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=352, avg=0.048), 2(v=329, avg=0.043), 0(v=319, avg=0.038)]
+  Move 69: action=2, total_visits=1000
+    State: Step 68/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=499, avg=0.040), 2(v=501, avg=0.040)]
+  Move 70: action=0, total_visits=1000
+    State: Step 69/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=335, avg=0.043), 2(v=329, avg=0.041), 0(v=336, avg=0.043)]
+  Move 71: action=1, total_visits=1000
+    State: Step 70/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=241, avg=0.042), 2(v=262, avg=0.052), 1(v=270, avg=0.056), 0(v=227, avg=0.035)]
+  Move 72: action=3, total_visits=1000
+    State: Step 71/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=350, avg=0.050), 2(v=325, avg=0.042), 0(v=325, avg=0.043)]
+  Move 73: action=3, total_visits=1000
+    State: Step 72/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=511, avg=0.042), 2(v=489, avg=0.038)]
+  Move 74: action=2, total_visits=1000
+    State: Step 73/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=329, avg=0.046), 2(v=346, avg=0.051), 0(v=325, avg=0.044)]
+  Move 75: action=3, total_visits=1000
+    State: Step 74/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=502, avg=0.045), 2(v=498, avg=0.044)]
+  Move 76: action=3, total_visits=1000
+    State: Step 75/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=337, avg=0.047), 2(v=329, avg=0.044), 0(v=334, avg=0.046)]
+  Move 77: action=2, total_visits=1000
+    State: Step 76/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=522, avg=0.052), 0(v=478, avg=0.045)]
+  Move 78: action=2, total_visits=1000
+    State: Step 77/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=334, avg=0.049), 2(v=348, avg=0.054), 0(v=318, avg=0.044)]
+  Move 79: action=3, total_visits=1000
+    State: Step 78/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=517, avg=0.053), 2(v=483, avg=0.047)]
+  Move 80: action=3, total_visits=1000
+    State: Step 79/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=347, avg=0.051), 2(v=339, avg=0.049), 0(v=314, avg=0.041)]
+  Move 81: action=2, total_visits=1000
+    State: Step 80/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=516, avg=0.060), 0(v=484, avg=0.055)]
+  Move 82: action=3, total_visits=1000
+    State: Step 81/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=362, avg=0.064), 2(v=329, avg=0.055), 0(v=309, avg=0.049)]
+  Move 83: action=2, total_visits=1000
+    State: Step 82/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=527, avg=0.059), 0(v=473, avg=0.050)]
+  Move 84: action=3, total_visits=1000
+    State: Step 83/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=358, avg=0.065), 2(v=342, avg=0.060), 0(v=300, avg=0.047)]
+  Move 85: action=2, total_visits=1000
+    State: Step 84/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=512, avg=0.059), 0(v=488, avg=0.055)]
+  Move 86: action=2, total_visits=1000
+    State: Step 85/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=321, avg=0.050), 2(v=352, avg=0.060), 0(v=327, avg=0.052)]
+  Move 87: action=3, total_visits=1000
+    State: Step 86/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=531, avg=0.059), 2(v=469, avg=0.049)]
+  Move 88: action=0, total_visits=1000
+    State: Step 87/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=313, avg=0.048), 2(v=334, avg=0.055), 0(v=353, avg=0.060)]
+  Move 89: action=3, total_visits=1000
+    State: Step 88/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=274, avg=0.060), 2(v=229, avg=0.038), 1(v=242, avg=0.045), 0(v=255, avg=0.051)]
+  Move 90: action=0, total_visits=1000
+    State: Step 89/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=286, avg=0.044), 1(v=349, avg=0.065), 0(v=365, avg=0.069)]
+  Move 91: action=1, total_visits=1000
+    State: Step 90/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=324, avg=0.056), 1(v=338, avg=0.060), 0(v=338, avg=0.060)]
+  Move 92: action=0, total_visits=1000
+    State: Step 91/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=326, avg=0.057), 1(v=336, avg=0.060), 0(v=338, avg=0.061)]
+  Move 93: action=0, total_visits=1000
+    State: Step 92/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=328, avg=0.057), 1(v=322, avg=0.056), 0(v=350, avg=0.064)]
+  Move 94: action=2, total_visits=1000
+    State: Step 93/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=520, avg=0.064), 1(v=480, avg=0.057)]
+  Move 95: action=3, total_visits=1000
+    State: Step 94/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=341, avg=0.061), 2(v=319, avg=0.054), 1(v=340, avg=0.060)]
+  Move 96: action=1, total_visits=1000
+    State: Step 95/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=472, avg=0.063), 1(v=528, avg=0.072)]
+  Move 97: action=2, total_visits=1000
+    State: Step 96/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=352, avg=0.074), 1(v=318, avg=0.063), 0(v=330, avg=0.067)]
+  Move 98: action=0, total_visits=1000
+    State: Step 97/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=253, avg=0.064), 2(v=222, avg=0.048), 1(v=260, avg=0.068), 0(v=265, avg=0.069)]
+  Move 99: action=3, total_visits=1000
+    State: Step 98/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=351, avg=0.077), 2(v=306, avg=0.063), 1(v=343, avg=0.075)]
+  Move 100: action=2, total_visits=1000
+    State: Step 99/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=532, avg=0.079), 1(v=468, avg=0.068)]
+  Move 101: action=3, total_visits=1000
+    State: Step 100/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=361, avg=0.083), 2(v=337, avg=0.076), 1(v=302, avg=0.065)]
+  Move 102: action=2, total_visits=1000
+    State: Step 101/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=528, avg=0.075), 1(v=472, avg=0.065)]
+  Move 103: action=2, total_visits=1000
+    State: Step 102/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=315, avg=0.068), 2(v=356, avg=0.081), 1(v=329, avg=0.073)]
+  Move 104: action=3, total_visits=1000
+    State: Step 103/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=534, avg=0.082), 2(v=466, avg=0.071)]
+  Move 105: action=3, total_visits=1000
+    State: Step 104/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=359, avg=0.078), 2(v=305, avg=0.062), 1(v=336, avg=0.072)]
+  Move 106: action=2, total_visits=1000
+    State: Step 105/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=508, avg=0.084), 1(v=492, avg=0.081)]
+  Move 107: action=2, total_visits=1000
+    State: Step 106/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=305, avg=0.067), 2(v=361, avg=0.085), 1(v=334, avg=0.076)]
+  Move 108: action=2, total_visits=1000
+    State: Step 107/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=492, avg=0.085), 2(v=508, avg=0.087)]
+  Move 109: action=1, total_visits=1000
+    State: Step 108/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=319, avg=0.075), 2(v=336, avg=0.081), 1(v=345, avg=0.083)]
+  Move 110: action=0, total_visits=1000
+    State: Step 109/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=208, avg=0.046), 2(v=246, avg=0.067), 1(v=268, avg=0.076), 0(v=278, avg=0.081)]
+  Move 111: action=2, total_visits=1000
+    State: Step 110/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=340, avg=0.084), 2(v=364, avg=0.091), 1(v=296, avg=0.070)]
+  Move 112: action=3, total_visits=1000
+    State: Step 111/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=522, avg=0.092), 1(v=478, avg=0.084)]
+  Move 113: action=3, total_visits=1000
+    State: Step 112/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=372, avg=0.099), 2(v=341, avg=0.090), 1(v=287, avg=0.072)]
+  Move 114: action=3, total_visits=1000
+    State: Step 113/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=538, avg=0.104), 2(v=462, avg=0.091)]
+  Move 115: action=3, total_visits=1000
+    State: Step 114/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=343, avg=0.093), 2(v=334, avg=0.090), 1(v=323, avg=0.087)]
+  Move 116: action=2, total_visits=1000
+    State: Step 115/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=510, avg=0.098), 1(v=490, avg=0.095)]
+  Move 117: action=2, total_visits=1000
+    State: Step 116/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=335, avg=0.096), 2(v=364, avg=0.105), 1(v=301, avg=0.086)]
+  Move 118: action=3, total_visits=1000
+    State: Step 117/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=533, avg=0.111), 2(v=467, avg=0.100)]
+  Move 119: action=3, total_visits=1000
+    State: Step 118/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=362, avg=0.110), 2(v=333, avg=0.101), 1(v=305, avg=0.093)]
+  Move 120: action=1, total_visits=1000
+    State: Step 119/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=488, avg=0.110), 1(v=512, avg=0.112)]
+  Move 121: action=2, total_visits=1000
+    State: Step 120/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=352, avg=0.102), 1(v=301, avg=0.086), 0(v=347, avg=0.104)]
+  Move 122: action=3, total_visits=1000
+    State: Step 121/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=260, avg=0.109), 2(v=226, avg=0.092), 1(v=255, avg=0.107), 0(v=259, avg=0.109)]
+  Move 123: action=0, total_visits=1000
+    State: Step 122/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=317, avg=0.095), 1(v=328, avg=0.099), 0(v=355, avg=0.107)]
+  Move 124: action=2, total_visits=1000
+    State: Step 123/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=537, avg=0.114), 1(v=463, avg=0.102)]
+  Move 125: action=2, total_visits=1000
+    State: Step 124/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=332, avg=0.102), 2(v=351, avg=0.108), 1(v=317, avg=0.097)]
+  Move 126: action=3, total_visits=1000
+    State: Step 125/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=525, avg=0.111), 2(v=475, avg=0.104)]
+  Move 127: action=2, total_visits=1000
+    State: Step 126/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=320, avg=0.109), 2(v=369, avg=0.124), 1(v=311, avg=0.106)]
+  Move 128: action=2, total_visits=1000
+    State: Step 127/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=465, avg=0.115), 2(v=535, avg=0.126)]
+  Move 129: action=3, total_visits=1000
+    State: Step 128/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=345, avg=0.124), 2(v=329, avg=0.119), 1(v=326, avg=0.118)]
+  Move 130: action=3, total_visits=1000
+    State: Step 129/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=539, avg=0.134), 2(v=461, avg=0.121)]
+  Move 131: action=3, total_visits=1000
+    State: Step 130/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=369, avg=0.134), 2(v=311, avg=0.117), 1(v=320, avg=0.120)]
+  Move 132: action=1, total_visits=1000
+    State: Step 131/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=462, avg=0.124), 1(v=538, avg=0.137)]
+  Move 133: action=0, total_visits=1000
+    State: Step 132/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=321, avg=0.121), 1(v=313, avg=0.120), 0(v=366, avg=0.134)]
+  Move 134: action=2, total_visits=1000
+    State: Step 133/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=502, avg=0.146), 1(v=498, avg=0.146)]
+  Move 135: action=3, total_visits=1000
+    State: Step 134/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=340, avg=0.140), 2(v=331, avg=0.136), 1(v=329, avg=0.137)]
+  Move 136: action=2, total_visits=1000
+    State: Step 135/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=507, avg=0.156), 1(v=493, avg=0.153)]
+  Move 137: action=3, total_visits=1000
+    State: Step 136/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=351, avg=0.147), 2(v=349, avg=0.146), 1(v=300, avg=0.134)]
+  Move 138: action=1, total_visits=1000
+    State: Step 137/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=498, avg=0.148), 1(v=502, avg=0.149)]
+  Move 139: action=0, total_visits=1000
+    State: Step 138/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=304, avg=0.128), 1(v=311, avg=0.131), 0(v=385, avg=0.153)]
+  Move 140: action=2, total_visits=1000
+    State: Step 139/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=500, avg=0.152), 1(v=500, avg=0.151)]
+  Move 141: action=2, total_visits=1000
+    State: Step 140/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=326, avg=0.149), 2(v=381, avg=0.165), 1(v=293, avg=0.139)]
+  Move 142: action=2, total_visits=1000
+    State: Step 141/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=459, avg=0.143), 2(v=541, avg=0.157)]
+  Move 143: action=3, total_visits=1000
+    State: Step 142/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=342, avg=0.154), 2(v=340, avg=0.153), 1(v=318, avg=0.146)]
+  Move 144: action=3, total_visits=1000
+    State: Step 143/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=538, avg=0.164), 2(v=462, avg=0.152)]
+  Move 145: action=3, total_visits=1000
+    State: Step 144/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=369, avg=0.166), 2(v=369, avg=0.166), 1(v=262, avg=0.130)]
+  Move 146: action=2, total_visits=1000
+    State: Step 145/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=522, avg=0.172), 1(v=478, avg=0.164)]
+  Move 147: action=2, total_visits=1000
+    State: Step 146/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=323, avg=0.163), 2(v=371, avg=0.177), 1(v=306, avg=0.158)]
+  Move 148: action=3, total_visits=1000
+    State: Step 147/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=514, avg=0.166), 2(v=486, avg=0.161)]
+  Move 149: action=3, total_visits=1000
+    State: Step 148/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=377, avg=0.181), 2(v=363, avg=0.176), 1(v=260, avg=0.140)]
+  Move 150: action=1, total_visits=1000
+    State: Step 149/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=482, avg=0.184), 1(v=518, avg=0.190)]
+  Move 151: action=0, total_visits=1000
+    State: Step 150/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=304, avg=0.171), 1(v=345, avg=0.185), 0(v=351, avg=0.186)]
+  Move 152: action=2, total_visits=1000
+    State: Step 151/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=510, avg=0.175), 1(v=490, avg=0.172)]
+  Move 153: action=3, total_visits=1000
+    State: Step 152/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=345, avg=0.185), 2(v=333, avg=0.179), 1(v=322, avg=0.176)]
+  Move 154: action=2, total_visits=1000
+    State: Step 153/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=520, avg=0.202), 1(v=480, avg=0.197)]
+  Move 155: action=2, total_visits=1000
+    State: Step 154/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=321, avg=0.185), 2(v=351, avg=0.194), 1(v=328, avg=0.187)]
+  Move 156: action=3, total_visits=1000
+    State: Step 155/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=515, avg=0.194), 2(v=485, avg=0.189)]
+  Move 157: action=3, total_visits=1000
+    State: Step 156/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=343, avg=0.204), 2(v=331, avg=0.201), 1(v=326, avg=0.199)]
+  Move 158: action=2, total_visits=1000
+    State: Step 157/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=533, avg=0.206), 1(v=467, avg=0.195)]
+  Move 159: action=3, total_visits=1000
+    State: Step 158/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=381, avg=0.221), 2(v=331, avg=0.207), 1(v=288, avg=0.192)]
+  Move 160: action=2, total_visits=1000
+    State: Step 159/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=511, avg=0.211), 1(v=489, avg=0.207)]
+  Move 161: action=3, total_visits=1000
+    State: Step 160/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=368, avg=0.217), 2(v=318, avg=0.201), 1(v=314, avg=0.200)]
+  Move 162: action=2, total_visits=1000
+    State: Step 161/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=508, avg=0.202), 1(v=492, avg=0.199)]
+  Move 163: action=2, total_visits=1000
+    State: Step 162/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=325, avg=0.206), 2(v=354, avg=0.214), 1(v=321, avg=0.205)]
+  Move 164: action=3, total_visits=1000
+    State: Step 163/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=524, avg=0.213), 2(v=476, avg=0.205)]
+  Move 165: action=3, total_visits=1000
+    State: Step 164/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=370, avg=0.228), 2(v=296, avg=0.206), 1(v=334, avg=0.218)]
+  Move 166: action=1, total_visits=1000
+    State: Step 165/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=470, avg=0.229), 1(v=530, avg=0.239)]
+  Move 167: action=2, total_visits=1000
+    State: Step 166/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [2(v=377, avg=0.233), 1(v=334, avg=0.221), 0(v=289, avg=0.205)]
+  Move 168: action=0, total_visits=1000
+    State: Step 167/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=266, avg=0.224), 2(v=176, avg=0.170), 1(v=241, avg=0.211), 0(v=317, avg=0.242)]
+  Move 169: action=1, total_visits=1000
+    State: Step 168/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=303, avg=0.224), 2(v=313, avg=0.227), 1(v=384, avg=0.248)]
+  Move 170: action=2, total_visits=1000
+    State: Step 169/200 | Boxes on target: 0/2 | Total distance: 3
+    Children: [3(v=224, avg=0.221), 2(v=270, avg=0.243), 1(v=261, avg=0.239), 0(v=245, avg=0.231)]
+  Move 171: action=3, total_visits=1000
+    State: Step 170/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [3(v=501, avg=0.306), 2(v=112, avg=0.119), 1(v=158, avg=0.175), 0(v=229, avg=0.225)]
+  Move 172: action=1, total_visits=1000
+    State: Step 171/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [3(v=275, avg=0.320), 2(v=154, avg=0.245), 1(v=344, avg=0.345), 0(v=227, avg=0.298)]
+  Move 173: action=1, total_visits=1000
+    State: Step 172/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [3(v=256, avg=0.341), 2(v=199, avg=0.309), 1(v=316, avg=0.363), 0(v=229, avg=0.328)]
+  Move 174: action=3, total_visits=1000
+    State: Step 173/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [3(v=370, avg=0.367), 2(v=263, avg=0.331), 0(v=367, avg=0.366)]
+  Move 175: action=0, total_visits=1000
+    State: Step 174/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [2(v=497, avg=0.361), 0(v=503, avg=0.363)]
+  Move 176: action=1, total_visits=1000
+    State: Step 175/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [2(v=338, avg=0.372), 1(v=348, avg=0.375), 0(v=314, avg=0.365)]
+  Move 177: action=0, total_visits=1000
+    State: Step 176/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [2(v=487, avg=0.387), 0(v=513, avg=0.392)]
+  Move 178: action=1, total_visits=1000
+    State: Step 177/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [2(v=351, avg=0.392), 1(v=358, avg=0.395), 0(v=291, avg=0.373)]
+  Move 179: action=2, total_visits=1000
+    State: Step 178/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [2(v=547, avg=0.415), 0(v=453, avg=0.398)]
+  Move 180: action=2, total_visits=1000
+    State: Step 179/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [3(v=334, avg=0.415), 2(v=359, avg=0.423), 0(v=307, avg=0.406)]
+  Move 181: action=0, total_visits=1000
+    State: Step 180/200 | Boxes on target: 1/2 | Total distance: 2
+    Children: [3(v=352, avg=0.413), 2(v=248, avg=0.376), 0(v=400, avg=0.427)]
+  Move 182: action=3, total_visits=1000
+    State: Step 181/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [3(v=440, avg=0.481), 2(v=157, avg=0.361), 1(v=297, avg=0.442), 0(v=106, avg=0.297)]
+  Move 183: action=0, total_visits=1000
+    State: Step 182/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [3(v=296, avg=0.511), 2(v=151, avg=0.424), 1(v=255, avg=0.495), 0(v=298, avg=0.513)]
+  Move 184: action=1, total_visits=1000
+    State: Step 183/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [3(v=334, avg=0.506), 1(v=338, avg=0.509), 0(v=328, avg=0.505)]
+  Move 185: action=1, total_visits=1000
+    State: Step 184/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [3(v=286, avg=0.523), 2(v=148, avg=0.437), 1(v=300, avg=0.528), 0(v=266, avg=0.515)]
+  Move 186: action=3, total_visits=1000
+    State: Step 185/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [3(v=400, avg=0.529), 2(v=250, avg=0.480), 0(v=350, avg=0.516)]
+  Move 187: action=0, total_visits=1000
+    State: Step 186/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=436, avg=0.531), 0(v=564, avg=0.552)]
+  Move 188: action=0, total_visits=1000
+    State: Step 187/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=298, avg=0.538), 1(v=344, avg=0.553), 0(v=358, avg=0.557)]
+  Move 189: action=1, total_visits=1000
+    State: Step 188/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=319, avg=0.557), 1(v=351, avg=0.567), 0(v=330, avg=0.560)]
+  Move 190: action=1, total_visits=1000
+    State: Step 189/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=311, avg=0.556), 1(v=345, avg=0.567), 0(v=344, avg=0.567)]
+  Move 191: action=0, total_visits=1000
+    State: Step 190/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=470, avg=0.567), 0(v=530, avg=0.577)]
+  Move 192: action=1, total_visits=1000
+    State: Step 191/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=300, avg=0.573), 1(v=358, avg=0.591), 0(v=342, avg=0.587)]
+  Move 193: action=0, total_visits=1000
+    State: Step 192/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=482, avg=0.588), 0(v=518, avg=0.594)]
+  Move 194: action=1, total_visits=1000
+    State: Step 193/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=311, avg=0.587), 1(v=345, avg=0.598), 0(v=344, avg=0.597)]
+  Move 195: action=0, total_visits=1000
+    State: Step 194/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=487, avg=0.598), 0(v=513, avg=0.602)]
+  Move 196: action=1, total_visits=1000
+    State: Step 195/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=314, avg=0.597), 1(v=344, avg=0.606), 0(v=342, avg=0.606)]
+  Move 197: action=0, total_visits=1000
+    State: Step 196/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=496, avg=0.605), 0(v=504, avg=0.606)]
+  Move 198: action=1, total_visits=1000
+    State: Step 197/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=328, avg=0.605), 1(v=336, avg=0.607), 0(v=336, avg=0.607)]
+  Move 199: action=2, total_visits=1000
+    State: Step 198/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [2(v=500, avg=0.607), 0(v=500, avg=0.607)]
+  Move 200: action=3, total_visits=1000
+    State: Step 199/200 | Boxes on target: 1/2 | Total distance: 1
+    Children: [3(v=334, avg=0.607), 2(v=333, avg=0.607), 0(v=333, avg=0.607)]
 
 Final state:
-Step 200/200 | Boxes on target: 2/3 | Total distance: 1
- ########
- # *$* +#
- #   #  #
- #      #
- ########
+Step 200/200 | Boxes on target: 1/2 | Total distance: 1
+#######
+#     #
+# *$. #
+#     #
+#    @#
+#######
 
 ------------------------------------------------------------
 TASK
@@ -729,5 +756,77 @@ phase of MCTS. Your function must:
 4. Address specific weaknesses you observed in the gameplay
    traces (e.g., deadlocks, wasted moves, poor exploration).
 
-Return ONLY the Python function code, enclosed in a
-```python ... ``` code block.
+CRITICAL — How the simulation phase works in MCTS:
+  - The simulation function is called from a LEAF node in the
+    MCTS search tree.  It receives a game state and must return
+    a FLOAT reward that gets BACKPROPAGATED up the tree to
+    update Q-values for each ancestor action.
+  - MCTS picks the root action with the highest average reward
+    across all simulations that passed through it.
+  - Therefore the simulation MUST produce DIVERSE outcomes for
+    different game states so that Q-values DIFFERENTIATE between
+    root actions.  If every simulation returns nearly the same
+    reward (~0.6), MCTS cannot tell which action is best and the
+    player wanders randomly.
+
+Common MISTAKES to avoid:
+  ✗ Purely random rollout with NO heuristic guidance.
+  ✗ Only selecting among push-actions randomly. You must use
+    1-step lookahead to EVALUATE each action via heuristic.
+  ✗ Running a long rollout that averages out initial differences.
+  ✗ Using only box metrics without considering player position.
+
+Good strategies for simulation:
+  ✓ Epsilon-greedy with 1-STEP LOOKAHEAD (BEST approach):
+    At each rollout step, with probability ε take a random
+    action, otherwise do 1-step lookahead: for EACH legal
+    action, CLONE the state, apply the action to the clone,
+    evaluate the clone with a heuristic, and pick the action
+    that gives the highest heuristic score. This is critical
+    because it lets the agent SEE which move leads to the best
+    position (e.g. closer to a useful push). Without lookahead,
+    the agent just picks randomly among 'push' actions and
+    ignores player-positioning moves entirely.
+  ✓ Short rollout (10-20 steps) + heuristic evaluation at the
+    end rather than using state.returns().
+  ✓ Direct evaluation with NO rollout: just evaluate the given
+    state with the heuristic. Fast and differentiates well.
+
+CRITICAL heuristic factor — PLAYER POSITION:
+  Box-only metrics (boxes_on_targets, total_box_distance) are
+  IDENTICAL for all root actions that just move the player.
+  This makes Q-values flat and causes the agent to wander.
+  Your heuristic MUST also reward the player for being CLOSE TO
+  a useful push position — i.e., a cell adjacent to a box such
+  that pushing from that cell moves the box TOWARD a target.
+  Compute this for each box not on a target: find adjacent
+  cells from which pushing would reduce Manhattan distance to
+  a free target. Reward proximity of the player to the nearest
+  such push-cell. Give this factor 10-15%% weight.
+
+EXAMPLE 1-step lookahead pseudocode for the greedy step:
+  best_action, best_score = None, -inf
+  for action in legal_actions:
+      trial = state.clone()
+      trial.apply_action(action)
+      if is_deadlocked(trial): score = -1
+      else: score = heuristic(trial)
+      if score > best_score: best_action, best_score = action, score
+
+You MUST format your response EXACTLY as follows (including
+the header lines). Do NOT deviate from this format:
+
+ACTION: modify
+FILE_NAME: <filename>.py
+FUNCTION_NAME: <entry_point_function_name>
+DESCRIPTION: <one-line summary of what changed and why>
+```python
+<your complete improved function code here>
+```
+
+Rules for the header fields:
+- ACTION must be either 'create' (brand new tool) or 'modify'
+  (improving the existing tool shown above).
+- FILE_NAME must end in .py and contain only [a-z0-9_].
+- FUNCTION_NAME must match the main function defined in the code.
+- The code block must be valid Python that can run standalone.
