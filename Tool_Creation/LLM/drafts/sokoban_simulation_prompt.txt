@@ -101,31 +101,44 @@ GAMEPLAY TRACES
 ------------------------------------------------------------
 
 --- Trace #1 ---
-Game:       Sokoban (level1)
-Timestamp:  2026-03-05T19:15:54.677619
+Game:       Sokoban (level3)
+Timestamp:  2026-03-05T19:26:29.402995
 Iterations: 200
 Solved:     True
-Steps:      3
+Steps:      1
 Returns:    [1.0]
 
-  Move 1: action=0, total_visits=200
+  Move 1: action=2, total_visits=200
     State: Step 0/200 | Boxes on target: 0/1 | Total distance: 1
-    Children: [3(v=10, avg=0.000), 2(v=12, avg=0.083), 1(v=14, avg=0.143), 0(v=164, avg=0.780)]
-  Move 2: action=3, total_visits=200
-    State: Step 1/200 | Boxes on target: 0/1 | Total distance: 1
-    Children: [3(v=173, avg=0.896), 2(v=12, avg=0.167), 1(v=15, avg=0.267)]
-  Move 3: action=1, total_visits=200
-    State: Step 2/200 | Boxes on target: 0/1 | Total distance: 1
-    Children: [3(v=32, avg=0.656), 2(v=7, avg=0.000), 1(v=161, avg=1.000)]
+    Children: [3(v=18, avg=0.500), 2(v=147, avg=1.000), 1(v=13, avg=0.308), 0(v=22, avg=0.545)]
 
 Final state:
-Step 3/200 | Boxes on target: 1/1 | Total distance: 0
-######
-#    #
-#  @ #
-#  * #
-#    #
-######
+Step 1/200 | Boxes on target: 1/1 | Total distance: 0
+########
+#      #
+# *@   #
+#      #
+########
+
+--- Trace #2 ---
+Game:       Sokoban (level3)
+Timestamp:  2026-03-05T19:26:29.405400
+Iterations: 200
+Solved:     True
+Steps:      1
+Returns:    [1.0]
+
+  Move 1: action=2, total_visits=200
+    State: Step 0/200 | Boxes on target: 0/1 | Total distance: 1
+    Children: [3(v=11, avg=0.273), 2(v=146, avg=1.000), 1(v=25, avg=0.600), 0(v=18, avg=0.500)]
+
+Final state:
+Step 1/200 | Boxes on target: 1/1 | Total distance: 0
+########
+#      #
+# *@   #
+#      #
+########
 
 ------------------------------------------------------------
 TASK
