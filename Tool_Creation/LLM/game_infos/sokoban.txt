@@ -1,0 +1,56 @@
+Game: Sokoban
+
+== Overview ==
+Sokoban is a single-player puzzle game. The player pushes boxes onto
+target positions inside a grid-based warehouse. The puzzle is solved
+when every box is on a target.
+
+== Symbols ==
+  #   wall (impassable)
+  .   target position
+  $   box
+  *   box on a target
+  @   player
+  +   player standing on a target
+  (space)  empty floor
+
+== Rules ==
+1. The player can move one step at a time: UP, DOWN, LEFT, or RIGHT.
+2. The player can push a box by walking into it, but only if the cell
+   on the far side of the box is empty floor or a target (not a wall
+   and not another box).
+3. The player cannot pull boxes — only push.
+4. The puzzle is solved when ALL boxes are on target positions.
+5. A game is lost (unsolvable) when a box is stuck in a position from
+   which it can never reach any remaining target (deadlock). The
+   simplest deadlock is a box pushed into a corner that is not a target.
+
+== Actions ==
+The action space is {0, 1, 2, 3} corresponding to:
+  0 = UP    (row - 1)
+  1 = DOWN  (row + 1)
+  2 = LEFT  (col - 1)
+  3 = RIGHT (col + 1)
+
+== State Representation ==
+Each state is described by:
+  - The player's (row, col) position.
+  - The set of (row, col) positions of all boxes.
+  - A step counter (game terminates if max_steps is reached).
+  - Derived metrics: boxes_on_targets count and total_box_distance
+    (sum of Manhattan distance from each box to its nearest target).
+
+== Reward ==
+  - Solved (all boxes on targets): return 1.0
+  - Otherwise (deadlock, max steps, or game still running): return 0.0
+
+== Key Strategic Concepts ==
+  - Avoid pushing boxes into corners (unless the corner IS a target).
+  - Avoid pushing boxes against walls in directions where no target
+    lies along that wall — the box becomes permanently stuck.
+  - Plan pushes so that earlier pushes do not block corridors needed
+    for later pushes.
+  - Minimize total push count; fewer pushes usually means fewer
+    opportunities for deadlock.
+  - The order in which boxes are placed on targets matters:
+    placing one box may block the path needed for another.

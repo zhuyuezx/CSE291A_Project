@@ -40,7 +40,7 @@ class TraceLogger:
     """
 
     def __init__(self, records_dir: str | Path | None = None):
-        self.records_dir = Path(records_dir) if records_dir else _RECORDS_DIR
+        self.records_dir = (Path(records_dir) if records_dir else _RECORDS_DIR).resolve()
         self.records_dir.mkdir(parents=True, exist_ok=True)
         self._move_traces: list[dict] = []
         self._metadata: dict[str, Any] = {}
