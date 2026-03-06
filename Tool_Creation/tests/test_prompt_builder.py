@@ -311,7 +311,7 @@ class TestToolSource:
     def test_no_tool_source_placeholder(self):
         pb = PromptBuilder(game="sokoban", target_phase="simulation")
         prompt = pb.build(tool_source=None)
-        assert "CURRENT HEURISTIC CODE" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt
         assert "No heuristic code provided" in prompt
 
     def test_tool_source_included(self):
@@ -327,7 +327,7 @@ class TestToolSource:
     def test_tool_source_section_label_matches_phase(self):
         pb = PromptBuilder(game="sokoban", target_phase="backpropagation")
         prompt = pb.build(tool_source="def bp(node, r): pass")
-        assert "CURRENT HEURISTIC CODE (backpropagation)" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE (backpropagation)" in prompt
 
 
 class TestPromptStructure:
@@ -343,7 +343,7 @@ class TestPromptStructure:
         )
         assert "SYSTEM: MCTS Heuristic Improvement" in prompt
         assert "GAME RULES" in prompt
-        assert "CURRENT HEURISTIC CODE" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt
         assert "GAMEPLAY TRACES" in prompt
         assert "TASK" in prompt
 
@@ -357,7 +357,7 @@ class TestPromptStructure:
         )
         idx_system = prompt.index("SYSTEM")
         idx_rules = prompt.index("GAME RULES")
-        idx_code = prompt.index("CURRENT HEURISTIC CODE")
+        idx_code = prompt.index("TARGET HEURISTIC TO IMPROVE")
         idx_traces = prompt.index("GAMEPLAY TRACES")
         idx_task = prompt.index("TASK")
         assert idx_system < idx_rules < idx_code < idx_traces < idx_task
@@ -514,3 +514,88 @@ class TestIntegrationWithEngine:
         assert "Trace #1" in prompt
         assert "Trace #2" in prompt
         assert "Trace #3" in prompt
+
+
+class TestAllToolSources:
+    """Tests for the all_tool_sources parameter."""
+
+    _SAMPLE_SOURCES = {
+        "selection": "def select(node, w): return node",
+        "expansion": "def expand(node): return node",
+        "simulation": "def simulate(s, p, d): return 0.5",
+        "backpropagation": "def backprop(n, r): pass",
+    }
+
+    def test_all_tools_section_present(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "MCTS TOOL FUNCTIONS (all 4 phases)" in prompt
+
+    def test_all_four_phases_shown(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "--- selection ---" in prompt
+        assert "--- expansion ---" in prompt
+        assert "--- backpropagation ---" in prompt
+        # simulation is the target, so it gets a marker
+        assert "--- simulation" in prompt
+
+    def test_target_phase_marked(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "simulation \u25c0 TARGET" in prompt
+
+    def test_target_marker_changes_with_phase(self):
+        pb = PromptBuilder(game="sokoban", target_phase="expansion")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "expansion \u25c0 TARGET" in prompt
+        # Other phases should NOT have the marker
+        assert "simulation \u25c0 TARGET" not in prompt
+
+    def test_source_code_included(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "def select(node, w):" in prompt
+        assert "def expand(node):" in prompt
+        assert "def simulate(s, p, d):" in prompt
+        assert "def backprop(n, r):" in prompt
+
+    def test_no_all_tools_section_when_omitted(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=None)
+        assert "MCTS TOOL FUNCTIONS" not in prompt
+
+    def test_all_tools_before_target_heuristic(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(
+            all_tool_sources=self._SAMPLE_SOURCES,
+            tool_source="def sim(s, p, d): return 0.0",
+        )
+        idx_all = prompt.index("MCTS TOOL FUNCTIONS")
+        idx_target = prompt.index("TARGET HEURISTIC TO IMPROVE")
+        assert idx_all < idx_target
+
+    def test_integration_with_engine_sources(self, tmp_path):
+        """all_tool_sources from engine.get_tool_source()."""
+        from mcts import MCTSEngine
+        from mcts.games import Sokoban
+
+        rec_dir = tmp_path / "records"
+        engine = MCTSEngine(
+            Sokoban("level1"), iterations=50, logging=True, records_dir=rec_dir,
+        )
+        result = engine.play_game()
+
+        sources = engine.get_tool_source()
+        pb = PromptBuilder(game="sokoban", target_phase="simulation", records_dir=rec_dir)
+        prompt = pb.build(
+            record_files=[result["log_file"]],
+            tool_source=sources["simulation"],
+            all_tool_sources=sources,
+        )
+        assert "MCTS TOOL FUNCTIONS" in prompt
+        assert "default_selection" in prompt
+        assert "default_expansion" in prompt
+        assert "default_simulation" in prompt
+        assert "default_backpropagation" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt

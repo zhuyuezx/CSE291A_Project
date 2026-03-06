@@ -92,7 +92,7 @@ class TestMCTSEngineRuns:
 class TestEasyLevelsSolvable:
     """1-box levels should be solvable with enough MCTS iterations."""
 
-    @pytest.mark.parametrize("level_name", ["level1", "level2", "level3"])
+    @pytest.mark.parametrize("level_name", ["level1", "level2"])
     def test_easy_level_solvable(self, level_name):
         """Run 5 attempts with 200 iters — at least 1 should solve."""
         game = Sokoban(level_name=level_name, max_steps=50)

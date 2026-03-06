@@ -28,89 +28,86 @@ ACTION_DELTAS = {UP: (-1, 0), DOWN: (1, 0), LEFT: (0, -1), RIGHT: (0, 1)}
 # ── Built-in levels (10 levels, easy → hard) ────────────────────────
 # Difficulty: boxes × room complexity × required push count
 LEVELS = {
-    # --- Easy (1 box) ---
-    "level1": [          # 1 box, 1 push
+    "level1": [          # 1 box
+        "#####",
+        "#@$.#",
+        "#####",
+    ],
+    "level2": [          # 1 box
         "######",
         "#    #",
         "# @$ #",
         "#  . #",
-        "#    #",
         "######",
     ],
-    "level2": [          # 1 box, straight corridor, 2 pushes
-        "########",
-        "#  .   #",
-        "#  $   #",
-        "#  @   #",
-        "########",
-    ],
-    "level3": [          # 1 box, open room, needs turn
-        "########",
-        "#      #",
-        "# .    #",
-        "#   $  #",
-        "#   @  #",
-        "#      #",
-        "########",
-    ],
-    # --- Medium (2 boxes) ---
-    "level4": [          # 2 boxes, wide room, easy push
-        "########",
-        "#  . . #",
-        "# $$ @ #",
-        "#      #",
-        "########",
-    ],
-    "level5": [          # 2 boxes, symmetric, needs coordination
-        "  ####  ",
-        "###  ###",
-        "# $ .  #",
-        "# .$ @ #",
-        "###  ###",
-        "  ####  ",
-    ],
-    "level6": [          # 2 boxes, L-shaped room
-        "######",
-        "#  . #",
-        "# $  #",
-        "## $@#",
-        " # .##",
-        " ####",
-    ],
-    # --- Hard (3 boxes) ---
-    "level7": [          # 3 boxes, open room
-        "########",
-        "# .. . #",
-        "# $$$  #",
-        "#   @  #",
-        "########",
-    ],
-    "level8": [          # 3 boxes, tighter layout
-        "  ####  ",
-        "###  ###",
-        "# $.   #",
-        "# .$ @ #",
-        "# $. ###",
-        "####    ",
-    ],
-    # --- Very Hard (3-4 boxes, constrained) ---
-    "level9": [          # 3 boxes, winding corridors
-        " #####",
-        "##   #",
-        "# $# ##",
-        "# .  .#",
-        "## $$ #",
-        " # @.#",
-        " #####",
-    ],
-    "level10": [         # 4 boxes, tight maze
+    "level3": [          # 2 boxes
         "#######",
-        "#  .  #",
-        "# #.# #",
-        "# $$$ #",
+        "#     #",
+        "# .$. #",
         "#  $  #",
+        "#  @  #",
+        "#######",
+    ],
+    "level4": [          # 2 boxes
+        "#######",
+        "#     #",
+        "# $ $ #",
         "# .@. #",
         "#######",
+    ],
+    "level5": [          # 3 boxes
+        "########",
+        "#      #",
+        "# .$$  #",
+        "# . $@ #",
+        "# .    #",
+        "########",
+    ],
+    "level6": [          # 2 boxes
+        "  ####",
+        "###  ####",
+        "#     $ #",
+        "# #  #$ #",
+        "# . .#@ #",
+        "#########",
+    ],
+    "level7": [          # 4 boxes
+        " ########",
+        " # . . .#",
+        " # $$#$ #",
+        " #   @  #",
+        " ########",
+    ],
+    "level8": [          # 4 boxes
+        "  #######",
+        "  #     #",
+        "  # $ $ #",
+        "###$# #$###",
+        "#    @    #",
+        "# ### ### #",
+        "# ..   .. #",
+        "###########",
+    ],
+    "level9": [          # 4 boxes
+        "########",
+        "#   .  #",
+        "#  $$$ #",
+        "#  $@  #",
+        "# ...  #",
+        "########",
+    ],
+    "level10": [         # 6 boxes
+        "    #####",
+        "    #   #",
+        "    #$  #",
+        "  ###  $##",
+        "  #  $ $ #",
+        "### # ## #   ######",
+        "#   # ## #####  ..#",
+        "# $  $          ..#",
+        "##### ### #@##  ..#",
+        "    #     #########",
+        "    #######",
     ],
 }
 
@@ -227,7 +224,20 @@ class SokobanState(GameState):
     def returns(self) -> list[float]:
         if self._is_solved():
             return [1.0]
-        return [0.0]
+        if self._is_deadlocked():
+            return [0.0]
+        # Shaped reward: partial credit based on proximity to solution.
+        # This gives MCTS a gradient when random rollouts can't fully
+        # solve the puzzle (common for multi-box levels).
+        on_target = self.boxes_on_targets()
+        total_dist = self.total_box_distance()
+        # Tight normalization: half the grid perimeter per target
+        max_dist = max(1, self.num_targets * max(self.height, self.width) // 2)
+        dist_score = max(0.0, 1.0 - total_dist / max_dist)
+        # 70 % from boxes on target (big jump per placed box),
+        # 30 % from distance (fine gradient for approach moves)
+        reward = (on_target / self.num_targets) * 0.7 + dist_score * 0.3
+        return [reward]
 
     def state_key(self) -> str:
         return f"P{self.player}B{tuple(sorted(self.boxes))}"
