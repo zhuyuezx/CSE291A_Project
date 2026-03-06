@@ -75,6 +75,7 @@ class PromptBuilder:
         self,
         record_files: list[str | Path] | None = None,
         tool_source: str | None = None,
+        all_tool_sources: dict[str, str] | None = None,
         max_moves_per_trace: int | None = None,
     ) -> str:
         """
@@ -86,8 +87,12 @@ class PromptBuilder:
             Specific record JSON files to include. Paths can be absolute
             or relative to ``self.records_dir``.
         tool_source : str, optional
-            Source code of the current heuristic tool. If not provided,
-            a placeholder note is inserted.
+            Source code of the current heuristic tool (the target phase).
+            If not provided, a placeholder note is inserted.
+        all_tool_sources : dict[str, str], optional
+            Source code of ALL 4 MCTS phase tools, keyed by phase name.
+            Typically obtained via ``engine.get_tool_source()``.
+            If provided, a full MCTS TOOL FUNCTIONS section is included.
         max_moves_per_trace : int, optional
             Limit the number of moves shown per trace to keep the prompt
             concise. None means include all moves.
@@ -104,14 +109,18 @@ class PromptBuilder:
         # ── Section 2: Game rules ──
         sections.append(self._build_game_rules_section())
 
-        # ── Section 3: Current heuristic code ──
+        # ── Section 3: All MCTS tool function sources ──
+        if all_tool_sources:
+            sections.append(self._build_all_tools_section(all_tool_sources))
+
+        # ── Section 4: Target heuristic code (highlighted) ──
         sections.append(self._build_tool_source_section(tool_source))
 
-        # ── Section 4: Gameplay traces ──
+        # ── Section 5: Gameplay traces ──
         traces = self._load_traces(record_files)
         sections.append(self._build_traces_section(traces, max_moves_per_trace))
 
-        # ── Section 5: Task instruction ──
+        # ── Section 6: Task instruction ──
         sections.append(self._build_task_section())
 
         return "\n\n".join(sections)
@@ -168,9 +177,24 @@ class PromptBuilder:
         sep = "-" * 60
         return f"{sep}\nGAME RULES\n{sep}\n{rules}"
 
+    def _build_all_tools_section(self, all_tool_sources: dict[str, str]) -> str:
+        sep = "-" * 60
+        parts = [f"{sep}\nMCTS TOOL FUNCTIONS (all 4 phases)\n{sep}"]
+        for phase in self.VALID_PHASES:
+            src = all_tool_sources.get(phase)
+            if src:
+                marker = " ◀ TARGET" if phase == self.target_phase else ""
+                parts.append(
+                    f"--- {phase}{marker} ---\n"
+                    f"```python\n{src.rstrip()}\n```"
+                )
+            else:
+                parts.append(f"--- {phase} ---\n(source not available)")
+        return "\n\n".join(parts)
+
     def _build_tool_source_section(self, tool_source: str | None) -> str:
         sep = "-" * 60
-        header = f"{sep}\nCURRENT HEURISTIC CODE ({self.target_phase})\n{sep}"
+        header = f"{sep}\nTARGET HEURISTIC TO IMPROVE ({self.target_phase})\n{sep}"
         if tool_source:
             return header + "\n```python\n" + tool_source.rstrip() + "\n```"
         return header + "\n(No heuristic code provided — using MCTS default.)"

@@ -102,41 +102,35 @@ GAMEPLAY TRACES
 
 --- Trace #1 ---
 Game:       Sokoban (level3)
-Timestamp:  2026-03-05T19:26:29.402995
+Timestamp:  2026-03-05T19:32:37.676746
 Iterations: 200
 Solved:     True
-Steps:      1
+Steps:      5
 Returns:    [1.0]
 
-  Move 1: action=2, total_visits=200
-    State: Step 0/200 | Boxes on target: 0/1 | Total distance: 1
-    Children: [3(v=18, avg=0.500), 2(v=147, avg=1.000), 1(v=13, avg=0.308), 0(v=22, avg=0.545)]
+  Move 1: action=0, total_visits=200
+    State: Step 0/200 | Boxes on target: 0/1 | Total distance: 3
+    Children: [3(v=48, avg=0.042), 2(v=41, avg=0.000), 1(v=40, avg=0.000), 0(v=71, avg=0.127)]
+  Move 2: action=3, total_visits=200
+    State: Step 1/200 | Boxes on target: 0/1 | Total distance: 2
+    Children: [3(v=66, avg=0.106), 2(v=46, avg=0.022), 1(v=46, avg=0.022), 0(v=42, avg=0.000)]
+  Move 3: action=0, total_visits=200
+    State: Step 2/200 | Boxes on target: 0/1 | Total distance: 2
+    Children: [3(v=20, avg=0.150), 2(v=18, avg=0.111), 1(v=13, avg=0.000), 0(v=149, avg=0.651)]
+  Move 4: action=2, total_visits=200
+    State: Step 3/200 | Boxes on target: 0/1 | Total distance: 2
+    Children: [3(v=11, avg=0.091), 2(v=164, avg=0.848), 1(v=11, avg=0.091), 0(v=14, avg=0.214)]
+  Move 5: action=2, total_visits=200
+    State: Step 4/200 | Boxes on target: 0/1 | Total distance: 1
+    Children: [3(v=16, avg=0.438), 2(v=156, avg=1.000), 1(v=13, avg=0.308), 0(v=15, avg=0.400)]
 
 Final state:
-Step 1/200 | Boxes on target: 1/1 | Total distance: 0
+Step 5/200 | Boxes on target: 1/1 | Total distance: 0
 ########
 #      #
 # *@   #
 #      #
-########
-
---- Trace #2 ---
-Game:       Sokoban (level3)
-Timestamp:  2026-03-05T19:26:29.405400
-Iterations: 200
-Solved:     True
-Steps:      1
-Returns:    [1.0]
-
-  Move 1: action=2, total_visits=200
-    State: Step 0/200 | Boxes on target: 0/1 | Total distance: 1
-    Children: [3(v=11, avg=0.273), 2(v=146, avg=1.000), 1(v=25, avg=0.600), 0(v=18, avg=0.500)]
-
-Final state:
-Step 1/200 | Boxes on target: 1/1 | Total distance: 0
-########
 #      #
-# *@   #
 #      #
 ########
 
