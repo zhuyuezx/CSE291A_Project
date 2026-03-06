@@ -21,7 +21,7 @@ from __future__ import annotations
 import random
 from typing import Any
 
-from ..game_interface import GameState, Game
+from .game_interface import GameState, Game
 
 
 # Actions — direction the BLANK moves

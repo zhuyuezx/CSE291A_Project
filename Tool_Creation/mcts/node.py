@@ -1,63 +1,66 @@
 """
-MCTS Node with transposition-table support.
+MCTS tree node — pure data structure.
 
-Closely follows the connect_four MCTSNode_TT structure but is
-game-agnostic — works with any GameState.
+Each node stores:
+    - visit count and cumulative value
+    - parent link and children dict (action -> child node)
+    - the game state snapshot
+    - unexpanded actions remaining
+
+All MCTS logic (selection, expansion, simulation, backpropagation)
+lives in the tool files under MCTS_tools/.
 """
 
 from __future__ import annotations
 
-import math
 from typing import Any
-
-from .game_interface import GameState
 
 
 class MCTSNode:
-    """A single node in the MCTS search tree."""
+    """A node in the MCTS search tree."""
 
     __slots__ = (
-        "state", "parent_action", "parent",
-        "children", "visits", "value", "untried_actions",
+        "state", "parent", "parent_action",
+        "children", "_untried_actions",
+        "visits", "value",
     )
 
     def __init__(
         self,
-        state: GameState,
-        parent_action: Any | None = None,
-        parent: "MCTSNode | None" = None,
+        state,            # GameState — not type-hinted to avoid circular import
+        parent: MCTSNode | None = None,
+        parent_action: Any = None,
     ):
         self.state = state
-        self.parent_action = parent_action
         self.parent = parent
+        self.parent_action = parent_action
         self.children: dict[Any, MCTSNode] = {}
+        self._untried_actions: list[Any] = list(state.legal_actions())
         self.visits: int = 0
-        self.value: float = 0.0
-        self.untried_actions: list[Any] = (
-            state.legal_actions() if state is not None else []
-        )
+        self.value: float = 0.0       # cumulative value (sum of backprop'd rewards)
 
-    # ------------------------------------------------------------------
-    # Queries
-    # ------------------------------------------------------------------
+    # ── Tree policy helpers ──────────────────────────────────────────
 
+    @property
     def is_fully_expanded(self) -> bool:
-        return len(self.untried_actions) == 0
+        return len(self._untried_actions) == 0
 
-    def best_child(self, exploration_weight: float = 1.4) -> "MCTSNode":
-        """Select the child with the highest UCB1 score."""
-        best_score = float("-inf")
-        best = None
-        for child in self.children.values():
-            exploit = child.value / child.visits
-            explore = math.sqrt(math.log(self.visits) / child.visits)
-            score = exploit + exploration_weight * explore
-            if score > best_score:
-                best_score = score
-                best = child
-        assert best is not None, "best_child called on node with no children"
-        return best
+    @property
+    def is_terminal(self) -> bool:
+        return self.state.is_terminal()
 
-    def most_visited_child(self) -> tuple[Any, "MCTSNode"]:
-        """Return (action, child) with the most visits — used to pick the final move."""
-        return max(self.children.items(), key=lambda item: item[1].visits)
+    @property
+    def untried_actions(self) -> list[Any]:
+        return self._untried_actions
+
+    def most_visited_child(self) -> MCTSNode:
+        """Return the child with the most visits (used for final move selection)."""
+        return max(self.children.values(), key=lambda c: c.visits)
+
+    def __repr__(self) -> str:
+        return (
+            f"MCTSNode(visits={self.visits}, "
+            f"value={self.value:.2f}, "
+            f"children={len(self.children)}, "
+            f"untried={len(self._untried_actions)})"
+        )

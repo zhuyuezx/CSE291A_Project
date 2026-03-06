@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..game_interface import GameState, Game
+from .game_interface import GameState, Game
 
 
 # ── Actions ──────────────────────────────────────────────────────────
@@ -25,23 +25,41 @@ ACTION_NAMES = {UP: "UP", DOWN: "DOWN", LEFT: "LEFT", RIGHT: "RIGHT"}
 ACTION_DELTAS = {UP: (-1, 0), DOWN: (1, 0), LEFT: (0, -1), RIGHT: (0, 1)}
 
 
-# ── Built-in levels (Microban collection — small, solvable) ─────────
+# ── Built-in levels (10 levels, easy → hard) ────────────────────────
+# Difficulty: boxes × room complexity × required push count
 LEVELS = {
-    "micro1": [      # 1 box, open room
-        "########",
-        "#      #",
-        "# .$@  #",
-        "#      #",
-        "########",
+    # --- Easy (1 box) ---
+    "level1": [          # 1 box, 1 push
+        "######",
+        "#    #",
+        "# @$ #",
+        "#  . #",
+        "#    #",
+        "######",
     ],
-    "micro2": [      # 1 box, corridor
+    "level2": [          # 1 box, straight corridor, 2 pushes
         "########",
         "#  .   #",
         "#  $   #",
         "#  @   #",
         "########",
     ],
-    "micro3": [      # 2 boxes, symmetric
+    "level3": [          # 1 box, open room, needs turn
+        "########",
+        "#      #",
+        "# .$@  #",
+        "#      #",
+        "########",
+    ],
+    # --- Medium (2 boxes) ---
+    "level4": [          # 2 boxes, wide room, easy push
+        "########",
+        "#  . . #",
+        "# $$ @ #",
+        "#      #",
+        "########",
+    ],
+    "level5": [          # 2 boxes, symmetric, needs coordination
         "  ####  ",
         "###  ###",
         "# $ .  #",
@@ -49,20 +67,48 @@ LEVELS = {
         "###  ###",
         "  ####  ",
     ],
-    "micro4": [      # 2 boxes, wide room
+    "level6": [          # 2 boxes, L-shaped room
+        "######",
+        "#  . #",
+        "# $  #",
+        "## $@#",
+        " # .##",
+        " ####",
+    ],
+    # --- Hard (3 boxes) ---
+    "level7": [          # 3 boxes, open room
         "########",
-        "#  . . #",
-        "# $$ @ #",
-        "#      #",
+        "# .. . #",
+        "# $$$  #",
+        "#   @  #",
         "########",
     ],
-    "micro5": [      # 3 boxes, harder
+    "level8": [          # 3 boxes, tighter layout
         "  ####  ",
         "###  ###",
         "# $.   #",
         "# .$ @ #",
         "# $. ###",
         "####    ",
+    ],
+    # --- Very Hard (3-4 boxes, constrained) ---
+    "level9": [          # 3 boxes, winding corridors
+        " #####",
+        "##   #",
+        "# $# ##",
+        "# .  .#",
+        "## $$ #",
+        " # @.#",
+        " #####",
+    ],
+    "level10": [         # 4 boxes, tight maze
+        "#######",
+        "#  .  #",
+        "# #.# #",
+        "# $$$ #",
+        "#  $  #",
+        "# .@. #",
+        "#######",
     ],
 }
 

@@ -17,7 +17,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from ..game_interface import Game, GameState
+from .game_interface import Game, GameState
 
 ROWS = 6
 COLS = 7
