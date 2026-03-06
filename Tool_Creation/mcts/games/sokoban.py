@@ -224,20 +224,7 @@ class SokobanState(GameState):
     def returns(self) -> list[float]:
         if self._is_solved():
             return [1.0]
-        if self._is_deadlocked():
-            return [0.0]
-        # Shaped reward: partial credit based on proximity to solution.
-        # This gives MCTS a gradient when random rollouts can't fully
-        # solve the puzzle (common for multi-box levels).
-        on_target = self.boxes_on_targets()
-        total_dist = self.total_box_distance()
-        # Tight normalization: half the grid perimeter per target
-        max_dist = max(1, self.num_targets * max(self.height, self.width) // 2)
-        dist_score = max(0.0, 1.0 - total_dist / max_dist)
-        # 70 % from boxes on target (big jump per placed box),
-        # 30 % from distance (fine gradient for approach moves)
-        reward = (on_target / self.num_targets) * 0.7 + dist_score * 0.3
-        return [reward]
+        return [0.0]
 
     def state_key(self) -> str:
         return f"P{self.player}B{tuple(sorted(self.boxes))}"

@@ -1,15 +1,14 @@
 """
 LLM-generated MCTS tool: simulation
-Description: No changes needed; the implementation correctly adds the distance‑reduction bonus and penalty without introducing bugs or performance regressions.
-Generated:   2026-03-06T03:13:12.425625
+Description: Add no‑undo bias to break back‑and‑forth loops.
+Generated:   2026-03-06T03:09:45.423830
 """
 
 def default_simulation(state, perspective_player: int, max_depth: int = 1000) -> float:
     """
     Biased rollout simulation that prefers actions reducing total box distance,
     avoids immediate corner deadlocks, rewards actions that move a box, and
-    discourages immediately undoing the previous move. Added a bonus for
-    distance‑reducing actions and a penalty for distance‑increasing actions.
+    discourages immediately undoing the previous move.
     """
     import random, math
 
@@ -48,13 +47,9 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
                 w = 0.0                                      # discard deadlocks
             if tmp.boxes != sim_state.boxes:
                 w *= push_factor                             # boost pushes
+            # discourage immediate reversal of the last move
             if last_action is not None and a == opposite[last_action]:
                 w *= 0.1                                     # strong penalty
-            # reward reductions, penalize increases
-            if delta < 0:
-                w *= 3.0
-            elif delta > 0:
-                w *= 0.2
             weights.append(w)
 
         # fallback to uniform random if all weights are zero

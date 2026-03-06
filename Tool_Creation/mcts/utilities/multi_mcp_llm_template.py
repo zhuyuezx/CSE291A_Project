@@ -41,7 +41,12 @@ from typing import Any
 
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # Walk up to find .env in Tool_Creation/
+    _ENV_PATH = Path(__file__).resolve().parent / ".env"
+    if _ENV_PATH.exists():
+        load_dotenv(_ENV_PATH)
+    else:
+        load_dotenv()
 except ImportError:
     pass
 
@@ -52,16 +57,11 @@ except ImportError:
 
 # ── Multiple API keys ─────────────────────────────────────────────────────────
 # Add as many as you have. Requests are distributed round-robin across them.
-# You can also set this via env var as a comma-separated string:
-#   export API_KEYS="sk-key1,sk-key2,sk-key3"
-
-API_KEYS: list[str] = os.getenv("API_KEYS", "").split(",") if os.getenv("API_KEYS") else [
-    "sk-N1OrEl6Nzxc17k8FeMws2A",
-    "sk-h8D9t1Q-xqiJ1M6IFhTOLQ",
-    "sk-nz8AvaoxEdM9fnUt80Ixtg",
-    # "sk-your-second-key",
-    # "sk-your-third-key",
-]
+try:
+    API_KEYS: list[str] = os.getenv("API_KEYS").split(",")
+except Exception:
+    print("Error: API_KEYS environment variable not set or invalid. "
+          "Set it to a comma-separated list of keys (e.g. 'key1,key2,key3').")
 
 BASE_URL = os.getenv("OPENAI_BASE_URL", "https://tritonai-api.ucsd.edu")
 MODEL = os.getenv("MODEL_NAME", "api-gpt-oss-120b")

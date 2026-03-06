@@ -62,6 +62,9 @@ class Optimizer:
         How many moves from each trace to include in the prompt.
     two_step : bool
         Use two-step analyse-then-generate flow (default True).
+    three_step : bool
+        Use three-step analyse → draft → critique+finalize flow.
+        Overrides ``two_step`` when True.
     max_repair_attempts : int
         Repair-loop iterations if the smoke test fails.
     verbose : bool
@@ -74,6 +77,7 @@ class Optimizer:
         target_phase: str = "simulation",
         max_moves_per_trace: int = 30,
         two_step: bool = True,
+        three_step: bool = False,
         max_repair_attempts: int = 1,
         verbose: bool = True,
     ):
@@ -81,6 +85,7 @@ class Optimizer:
         self.target_phase = target_phase
         self.max_moves_per_trace = max_moves_per_trace
         self.two_step = two_step
+        self.three_step = three_step
         self.max_repair_attempts = max_repair_attempts
         self.verbose = verbose
 
@@ -141,7 +146,11 @@ class Optimizer:
             tool_source = tool_list.get(self.target_phase)
 
             # 1. Build prompts & query LLM
-            if self.two_step:
+            if self.three_step:
+                llm_result = self._query_three_step(
+                    record_files, tool_source, tool_list, additional_context
+                )
+            elif self.two_step:
                 self._log("Step 1/4: Querying LLM (step 1 — analysis)…")
                 self._log("Step 2/4: Querying LLM (step 2 — code generation)…")
                 llm_result = self._query_two_step(
@@ -163,14 +172,15 @@ class Optimizer:
                 f"  LLM query: status={llm_result['status']}  "
                 f"elapsed={llm_result['elapsed_seconds']}s"
             )
-            if self.two_step and llm_result.get("step1_analysis"):
+            if (self.two_step or self.three_step) and llm_result.get("step1_analysis"):
                 self._log(
                     f"  Step-1 analysis length: "
                     f"{len(llm_result['step1_analysis'])} chars"
                 )
 
             # 2. Parse & validate
-            self._log("Step 3/4: Parsing & validating response…")
+            n = 6 if self.three_step else 4
+            self._log(f"Step {n-1}/{n}: Parsing & validating response…")
             parsed = llm_result.get("parsed")
             if parsed is None:
                 parsed = self.manager.parse_response(llm_result["response"])
@@ -192,7 +202,7 @@ class Optimizer:
             self._log(f"  Installed to: {installed_path}")
 
             # 4. Smoke test (with repair loop)
-            self._log("Step 4/4: Smoke testing…")
+            self._log(f"Step {n}/{n}: Smoke testing…")
             fn, smoke_ok = self._smoke_test_with_repair(
                 installed_path, parsed, llm_result, state_factory
             )
@@ -281,6 +291,50 @@ class Optimizer:
         return self.querier.query_two_step(
             analysis_prompt=analysis_prompt,
             generation_prompt_fn=gen_prompt_fn,
+            required_func_name=func_name,
+        )
+
+    def _query_three_step(
+        self,
+        record_files: list[str],
+        tool_source: str | None,
+        all_sources: dict[str, str],
+        additional_context: str | None = None,
+    ) -> dict[str, Any]:
+        """Three-step analyse → draft → critique+finalize query."""
+        self._log("Step 1/6: Building analysis prompt…")
+        analysis_prompt = self.builder.build_analysis_prompt(
+            record_files=record_files or None,
+            tool_source=tool_source,
+            all_tool_sources=all_sources,
+            max_moves_per_trace=self.max_moves_per_trace,
+            additional_context=additional_context,
+        )
+
+        def gen_prompt_fn(analysis_text: str) -> str:
+            self._log("Step 2/6: Querying LLM (step 2 — draft code)…")
+            return self.builder.build_generation_prompt(
+                analysis=analysis_text,
+                tool_source=tool_source,
+                all_tool_sources=all_sources,
+                additional_context=additional_context,
+            )
+
+        def critique_prompt_fn(analysis_text: str, draft_code: str) -> str:
+            self._log("Step 3/6: Querying LLM (step 3 — critique & finalize)…")
+            return self.builder.build_critique_prompt(
+                analysis=analysis_text,
+                draft_code=draft_code,
+                tool_source=tool_source,
+                # Skip all_tool_sources to keep critique prompt compact.
+                # The draft already incorporated that context.
+            )
+
+        func_name = self._expected_func_name()
+        return self.querier.query_three_step(
+            analysis_prompt=analysis_prompt,
+            generation_prompt_fn=gen_prompt_fn,
+            critique_prompt_fn=critique_prompt_fn,
             required_func_name=func_name,
         )
 

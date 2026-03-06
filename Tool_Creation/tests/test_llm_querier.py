@@ -378,3 +378,98 @@ class TestExtractValidatePipeline:
         assert code is not None
         result = validate_function(code, required_name="simulate")
         assert result["valid"] is False
+
+
+# ─── query_three_step (mocked) ───────────────────────────────────────
+
+class TestLLMQuerierThreeStep:
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_three_step_success(self, mock_openai_class):
+        """Three-step pipeline: analysis → draft → critique+finalize."""
+        analysis_resp = _make_mock_response("ANALYSIS: The heuristic is too simple.")
+        draft_resp = _make_mock_response(
+            "ACTION: modify\nFILE_NAME: simulation.py\nFUNCTION_NAME: default_simulation\n"
+            "```python\ndef default_simulation(state, player, max_depth=50):\n"
+            "    return 0.5\n```"
+        )
+        final_resp = _make_mock_response(
+            "CRITIQUE:\n- Draft always returns 0.5\n\n"
+            "ACTION: modify\nFILE_NAME: simulation.py\nFUNCTION_NAME: default_simulation\n"
+            "```python\ndef default_simulation(state, player, max_depth=50):\n"
+            "    return state.returns()[player]\n```"
+        )
+        call_count = 0
+        responses = [analysis_resp, draft_resp, final_resp]
+
+        async def _create(**kwargs):
+            nonlocal call_count
+            resp = responses[call_count]
+            call_count += 1
+            return resp
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = _create
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k1"])
+        result = q.query_three_step(
+            analysis_prompt="Analyze this",
+            generation_prompt_fn=lambda a: f"Generate code based on: {a}",
+            critique_prompt_fn=lambda a, c: f"Critique: {c}",
+            required_func_name="default_simulation",
+        )
+
+        assert result["status"] == "success"
+        assert result["step1_analysis"] == "ANALYSIS: The heuristic is too simple."
+        assert result["step2_draft_code"] is not None
+        assert "default_simulation" in result["step2_draft_code"]
+        assert result["code"] is not None
+        assert "state.returns()" in result["code"]
+        assert result["elapsed_seconds"] >= 0
+        assert call_count == 3  # 3 separate LLM calls
+
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_three_step_step1_error(self, mock_openai_class):
+        """If step 1 fails, the pipeline stops early."""
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(
+            side_effect=Exception("API down")
+        )
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k1"])
+        result = q.query_three_step(
+            analysis_prompt="Analyze",
+            generation_prompt_fn=lambda a: f"Gen: {a}",
+            critique_prompt_fn=lambda a, c: f"Crit: {c}",
+        )
+
+        assert result["status"] == "error"
+        assert result["step1_analysis"] is None
+
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_three_step_step2_error(self, mock_openai_class):
+        """If step 2 fails, pipeline stops before critique."""
+        analysis_resp = _make_mock_response("Analysis text")
+        call_count = 0
+
+        async def _create(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return analysis_resp
+            raise Exception("Generation failed")
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = _create
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k1"])
+        result = q.query_three_step(
+            analysis_prompt="Analyze",
+            generation_prompt_fn=lambda a: f"Gen: {a}",
+            critique_prompt_fn=lambda a, c: f"Crit: {c}",
+        )
+
+        assert result["status"] == "error"
+        assert result["step1_analysis"] == "Analysis text"

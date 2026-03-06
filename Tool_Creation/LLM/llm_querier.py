@@ -267,6 +267,71 @@ class LLMQuerier:
         step2_result["elapsed_seconds"] = round(time.time() - total_start, 2)
         return step2_result
 
+    def query_three_step(
+        self,
+        analysis_prompt: str,
+        generation_prompt_fn,
+        critique_prompt_fn,
+        required_func_name: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Three-step LLM pipeline: analyse → draft code → critique & finalize.
+
+        Parameters
+        ----------
+        analysis_prompt : str
+            Step-1 prompt (analysis, no code).
+        generation_prompt_fn : callable(str) -> str
+            Takes step-1 analysis text, returns step-2 code-gen prompt.
+        critique_prompt_fn : callable(str, str) -> str
+            Takes (analysis_text, draft_code) and returns step-3 critique
+            prompt that asks the LLM to review and improve the draft.
+        required_func_name : str, optional
+            Expected function name for validation.
+
+        Returns
+        -------
+        dict — same as query_two_step, plus:
+            step2_draft_code  — the draft code from step 2
+            step2_elapsed     — seconds for step 2
+        """
+        total_start = time.time()
+
+        # ── Step 1: Analysis ──
+        step1_result = self.query(analysis_prompt)
+        if step1_result["status"] == "error":
+            step1_result["step1_analysis"] = None
+            step1_result["step1_elapsed"] = step1_result["elapsed_seconds"]
+            return step1_result
+
+        analysis_text = step1_result["response"] or ""
+        step1_elapsed = step1_result["elapsed_seconds"]
+
+        # ── Step 2: Draft code generation ──
+        gen_prompt = generation_prompt_fn(analysis_text)
+        step2_result = self.query(gen_prompt, required_func_name=required_func_name)
+
+        if step2_result["status"] == "error":
+            step2_result["step1_analysis"] = analysis_text
+            step2_result["step1_elapsed"] = step1_elapsed
+            step2_result["elapsed_seconds"] = round(time.time() - total_start, 2)
+            return step2_result
+
+        draft_code = step2_result.get("code") or ""
+        step2_elapsed = step2_result["elapsed_seconds"]
+
+        # ── Step 3: Critique & refine ──
+        critique_prompt = critique_prompt_fn(analysis_text, draft_code)
+        step3_result = self.query(critique_prompt, required_func_name=required_func_name)
+
+        # Merge everything into the final result
+        step3_result["step1_analysis"] = analysis_text
+        step3_result["step1_elapsed"] = step1_elapsed
+        step3_result["step2_draft_code"] = draft_code
+        step3_result["step2_elapsed"] = step2_elapsed
+        step3_result["elapsed_seconds"] = round(time.time() - total_start, 2)
+        return step3_result
+
     def save(
         self,
         result: dict[str, Any],
@@ -371,6 +436,11 @@ class LLMQuerier:
                 "status": "error",
                 "error": str(e),
             }
+        finally:
+            try:
+                await client.close()
+            except Exception:
+                pass
 
     async def _query_batch_async(
         self,
@@ -429,4 +499,11 @@ class LLMQuerier:
             _single(p, clients[next(key_cycle)])
             for p in prompts
         ]
-        return list(await asyncio.gather(*tasks))
+        try:
+            return list(await asyncio.gather(*tasks))
+        finally:
+            for c in clients:
+                try:
+                    await c.close()
+                except Exception:
+                    pass
