@@ -7,8 +7,14 @@ tools and LLM-driven improvement. Built for CSE 291A.
 
 ```
 Tool_Creation/
-├── run_sokoban.sh          # Quick-start shell script (see below)
-├── run_sokoban.py          # Python entry point for Sokoban example
+├── run_pipeline.sh         # One-step shell script for the full pipeline (see below)
+│
+├── scripts/                # All runnable scripts and notebooks
+│   ├── run_pipeline.py         # CLI entry point for the full LLM optimization pipeline
+│   ├── run_sokoban.py          # Standalone Sokoban play + prompt builder
+│   ├── run_sokoban.sh          # Shell wrapper for run_sokoban.py
+│   ├── test_llm_pipeline.ipynb # Interactive notebook — full pipeline demo
+│   └── test_tool_calling.ipynb # Interactive notebook — tool-calling exploration
 │
 ├── mcts/                   # Core MCTS framework
 │   ├── __init__.py         # Exports: Game, GameState, MCTSNode, MCTSEngine
@@ -30,7 +36,7 @@ Tool_Creation/
 │   ├── simulation/         # Random rollout (default)
 │   ├── backpropagation/    # Value backprop with sign-flip for adversarial games
 │   ├── hyperparams/        # LLM-tunable MCTS engine parameters
-│   │   └── default_hyperparams.py  # get_hyperparams() → dict
+│   │   └── default_hyperparams.py  # get_hyperparams() + game/optimization config
 │   └── training_logic/     # Game-specific training strategies
 │       └── sokoban_training.py     # Levels, mastery criteria, pick_next_level()
 │
@@ -45,43 +51,60 @@ Tool_Creation/
 │   ├── drafts/             # Saved prompt text files
 │   └── results/            # Saved optimizer run outputs
 │
-├── orchestrator/           # Step 7–8: game-agnostic optimization orchestrator
+├── orchestrator/           # Game-agnostic optimization orchestrator
 │   ├── __init__.py         # Exports: Evaluator, OptimizationRunner
 │   ├── evaluator.py        # Evaluator — multi-run eval, composite scoring, mastery
-│   ├── runner.py           # OptimizationRunner — multi-phase iterative LLM loop
-│   └── test_llm_pipeline.ipynb  # Thin notebook driver using orchestrator module
+│   └── runner.py           # OptimizationRunner — multi-phase iterative LLM loop
 │
-└── tests/                  # Pytest suite (192 tests)
-    ├── test_mcts_engine.py     # 63 tests — Sokoban levels, engine, tool swap
+└── tests/                  # Pytest suite (193 tests)
+    ├── test_mcts_engine.py     # 62 tests — Sokoban levels, engine, tool swap
     ├── test_tic_tac_toe.py     # 20 tests — state, MCTS quality, all phases
-    ├── test_trace_logger.py    # 15 tests — logging lifecycle
-    ├── test_prompt_builder.py  # 85 tests — prompt assembly, 3-step prompts, traces
-    └── test_llm_querier.py     # 10 tests — async querier, 3-step pipeline
+    ├── test_trace_logger.py    # 16 tests — logging lifecycle
+    ├── test_prompt_builder.py  # 59 tests — prompt assembly, 3-step prompts, traces
+    └── test_llm_querier.py     # 36 tests — async querier, 3-step pipeline
 ```
 
 ## Quick Start
 
+### Full LLM Optimization Pipeline
+
 ```bash
-# Run the default example (Sokoban level1, 200 iterations)
-./run_sokoban.sh
+# Run the complete MCTS + LLM optimization loop (default config from hyperparams)
+./run_pipeline.sh
 
-# Choose a different level
-./run_sokoban.sh --level level3
+# Override iteration count
+./run_pipeline.sh --iters 20
 
-# More iterations, multiple games, verbose output
-./run_sokoban.sh --level level5 --iterations 500 --games 3 --verbose
-
-# Target a different MCTS phase for prompt building
-./run_sokoban.sh --phase backpropagation
-
-# Limit moves shown per trace in the prompt
-./run_sokoban.sh --games 2 --max-moves 5
-
-# Play without building a prompt
-./run_sokoban.sh --no-prompt --verbose
+# Minimal output
+./run_pipeline.sh --quiet
 ```
 
-All arguments are optional. Run `./run_sokoban.sh --help` for the full list.
+The pipeline reads all configuration from
+`MCTS_tools/hyperparams/default_hyperparams.py` (game identity, engine
+parameters, optimization settings) and
+`MCTS_tools/training_logic/sokoban_training.py` (level curriculum, mastery
+criteria). No separate config file needed.
+
+### Standalone Sokoban Play + Prompt Building
+
+```bash
+# Run the default example (Sokoban level1, 200 iterations)
+scripts/run_sokoban.sh
+
+# Choose a different level
+scripts/run_sokoban.sh --level level3
+
+# More iterations, multiple games, verbose output
+scripts/run_sokoban.sh --level level5 --iterations 500 --games 3 --verbose
+
+# Target a different MCTS phase for prompt building
+scripts/run_sokoban.sh --phase backpropagation
+
+# Play without building a prompt
+scripts/run_sokoban.sh --no-prompt --verbose
+```
+
+All arguments are optional. Run `scripts/run_sokoban.sh --help` for the full list.
 
 ## Architecture
 
@@ -205,13 +228,13 @@ print(summary["best_fn"], summary["mastered_levels"])
 print(summary["current_hyperparams"])  # final tuned engine params
 ```
 
-The notebook `orchestrator/test_llm_pipeline.ipynb` is a thin driver that
-imports, configures, and runs the orchestrator.
+The notebook `scripts/test_llm_pipeline.ipynb` is a thin interactive driver
+that imports, configures, and runs the orchestrator.
 
 ## Running Tests
 
 ```bash
-# All 192 tests
+# All 193 tests
 python -m pytest tests/ -v
 
 # Single file
@@ -229,7 +252,7 @@ python -m pytest tests/test_llm_querier.py -v
 | 4 | ✅ | Trace logger (JSON records) |
 | 5 | ✅ | Prompt builder (game rules + traces + tool source) |
 | 6 | ✅ | LLM querying — 3-step pipeline (analysis → draft → critique), `Optimizer`, per-level baselines, mastery confirmation, 70/30 optimize/rewrite prompting, iterative loop in `test_llm_pipeline.ipynb` |
-| 7 | ✅ | Orchestrator encapsulation — `Evaluator`, `OptimizationRunner`, `config.json`, game-agnostic design |
+| 7 | ✅ | Orchestrator encapsulation — `Evaluator`, `OptimizationRunner`, game-agnostic design |
 | 8 | ✅ | Hyperparams as LLM tool, game-specific training logic, multi-phase optimization |
 
 ## Requirements

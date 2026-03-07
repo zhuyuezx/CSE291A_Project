@@ -17,9 +17,9 @@ import sys
 from pathlib import Path
 
 # Ensure the Tool_Creation directory is on sys.path
-_SCRIPT_DIR = Path(__file__).resolve().parent
-if str(_SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPT_DIR))
+_TOOL_CREATION_DIR = Path(__file__).resolve().parent.parent
+if str(_TOOL_CREATION_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOL_CREATION_DIR))
 
 from mcts import MCTSEngine
 from mcts.games import Sokoban
