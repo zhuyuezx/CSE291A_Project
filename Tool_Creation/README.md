@@ -28,7 +28,11 @@ Tool_Creation/
 │   ├── selection/          # UCB1 tree walk
 │   ├── expansion/          # Child node creation
 │   ├── simulation/         # Random rollout (default)
-│   └── backpropagation/    # Value backprop with sign-flip for adversarial games
+│   ├── backpropagation/    # Value backprop with sign-flip for adversarial games
+│   ├── hyperparams/        # LLM-tunable MCTS engine parameters
+│   │   └── default_hyperparams.py  # get_hyperparams() → dict
+│   └── training_logic/     # Game-specific training strategies
+│       └── sokoban_training.py     # Levels, mastery criteria, pick_next_level()
 │
 ├── LLM/                    # LLM prompt building & querying pipeline
 │   ├── __init__.py
@@ -41,14 +45,13 @@ Tool_Creation/
 │   ├── drafts/             # Saved prompt text files
 │   └── results/            # Saved optimizer run outputs
 │
-├── orchestrator/           # Step 7: game-agnostic optimization orchestrator
+├── orchestrator/           # Step 7–8: game-agnostic optimization orchestrator
 │   ├── __init__.py         # Exports: Evaluator, OptimizationRunner
-│   ├── config.json         # Central configuration (game, MCTS, optimization)
 │   ├── evaluator.py        # Evaluator — multi-run eval, composite scoring, mastery
-│   ├── runner.py           # OptimizationRunner — config-driven iterative LLM loop
+│   ├── runner.py           # OptimizationRunner — multi-phase iterative LLM loop
 │   └── test_llm_pipeline.ipynb  # Thin notebook driver using orchestrator module
 │
-└── tests/                  # Pytest suite (193 tests)
+└── tests/                  # Pytest suite (192 tests)
     ├── test_mcts_engine.py     # 63 tests — Sokoban levels, engine, tool swap
     ├── test_tic_tac_toe.py     # 20 tests — state, MCTS quality, all phases
     ├── test_trace_logger.py    # 15 tests — logging lifecycle
@@ -171,23 +174,35 @@ fn = result["function"]   # callable, or None if smoke test failed
 ### Orchestrator
 
 `orchestrator/` encapsulates the full iterative optimization loop into
-reusable, game-agnostic Python modules:
+reusable, game-agnostic Python modules. All configuration lives in
+``MCTS_tools/`` — no separate JSON config file:
 
-- **`config.json`** — central JSON configuration for game, MCTS, and
-  optimization parameters. Swap game/levels without touching code.
+1. **`MCTS_tools/hyperparams/default_hyperparams.py`** — single source of
+   truth for game identity (class, module, constructor kwargs), optimization
+   orchestration (num_iters, phases, history_window), and LLM-tunable MCTS
+   engine parameters (iterations, max_rollout_depth, exploration_weight).
+2. **`MCTS_tools/training_logic/<game>_training.py`** — game-specific
+   training strategy: level list, start level, mastery criteria, and
+   `pick_next_level()` function.
+
+Key modules:
+
 - **`Evaluator`** — runs MCTS games with a given tool function, computes
   composite scores (weighted solve_rate + avg_returns), tracks per-level
-  baselines, and handles mastery confirmation.
-- **`OptimizationRunner`** — config-driven main loop. Dynamically loads
-  any `Game` subclass, plays traces, calls the LLM `Optimizer`, evaluates
-  candidates, and accepts/rejects based on per-level baselines.
+  baselines, handles mastery confirmation, and supports dynamic hyperparameter
+  updates via `update_hyperparams()`.
+- **`OptimizationRunner`** — multi-phase iterative loop. Supports optimizing
+  both MCTS phase tools (e.g. simulation) and hyperparameters in the same run.
+  Each iteration randomly selects which component to optimize from the
+  configured `phases` list.
 
 ```python
 from orchestrator import OptimizationRunner
 
-runner = OptimizationRunner.from_config("orchestrator/config.json")
-summary = runner.run()   # iterative LLM optimization loop
+runner = OptimizationRunner.from_config()
+summary = runner.run()   # multi-phase iterative LLM optimization loop
 print(summary["best_fn"], summary["mastered_levels"])
+print(summary["current_hyperparams"])  # final tuned engine params
 ```
 
 The notebook `orchestrator/test_llm_pipeline.ipynb` is a thin driver that
@@ -196,7 +211,7 @@ imports, configures, and runs the orchestrator.
 ## Running Tests
 
 ```bash
-# All 193 tests
+# All 192 tests
 python -m pytest tests/ -v
 
 # Single file
@@ -215,7 +230,7 @@ python -m pytest tests/test_llm_querier.py -v
 | 5 | ✅ | Prompt builder (game rules + traces + tool source) |
 | 6 | ✅ | LLM querying — 3-step pipeline (analysis → draft → critique), `Optimizer`, per-level baselines, mastery confirmation, 70/30 optimize/rewrite prompting, iterative loop in `test_llm_pipeline.ipynb` |
 | 7 | ✅ | Orchestrator encapsulation — `Evaluator`, `OptimizationRunner`, `config.json`, game-agnostic design |
-| 8 | ⬜ | Multi-loop iterative improvement |
+| 8 | ✅ | Hyperparams as LLM tool, game-specific training logic, multi-phase optimization |
 
 ## Requirements
 

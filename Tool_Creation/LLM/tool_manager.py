@@ -42,7 +42,7 @@ from typing import Any
 _TOOL_CREATION_DIR = Path(__file__).resolve().parent.parent
 _MCTS_TOOLS_DIR = _TOOL_CREATION_DIR / "MCTS_tools"
 
-VALID_PHASES = ("selection", "expansion", "simulation", "backpropagation")
+VALID_PHASES = ("selection", "expansion", "simulation", "backpropagation", "hyperparams")
 VALID_ACTIONS = ("create", "modify")
 
 # Expected function signatures (param names) per phase
@@ -51,6 +51,7 @@ EXPECTED_SIGNATURES: dict[str, list[str]] = {
     "expansion": ["node"],
     "simulation": ["state", "perspective_player", "max_depth"],
     "backpropagation": ["node", "reward"],
+    "hyperparams": [],  # get_hyperparams() takes no args
 }
 
 

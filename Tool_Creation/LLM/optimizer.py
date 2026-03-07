@@ -340,6 +340,8 @@ class Optimizer:
 
     def _expected_func_name(self) -> str:
         """Derive the expected function name from ``target_phase``."""
+        if self.target_phase == "hyperparams":
+            return "get_hyperparams"
         return f"default_{self.target_phase}"
 
     def _load_function(self, installed_path: Path, func_name: str):

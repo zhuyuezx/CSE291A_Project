@@ -47,6 +47,7 @@ class Evaluator:
         phase: str,
         iterations: int = 200,
         max_rollout_depth: int = 500,
+        exploration_weight: float = 1.41,
         eval_runs: int = 3,
         solve_weight: float = 0.6,
         return_weight: float = 0.4,
@@ -58,6 +59,7 @@ class Evaluator:
         self.phase = phase
         self.iterations = iterations
         self.max_rollout_depth = max_rollout_depth
+        self.exploration_weight = exploration_weight
         self.eval_runs = eval_runs
         self.solve_weight = solve_weight
         self.return_weight = return_weight
@@ -74,20 +76,45 @@ class Evaluator:
         """Weighted score that prioritizes solving over raw returns."""
         return self.solve_weight * solve_rate + self.return_weight * avg_returns
 
+    def update_hyperparams(self, hp: dict) -> None:
+        """Update MCTS engine parameters from a hyperparams dict."""
+        self.iterations = hp.get("iterations", self.iterations)
+        self.max_rollout_depth = hp.get("max_rollout_depth", self.max_rollout_depth)
+        self.exploration_weight = hp.get("exploration_weight", self.exploration_weight)
+
     def multi_eval(
         self,
         fn: Callable | None,
         level: Any,
         n: int | None = None,
         logging: bool = True,
+        phase: str | None = None,
+        extra_tools: dict[str, Callable] | None = None,
     ) -> tuple[float, float, float, list[dict], float]:
         """
         Evaluate a function over n games on a specific level.
+
+        Parameters
+        ----------
+        fn : callable or None
+            Tool function to install on *phase*.  None = default tool.
+        level : Any
+            Level identifier.
+        n : int or None
+            Number of eval games (default: self.eval_runs).
+        logging : bool
+            Whether to write trace files.
+        phase : str or None
+            MCTS phase that *fn* belongs to (default: self.phase).
+        extra_tools : dict or None
+            Additional phase→fn mappings to install alongside *fn*.
 
         Returns (avg_returns, solve_rate, avg_steps, results, elapsed).
         """
         if n is None:
             n = self.eval_runs
+        if phase is None:
+            phase = self.phase
         t0 = time.time()
         results = []
         for _ in range(n):
@@ -96,10 +123,15 @@ class Evaluator:
                 g,
                 iterations=self.iterations,
                 max_rollout_depth=self.max_rollout_depth,
+                exploration_weight=self.exploration_weight,
                 logging=logging,
             )
             if fn is not None:
-                e.set_tool(self.phase, fn)
+                e.set_tool(phase, fn)
+            if extra_tools:
+                for p, f in extra_tools.items():
+                    if f is not None:
+                        e.set_tool(p, f)
             r = e.play_game()
             results.append(r)
         elapsed = time.time() - t0
@@ -118,6 +150,8 @@ class Evaluator:
         solve_rate: float,
         avg_steps: float,
         fn: Callable | None,
+        phase: str | None = None,
+        extra_tools: dict[str, Callable] | None = None,
     ) -> bool:
         """
         Check if a level is mastered. Runs confirmation eval if initial
@@ -133,7 +167,8 @@ class Evaluator:
         print(f"  ⏳ {level} hit {solve_rate:.0%} on {self.eval_runs} runs — "
               f"confirming with {self.mastery_confirm_runs} more games…")
         _, confirm_sr, confirm_steps, _, confirm_t = self.multi_eval(
-            fn, level, n=self.mastery_confirm_runs
+            fn, level, n=self.mastery_confirm_runs,
+            phase=phase, extra_tools=extra_tools,
         )
         if confirm_sr < self.mastery_solve_rate:
             print(f"  ❌ Confirmation failed: {confirm_sr:.0%} on "

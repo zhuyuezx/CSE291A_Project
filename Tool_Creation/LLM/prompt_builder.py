@@ -49,6 +49,7 @@ class PromptBuilder:
     """
 
     VALID_PHASES = ("selection", "expansion", "simulation", "backpropagation")
+    VALID_TARGET_PHASES = VALID_PHASES + ("hyperparams",)
 
     def __init__(
         self,
@@ -57,10 +58,10 @@ class PromptBuilder:
         game_infos_dir: str | Path | None = None,
         records_dir: str | Path | None = None,
     ):
-        if target_phase not in self.VALID_PHASES:
+        if target_phase not in self.VALID_TARGET_PHASES:
             raise ValueError(
                 f"Invalid target_phase '{target_phase}'. "
-                f"Must be one of {list(self.VALID_PHASES)}"
+                f"Must be one of {list(self.VALID_TARGET_PHASES)}"
             )
         self.game = game.lower()
         self.target_phase = target_phase
@@ -287,6 +288,29 @@ class PromptBuilder:
 
     def _build_system_section(self) -> str:
         sep = "=" * 60
+        if self.target_phase == "hyperparams":
+            return (
+                f"{sep}\n"
+                f"SYSTEM: MCTS Hyperparameter Tuning\n"
+                f"{sep}\n"
+                f"You are an expert game-playing AI researcher.\n"
+                f"Your task is to tune the MCTS engine hyperparameters\n"
+                f"for the game '{self.game}'.\n\n"
+                f"The hyperparameters control how MCTS searches the game tree.\n"
+                f"Better parameters can dramatically improve play quality.\n\n"
+                f"KEY PARAMETERS:\n"
+                f"  • iterations — more iterations = stronger play but slower.\n"
+                f"    Consider the game's branching factor and depth.\n"
+                f"  • max_rollout_depth — must be sufficient to reach informative\n"
+                f"    states. Too low = blind evaluation, too high = wasted time.\n"
+                f"  • exploration_weight (UCB1 C) — balances exploration vs\n"
+                f"    exploitation. Lower = greedy, higher = adventurous.\n\n"
+                f"GENERAL RULES:\n"
+                f"  • Return a dict with the exact keys shown.\n"
+                f"  • All values must be positive numbers.\n"
+                f"  • Consider the game's complexity and the simulation\n"
+                f"    heuristic quality when tuning."
+            )
         return (
             f"{sep}\n"
             f"SYSTEM: MCTS Heuristic Improvement\n"
@@ -335,7 +359,10 @@ class PromptBuilder:
 
     def _build_tool_source_section(self, tool_source: str | None) -> str:
         sep = "-" * 60
-        header = f"{sep}\nTARGET HEURISTIC TO IMPROVE ({self.target_phase})\n{sep}"
+        if self.target_phase == "hyperparams":
+            header = f"{sep}\nCURRENT HYPERPARAMETERS (to tune)\n{sep}"
+        else:
+            header = f"{sep}\nTARGET HEURISTIC TO IMPROVE ({self.target_phase})\n{sep}"
         if tool_source:
             return header + "\n```python\n" + tool_source.rstrip() + "\n```"
         return header + "\n(No heuristic code provided — using MCTS default.)"
@@ -356,6 +383,8 @@ class PromptBuilder:
         return "\n\n".join(parts)
 
     def _build_task_section(self) -> str:
+        if self.target_phase == "hyperparams":
+            return self._build_hyperparams_task_section()
         sep = "-" * 60
         return (
             f"{sep}\n"
@@ -405,6 +434,8 @@ class PromptBuilder:
 
     def _build_analysis_task_section(self) -> str:
         """Step 1 task: analyse traces and propose improvement(s)."""
+        if self.target_phase == "hyperparams":
+            return self._build_hyperparams_analysis_task_section()
         sep = "-" * 60
         return (
             f"{sep}\n"
@@ -469,6 +500,8 @@ class PromptBuilder:
 
     def _build_critique_task_section(self) -> str:
         """Step 3 task: critique the draft code and produce a final version."""
+        if self.target_phase == "hyperparams":
+            return self._build_hyperparams_critique_task_section()
         sep = "-" * 60
         return (
             f"{sep}\n"
@@ -499,6 +532,103 @@ class PromptBuilder:
             f"- FILE_NAME must end in .py and contain only [a-z0-9_].\n"
             f"- FUNCTION_NAME must match the main function defined in the code.\n"
             f"- The code block must be valid Python that can run standalone."
+        )
+
+    # ------------------------------------------------------------------
+    # Hyperparams-specific section builders
+    # ------------------------------------------------------------------
+
+    def _build_hyperparams_task_section(self) -> str:
+        """Task section for hyperparameter tuning (step 2: generation)."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"TASK — TUNE MCTS HYPERPARAMETERS\n"
+            f"{sep}\n"
+            f"Adjust the MCTS engine hyperparameters to improve play quality\n"
+            f"on the game '{self.game}'.\n\n"
+            f"Available parameters:\n"
+            f"  \u2022 iterations (int) \u2014 MCTS iterations per move.\n"
+            f"    More iterations = stronger search but slower.\n"
+            f"  \u2022 max_rollout_depth (int) \u2014 max steps per simulation rollout.\n"
+            f"    Must be enough to reach meaningful states.\n"
+            f"  \u2022 exploration_weight (float) \u2014 UCB1 exploration constant C.\n"
+            f"    Balance exploration of new moves vs exploitation of good ones.\n\n"
+            f"CONSIDERATIONS:\n"
+            f"  \u2022 If the heuristic is weak, more iterations can compensate.\n"
+            f"  \u2022 If the game has deep solutions, increase max_rollout_depth.\n"
+            f"  \u2022 If MCTS keeps revisiting the same bad moves, increase\n"
+            f"    exploration_weight. If it explores too randomly, decrease it.\n"
+            f"  \u2022 Keep total time reasonable (<30s per move as guideline).\n\n"
+            f"You MUST format your response EXACTLY as follows:\n\n"
+            f"ACTION: modify\n"
+            f"FILE_NAME: <filename>.py\n"
+            f"FUNCTION_NAME: get_hyperparams\n"
+            f"DESCRIPTION: <one-line: what you changed and why>\n"
+            f"```python\n"
+            f"<your complete get_hyperparams function>\n"
+            f"```\n\n"
+            f"Rules:\n"
+            f"- The function must be named get_hyperparams, take no arguments,\n"
+            f"  and return a dict with keys: iterations, max_rollout_depth,\n"
+            f"  exploration_weight.\n"
+            f"- All values must be positive numbers.\n"
+            f"- The code block must be valid Python."
+        )
+
+    def _build_hyperparams_analysis_task_section(self) -> str:
+        """Step 1 task for hyperparams: analyse performance and propose tuning."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"TASK \u2014 HYPERPARAMETER ANALYSIS (no code)\n"
+            f"{sep}\n"
+            f"Study the game rules, the current hyperparameters, the gameplay\n"
+            f"traces, and the performance history above.\n\n"
+            f"Produce a focused analysis:\n\n"
+            f"1. PERFORMANCE DIAGNOSIS\n"
+            f"   Is the engine struggling due to insufficient search depth,\n"
+            f"   too few iterations, or poor exploration balance?\n"
+            f"   Cite evidence from traces (e.g. Q-value uniformity, repeated\n"
+            f"   states, failure to find solutions within step limits).\n\n"
+            f"2. PARAMETER RECOMMENDATIONS\n"
+            f"   For each parameter (iterations, max_rollout_depth,\n"
+            f"   exploration_weight), recommend a value and explain why.\n"
+            f"   Consider the tradeoff between strength and speed.\n\n"
+            f"Keep your analysis under 300 words. Do NOT write code."
+        )
+
+    def _build_hyperparams_critique_task_section(self) -> str:
+        """Step 3 task for hyperparams: validate proposed parameter values."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"TASK \u2014 CRITIQUE & FINALIZE HYPERPARAMETERS\n"
+            f"{sep}\n"
+            f"Review the proposed hyperparameter values.\n\n"
+            f"Check for:\n"
+            f"  1. CORRECTNESS \u2014 all values positive, reasonable ranges\n"
+            f"  2. BALANCE \u2014 more iterations vs time cost\n"
+            f"  3. GAME FIT \u2014 do the values suit this game's complexity?\n\n"
+            f"RULES:\n"
+            f"  - Preserve the intent of the proposal.\n"
+            f"  - Fix any extreme or clearly wrong values.\n"
+            f"  - If the proposal is sound, output it UNCHANGED.\n\n"
+            f"You MUST format your response EXACTLY as follows:\n\n"
+            f"CRITIQUE:\n"
+            f"<1-3 bullet points, or 'No issues found'>\n\n"
+            f"ACTION: modify\n"
+            f"FILE_NAME: <filename>.py\n"
+            f"FUNCTION_NAME: get_hyperparams\n"
+            f"DESCRIPTION: <one-line summary>\n"
+            "```python\n"
+            f"<complete get_hyperparams function>\n"
+            "```\n\n"
+            f"Rules:\n"
+            f"- FUNCTION_NAME must be get_hyperparams.\n"
+            f"- The function returns a dict with keys: iterations,\n"
+            f"  max_rollout_depth, exploration_weight.\n"
+            f"- The code block must be valid Python."
         )
 
     # ------------------------------------------------------------------

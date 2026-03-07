@@ -1,27 +1,33 @@
 """
 OptimizationRunner — game-agnostic iterative LLM optimization loop.
 
-Encapsulates the full train loop from `test_llm_pipeline.ipynb`:
-  1. Pick a random level from the active pool
-  2. Play with the current tool → collect trace
-  3. Build history context → run 3-step LLM optimizer
-  4. Evaluate the new tool on the same level
-  5. Accept/reject with per-level baselines
-  6. Track mastery and remove solved levels
+Encapsulates the full train loop:
+  1. Pick a level (via game-specific training logic)
+  2. Pick which component to optimize (tool phase or hyperparams)
+  3. Play with current tool + hyperparams → collect trace
+  4. Build history context → run 3-step LLM optimizer
+  5. Evaluate the new tool / hyperparams
+  6. Accept/reject with per-level baselines
+  7. Track mastery and remove solved levels
+
+Configuration sources (all in ``MCTS_tools/``):
+  - ``hyperparams/default_hyperparams.py`` — engine params, game identity,
+    and optimization orchestration settings
+  - ``training_logic/<game>_training.py`` — levels, mastery criteria, etc.
 
 Usage::
 
     from orchestrator import OptimizationRunner
 
-    runner = OptimizationRunner.from_config("orchestrator/config.json")
+    runner = OptimizationRunner.from_config()
     summary = runner.run()
-    # summary is a dict with all_results, best_fn, level_best_scores, etc.
 """
 
 from __future__ import annotations
 
 import importlib
-import json
+import importlib.util
+import inspect
 import random
 import time
 from pathlib import Path
@@ -32,14 +38,43 @@ from LLM import Optimizer
 
 from .evaluator import Evaluator
 
+# ── Paths ────────────────────────────────────────────────────────────
+_TOOL_CREATION_DIR = Path(__file__).resolve().parent.parent
+_MCTS_TOOLS_DIR = _TOOL_CREATION_DIR / "MCTS_tools"
 
-def _load_config(config_path: str | Path) -> dict:
-    """Load and return the JSON configuration."""
-    path = Path(config_path)
-    if not path.is_absolute():
-        path = Path(__file__).resolve().parent / path
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+
+def _load_training_logic(module_name: str):
+    """Load a training logic module from MCTS_tools/training_logic/."""
+    path = _MCTS_TOOLS_DIR / "training_logic" / f"{module_name}.py"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Training logic file not found: {path}\n"
+            f"Create MCTS_tools/training_logic/{module_name}.py"
+        )
+    spec = importlib.util.spec_from_file_location(module_name, str(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_hyperparams_module(filename: str = "default_hyperparams.py"):
+    """Load the full hyperparams module from MCTS_tools/hyperparams/."""
+    path = _MCTS_TOOLS_DIR / "hyperparams" / filename
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Hyperparams file not found: {path}\n"
+            f"Create MCTS_tools/hyperparams/{filename}"
+        )
+    spec = importlib.util.spec_from_file_location("hyperparams", str(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _get_hyperparams_source() -> str:
+    """Return the source code of the current hyperparams file."""
+    path = _MCTS_TOOLS_DIR / "hyperparams" / "default_hyperparams.py"
+    return path.read_text(encoding="utf-8")
 
 
 def _make_game_factory(
@@ -54,10 +89,8 @@ def _make_game_factory(
     passed as the first positional arg. For games without level support
     (e.g. TicTacToe), the level is ignored.
     """
-    import inspect
     sig = inspect.signature(game_class.__init__)
     params = list(sig.parameters.keys())
-    # Check if the constructor has a level-like first param
     has_level_param = len(params) > 1  # first is 'self'
 
     if has_level_param:
@@ -74,71 +107,60 @@ class OptimizationRunner:
     """
     Iterative LLM optimization loop — game-agnostic.
 
-    Parameters
-    ----------
-    game_name : str
-        Game name for the LLM prompt builder (e.g. "sokoban").
-    game_factory : callable(level) -> Game
-        Creates a Game instance for a given level.
-    levels : list[str]
-        All available levels.
-    start_level : str
-        Level to start with.
-    phase : str
-        MCTS phase to optimize.
-    mcts_iterations : int
-        MCTS iterations per move.
-    max_rollout_depth : int
-        Max rollout depth.
-    evaluator : Evaluator
-        Pre-configured evaluator instance.
-    num_iters : int
-        Number of optimization iterations.
-    three_step : bool
-        Use 3-step LLM pipeline.
-    history_window : int
-        How many past iterations to include in LLM context.
-    reject_threshold : float
-        Reject if composite < baseline * this.
-    verbose : bool
-        Print progress.
+    Supports optimizing multiple components per loop: MCTS tool phases
+    (e.g. simulation) and/or hyperparameters.  Training strategy
+    (level selection, mastery criteria) is loaded from a game-specific
+    training logic module.
     """
 
     def __init__(
         self,
         game_name: str,
         game_factory: Callable[[Any], Game],
-        levels: list[str],
-        start_level: str,
-        phase: str,
-        mcts_iterations: int,
-        max_rollout_depth: int,
+        training,
+        phases: list[str],
         evaluator: Evaluator,
+        hyperparams_fn: Callable,
         num_iters: int = 5,
         three_step: bool = True,
         history_window: int = 3,
-        reject_threshold: float = 0.5,
+        logging: bool = True,
         verbose: bool = True,
     ):
         self.game_name = game_name
         self.game_factory = game_factory
-        self.levels = levels
-        self.start_level = start_level
-        self.phase = phase
-        self.mcts_iterations = mcts_iterations
-        self.max_rollout_depth = max_rollout_depth
+        self.training = training
+        self.phases = phases
         self.evaluator = evaluator
         self.num_iters = num_iters
         self.three_step = three_step
         self.history_window = history_window
-        self.reject_threshold = reject_threshold
+        self.logging = logging
         self.verbose = verbose
 
-        # State
-        self.best_fn: Callable | None = None
-        self.current_fn: Callable | None = None
+        # Derived from training logic
+        self.levels: list[str] = training.LEVELS
+        self.start_level: str = training.START_LEVEL
+        self.reject_threshold: float = training.REJECT_THRESHOLD
+
+        # Separate tool phases (engine phases) from meta-phases
+        self.tool_phases = [p for p in phases if p != "hyperparams"]
+        self.primary_phase = self.tool_phases[0] if self.tool_phases else "simulation"
+
+        # Hyperparams state
+        self.hyperparams_fn = hyperparams_fn
+        self.best_hyperparams_fn = hyperparams_fn
+        self.current_hyperparams: dict = hyperparams_fn()
+
+        # Tool function state — per-phase
+        self.best_fns: dict[str, Callable | None] = {
+            p: None for p in self.tool_phases
+        }
+        self.current_fns: dict[str, Callable | None] = {
+            p: None for p in self.tool_phases
+        }
         self.all_results: list[dict] = []
-        self.active_levels: list[str] = list(levels)
+        self.active_levels: list[str] = list(self.levels)
 
     # ------------------------------------------------------------------
     # Factory
@@ -147,53 +169,96 @@ class OptimizationRunner:
     @classmethod
     def from_config(
         cls,
-        config_path: str | Path = "config.json",
+        hyperparams_file: str = "default_hyperparams.py",
         verbose: bool = True,
     ) -> "OptimizationRunner":
-        """Create an OptimizationRunner from a JSON config file."""
-        cfg = _load_config(config_path)
+        """Create an OptimizationRunner from the hyperparams module.
 
-        game_cfg = cfg["game"]
-        mcts_cfg = cfg["mcts"]
-        opt_cfg = cfg["optimization"]
+        All configuration (game identity, optimization settings, and
+        engine parameters) is read from a single Python file in
+        ``MCTS_tools/hyperparams/``.
+        """
+        hp_mod = _load_hyperparams_module(hyperparams_file)
 
-        # Dynamically import the game class
-        module = importlib.import_module(game_cfg["module"])
-        game_class = getattr(module, game_cfg["class"])
-        ctor_kwargs = game_cfg.get("constructor_kwargs", {})
-        levels = game_cfg["levels"]
-        start_level = game_cfg.get("start_level", levels[0])
+        # Game identity from module-level constants
+        game_module = importlib.import_module(
+            getattr(hp_mod, "GAME_MODULE", "mcts.games")
+        )
+        game_class = getattr(
+            game_module, getattr(hp_mod, "GAME_CLASS", "Sokoban")
+        )
+        ctor_kwargs = getattr(hp_mod, "CONSTRUCTOR_KWARGS", {})
+        game_name = getattr(hp_mod, "GAME_NAME", "sokoban")
 
-        game_factory = _make_game_factory(game_class, levels, ctor_kwargs)
+        # Training logic
+        training_name = getattr(hp_mod, "TRAINING_LOGIC", "sokoban_training")
+        training = _load_training_logic(training_name)
+
+        # Engine hyperparams
+        hyperparams_fn = hp_mod.get_hyperparams
+        hp = hyperparams_fn()
+
+        # Optimization orchestration
+        phases = getattr(hp_mod, "PHASES", ["simulation"])
+        primary_phase = next(
+            (p for p in phases if p != "hyperparams"), "simulation"
+        )
+
+        game_factory = _make_game_factory(
+            game_class, training.LEVELS, ctor_kwargs
+        )
 
         evaluator = Evaluator(
             game_factory=game_factory,
-            phase=mcts_cfg["phase"],
-            iterations=mcts_cfg["iterations"],
-            max_rollout_depth=mcts_cfg["max_rollout_depth"],
-            eval_runs=opt_cfg["eval_runs"],
-            solve_weight=opt_cfg["solve_weight"],
-            return_weight=opt_cfg["return_weight"],
-            mastery_solve_rate=opt_cfg["mastery_solve_rate"],
-            mastery_confirm_runs=opt_cfg["mastery_confirm_runs"],
-            mastery_max_steps=opt_cfg.get("mastery_max_steps"),
+            phase=primary_phase,
+            iterations=hp["iterations"],
+            max_rollout_depth=hp["max_rollout_depth"],
+            exploration_weight=hp.get("exploration_weight", 1.41),
+            eval_runs=training.EVAL_RUNS,
+            solve_weight=training.SOLVE_WEIGHT,
+            return_weight=training.RETURN_WEIGHT,
+            mastery_solve_rate=training.MASTERY_SOLVE_RATE,
+            mastery_confirm_runs=training.MASTERY_CONFIRM_RUNS,
+            mastery_max_steps=getattr(training, "MASTERY_MAX_STEPS", None),
         )
 
         return cls(
-            game_name=game_cfg["name"],
+            game_name=game_name,
             game_factory=game_factory,
-            levels=levels,
-            start_level=start_level,
-            phase=mcts_cfg["phase"],
-            mcts_iterations=mcts_cfg["iterations"],
-            max_rollout_depth=mcts_cfg["max_rollout_depth"],
+            training=training,
+            phases=phases,
             evaluator=evaluator,
-            num_iters=opt_cfg["num_iters"],
-            three_step=opt_cfg["three_step"],
-            history_window=opt_cfg["history_window"],
-            reject_threshold=opt_cfg["reject_threshold"],
+            hyperparams_fn=hyperparams_fn,
+            num_iters=getattr(hp_mod, "NUM_ITERS", 5),
+            three_step=getattr(hp_mod, "THREE_STEP", True),
+            history_window=getattr(hp_mod, "HISTORY_WINDOW", 3),
+            logging=getattr(hp_mod, "LOGGING", True),
             verbose=verbose,
         )
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _pick_optimization_phase(self, iteration: int) -> str:
+        """Pick which component to optimize this iteration."""
+        return random.choice(self.phases)
+
+    def _make_engine(self, level: str) -> MCTSEngine:
+        """Create an MCTSEngine with current hyperparams and all tools."""
+        hp = self.current_hyperparams
+        g = self.game_factory(level)
+        eng = MCTSEngine(
+            g,
+            iterations=hp["iterations"],
+            max_rollout_depth=hp["max_rollout_depth"],
+            exploration_weight=hp.get("exploration_weight", 1.41),
+            logging=self.logging,
+        )
+        for phase, fn in self.current_fns.items():
+            if fn is not None:
+                eng.set_tool(phase, fn)
+        return eng
 
     # ------------------------------------------------------------------
     # History builder
@@ -208,8 +273,12 @@ class OptimizationRunner:
             if ev.level_best_scores else 0.0
         )
 
+        hp = self.current_hyperparams
         lines = [
             f"Current level: {current_level}",
+            f"Current hyperparams: iterations={hp['iterations']}, "
+            f"max_rollout_depth={hp['max_rollout_depth']}, "
+            f"exploration_weight={hp.get('exploration_weight', 1.41):.3f}",
             f"Baseline for {current_level} (default MCTS): "
             f"composite={bl['composite']:.4f}, "
             f"solve_rate={bl['solve_rate']:.0%}, "
@@ -232,7 +301,8 @@ class OptimizationRunner:
             (f"Mastered levels: {sorted(ev.mastered_levels)}"
              if ev.mastered_levels else ""),
             "",
-            "SCORING: composite = 0.6 × solve_rate + 0.4 × avg_returns",
+            f"SCORING: composite = {ev.solve_weight} × solve_rate "
+            f"+ {ev.return_weight} × avg_returns",
             "  → SOLVING the puzzle is MORE important than heuristic accuracy.",
             "",
             "STRATEGY: Prefer gradual, incremental improvements. Build on the",
@@ -254,8 +324,11 @@ class OptimizationRunner:
             time_info = ""
             if r.get("eval_time") is not None:
                 time_info = f", eval_time={r['eval_time']:.1f}s"
+            phase_info = ""
+            if r.get("opt_phase"):
+                phase_info = f" [{r['opt_phase']}]"
             lines.append(
-                f"  Iter {r['iteration']} [{r['level']}]: "
+                f"  Iter {r['iteration']} [{r['level']}]{phase_info}: "
                 f"composite={r['composite']:.4f}, "
                 f"{tag}{time_info}, "
                 f"desc={r.get('description', 'n/a')}{status}"
@@ -271,8 +344,8 @@ class OptimizationRunner:
         Execute the iterative optimization loop.
 
         Returns a summary dict with:
-            all_results, best_fn, level_best_scores, level_baselines,
-            mastered_levels, active_levels
+            all_results, best_fn, current_fn, current_hyperparams,
+            level_best_scores, level_baselines, mastered_levels, active_levels
         """
         ev = self.evaluator
         current_level = self.start_level
@@ -282,17 +355,24 @@ class OptimizationRunner:
             lv for lv in self.levels if lv not in ev.mastered_levels
         ]
 
-        # Create the LLM optimizer
-        opt = Optimizer(
-            game=self.game_name,
-            target_phase=self.phase,
-            three_step=self.three_step,
-            verbose=self.verbose,
-        )
+        # Create LLM optimizers — one per target phase
+        optimizers: dict[str, Optimizer] = {}
+        for phase in self.phases:
+            optimizers[phase] = Optimizer(
+                game=self.game_name,
+                target_phase=phase,
+                three_step=self.three_step,
+                verbose=self.verbose,
+            )
 
         # Compute initial baseline
         if self.verbose:
+            hp = self.current_hyperparams
             print(f"Starting level: {current_level}")
+            print(f"Hyperparams: iterations={hp['iterations']}, "
+                  f"max_depth={hp['max_rollout_depth']}, "
+                  f"C={hp.get('exploration_weight', 1.41):.3f}")
+            print(f"Phases to optimize: {self.phases}")
         init_bl = ev.get_baseline(current_level)
         if self.verbose:
             print(f"  Reject floor for {current_level}: "
@@ -309,11 +389,12 @@ class OptimizationRunner:
             cur_level = current_level
             bl = ev.get_baseline(cur_level)
             reject_floor = bl["composite"] * self.reject_threshold
+            opt_phase = self._pick_optimization_phase(iteration)
 
             if self.verbose:
                 print(f"\n{'#'*60}")
                 print(f"  ITERATION {iteration}/{self.num_iters}, "
-                      f"LEVEL={cur_level}")
+                      f"LEVEL={cur_level}, PHASE={opt_phase}")
                 print(f"  Baseline composite={bl['composite']:.4f}, "
                       f"reject_floor={reject_floor:.4f}")
                 print(f"  Active levels: {len(self.active_levels)}/"
@@ -326,22 +407,18 @@ class OptimizationRunner:
                 lambda _lv=cur_level: self.game_factory(_lv).new_initial_state()
             )
 
-            # --- 1. Play with current tool ---
+            # --- 1. Play with current tool + hyperparams ---
             t_play_start = time.time()
-            g = self.game_factory(cur_level)
-            eng = MCTSEngine(
-                g,
-                iterations=self.mcts_iterations,
-                max_rollout_depth=self.max_rollout_depth,
-                logging=True,
-            )
-            if self.current_fn is not None:
-                eng.set_tool(self.phase, self.current_fn)
-
+            eng = self._make_engine(cur_level)
             play_result = eng.play_game()
             t_play = time.time() - t_play_start
             play_trace = play_result.get("log_file", "")
             tl = eng.get_tool_source()
+
+            # Include hyperparams source in tool_list for LLM context
+            if "hyperparams" in self.phases:
+                tl["hyperparams"] = _get_hyperparams_source()
+
             p_ret = play_result["returns"]
             p_ret_val = p_ret[0] if isinstance(p_ret, list) else p_ret
             ptag = "SOLVED" if play_result.get("solved") else "UNSOLVED"
@@ -357,8 +434,9 @@ class OptimizationRunner:
                 if self.all_results else None
             )
 
-            # --- 3. Optimize (3-step: analysis → draft → critique) ---
+            # --- 3. Optimize (analysis → draft → critique) ---
             t_opt_start = time.time()
+            opt = optimizers[opt_phase]
             result = opt.run(
                 record_files=[play_trace] if play_trace else [],
                 tool_list=tl,
@@ -367,12 +445,13 @@ class OptimizationRunner:
             )
             t_opt = time.time() - t_opt_start
             if self.verbose:
-                print(f"  Optimize: {t_opt:.1f}s")
+                print(f"  Optimize ({opt_phase}): {t_opt:.1f}s")
 
             # --- 4. Multi-run evaluation ---
             iter_record = {
                 "iteration": iteration,
                 "level": cur_level,
+                "opt_phase": opt_phase,
                 "smoke_test": result["smoke_test"],
                 "avg_returns": bl["avg_returns"],
                 "solve_rate": 0.0,
@@ -391,65 +470,144 @@ class OptimizationRunner:
 
             fn = result.get("function")
             if fn is not None:
-                avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
-                    fn, cur_level
-                )
-                comp = ev.composite_score(solve_rate, avg_ret)
-                iter_record["avg_returns"] = avg_ret
-                iter_record["solve_rate"] = solve_rate
-                iter_record["composite"] = comp
-                iter_record["avg_steps"] = avg_steps
-                iter_record["eval_time"] = eval_time
+                # Build extra_tools: all current tool fns except the phase being evaluated
+                extra_tools = {
+                    p: f for p, f in self.current_fns.items()
+                    if f is not None and p != opt_phase
+                } or None
 
-                if self.verbose:
-                    print(
-                        f"  Eval ({ev.eval_runs} runs, {cur_level}): "
-                        f"avg_returns={avg_ret:.4f}, "
-                        f"solve_rate={solve_rate:.0%}, "
-                        f"composite={comp:.4f}, "
-                        f"avg_steps={avg_steps:.0f}  ({eval_time:.1f}s)"
-                    )
+                try:
+                    if opt_phase == "hyperparams":
+                        # fn is a get_hyperparams callable — evaluate new params
+                        new_hp = fn()
+                        old_hp = self.current_hyperparams.copy()
+                        ev.update_hyperparams(new_hp)
 
-                # Check mastery with confirmation
-                newly_mastered = ev.check_mastery(
-                    cur_level, solve_rate, avg_steps, fn
-                )
-                if newly_mastered and cur_level in self.active_levels:
-                    self.active_levels.remove(cur_level)
-                    if self.verbose:
-                        print(f"    {len(self.active_levels)} levels remain.")
-
-                # --- 5. Accept-unless-terrible ---
-                prev_level_best = ev.level_best_scores.get(
-                    cur_level, bl["composite"]
-                )
-
-                if comp > prev_level_best:
-                    if self.verbose:
-                        print(f"  ★ NEW BEST for {cur_level} "
-                              f"(prev={prev_level_best:.4f}) — adopting")
-                    ev.level_best_scores[cur_level] = comp
-                    self.best_fn = fn
-                    self.current_fn = fn
-                    iter_record["adopted"] = True
-                    iter_record["is_best"] = True
-                elif comp >= reject_floor:
-                    if self.verbose:
-                        print(
-                            f"  → Accepted on {cur_level} "
-                            f"(comp={comp:.4f} ≥ floor={reject_floor:.4f}, "
-                            f"level_best={prev_level_best:.4f})"
+                        # Eval with all current tool fns
+                        all_tools = {
+                            p: f for p, f in self.current_fns.items()
+                            if f is not None
+                        } or None
+                        avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
+                            None, cur_level, extra_tools=all_tools,
                         )
-                    self.current_fn = fn
-                    iter_record["adopted"] = True
-                else:
-                    if self.verbose:
-                        print(
-                            f"  ✗ Rejected on {cur_level} "
-                            f"(comp={comp:.4f} < floor={reject_floor:.4f}) "
-                            f"— reverting to best"
+                        comp = ev.composite_score(solve_rate, avg_ret)
+                        iter_record.update({
+                            "avg_returns": avg_ret,
+                            "solve_rate": solve_rate,
+                            "composite": comp,
+                            "avg_steps": avg_steps,
+                            "eval_time": eval_time,
+                        })
+                        if self.verbose:
+                            print(
+                                f"  Eval ({ev.eval_runs} runs, {cur_level}): "
+                                f"avg_returns={avg_ret:.4f}, "
+                                f"solve_rate={solve_rate:.0%}, "
+                                f"composite={comp:.4f}  ({eval_time:.1f}s)"
+                            )
+
+                        prev_level_best = ev.level_best_scores.get(
+                            cur_level, bl["composite"]
                         )
-                    self.current_fn = self.best_fn
+                        if comp > prev_level_best:
+                            if self.verbose:
+                                print(f"  ★ NEW BEST (hyperparams) for {cur_level}")
+                            ev.level_best_scores[cur_level] = comp
+                            self.current_hyperparams = new_hp
+                            self.hyperparams_fn = fn
+                            self.best_hyperparams_fn = fn
+                            iter_record["adopted"] = True
+                            iter_record["is_best"] = True
+                        elif comp >= reject_floor:
+                            if self.verbose:
+                                print(f"  → Accepted hyperparams "
+                                      f"(comp={comp:.4f} ≥ floor={reject_floor:.4f})")
+                            self.current_hyperparams = new_hp
+                            self.hyperparams_fn = fn
+                            iter_record["adopted"] = True
+                        else:
+                            if self.verbose:
+                                print(f"  ✗ Rejected hyperparams "
+                                      f"(comp={comp:.4f} < floor={reject_floor:.4f})")
+                            ev.update_hyperparams(old_hp)
+
+                        # Check mastery
+                        newly_mastered = ev.check_mastery(
+                            cur_level, solve_rate, avg_steps, None,
+                            extra_tools=all_tools,
+                        )
+                        if newly_mastered and cur_level in self.active_levels:
+                            self.active_levels.remove(cur_level)
+                    else:
+                        # Normal tool phase optimization
+                        avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
+                            fn, cur_level,
+                            phase=opt_phase, extra_tools=extra_tools,
+                        )
+                        comp = ev.composite_score(solve_rate, avg_ret)
+                        iter_record.update({
+                            "avg_returns": avg_ret,
+                            "solve_rate": solve_rate,
+                            "composite": comp,
+                            "avg_steps": avg_steps,
+                            "eval_time": eval_time,
+                        })
+
+                        if self.verbose:
+                            print(
+                                f"  Eval ({ev.eval_runs} runs, {cur_level}): "
+                                f"avg_returns={avg_ret:.4f}, "
+                                f"solve_rate={solve_rate:.0%}, "
+                                f"composite={comp:.4f}, "
+                                f"avg_steps={avg_steps:.0f}  ({eval_time:.1f}s)"
+                            )
+
+                        newly_mastered = ev.check_mastery(
+                            cur_level, solve_rate, avg_steps, fn,
+                            phase=opt_phase, extra_tools=extra_tools,
+                        )
+                        if newly_mastered and cur_level in self.active_levels:
+                            self.active_levels.remove(cur_level)
+                            if self.verbose:
+                                print(f"    {len(self.active_levels)} levels remain.")
+
+                        prev_level_best = ev.level_best_scores.get(
+                            cur_level, bl["composite"]
+                        )
+                        if comp > prev_level_best:
+                            if self.verbose:
+                                print(f"  ★ NEW BEST for {cur_level} "
+                                      f"(prev={prev_level_best:.4f}) — adopting")
+                            ev.level_best_scores[cur_level] = comp
+                            self.best_fns[opt_phase] = fn
+                            self.current_fns[opt_phase] = fn
+                            iter_record["adopted"] = True
+                            iter_record["is_best"] = True
+                        elif comp >= reject_floor:
+                            if self.verbose:
+                                print(
+                                    f"  → Accepted on {cur_level} "
+                                    f"(comp={comp:.4f} ≥ floor={reject_floor:.4f})"
+                                )
+                            self.current_fns[opt_phase] = fn
+                            iter_record["adopted"] = True
+                        else:
+                            if self.verbose:
+                                print(
+                                    f"  ✗ Rejected on {cur_level} "
+                                    f"(comp={comp:.4f} < floor={reject_floor:.4f}) "
+                                    f"— reverting to best"
+                                )
+                            self.current_fns[opt_phase] = self.best_fns[opt_phase]
+                except Exception as exc:
+                    if self.verbose:
+                        print(f"  ✗ Eval crashed: {exc!r}")
+                        print(f"    Rejecting {opt_phase} candidate")
+                    iter_record["error"] = str(exc)
+                    # Revert hyperparams if we changed them
+                    if opt_phase == "hyperparams":
+                        ev.update_hyperparams(old_hp)
             else:
                 if self.verbose:
                     print("  Eval:  SKIPPED (smoke test failed or error)")
@@ -461,9 +619,11 @@ class OptimizationRunner:
                 print(f"  Iteration total: {total_time:.1f}s")
             self.all_results.append(iter_record)
 
-            # Pick next level from non-mastered pool
+            # Pick next level via training logic
             if self.active_levels:
-                current_level = random.choice(self.active_levels)
+                current_level = self.training.pick_next_level(
+                    self.active_levels, self.levels, self.all_results
+                )
             else:
                 if self.verbose:
                     print("\n🎉 All levels mastered! Will stop next iteration.")
@@ -472,8 +632,9 @@ class OptimizationRunner:
         # --- Summary ---
         summary = {
             "all_results": self.all_results,
-            "best_fn": self.best_fn,
-            "current_fn": self.current_fn,
+            "best_fns": dict(self.best_fns),
+            "current_fns": dict(self.current_fns),
+            "current_hyperparams": dict(self.current_hyperparams),
             "level_best_scores": dict(ev.level_best_scores),
             "level_baselines": dict(ev.level_baselines),
             "mastered_levels": set(ev.mastered_levels),
@@ -484,6 +645,10 @@ class OptimizationRunner:
             print(f"\n{'='*60}")
             print(f"Iterative optimization complete — "
                   f"{len(self.all_results)} iterations done.")
+            hp = self.current_hyperparams
+            print(f"Final hyperparams: iterations={hp['iterations']}, "
+                  f"max_depth={hp['max_rollout_depth']}, "
+                  f"C={hp.get('exploration_weight', 1.41):.3f}")
             if ev.mastered_levels:
                 print(f"Mastered {len(ev.mastered_levels)}/{len(self.levels)} "
                       f"levels: {sorted(ev.mastered_levels)}")
