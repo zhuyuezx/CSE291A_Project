@@ -17,11 +17,11 @@ Returned dict keys:
 """
 
 # ── Game configuration ───────────────────────────────────────────────
-GAME_NAME = "sokoban"
-GAME_CLASS = "Sokoban"
+GAME_NAME = "rush_hour"
+GAME_CLASS = "RushHour"
 GAME_MODULE = "mcts.games"
-CONSTRUCTOR_KWARGS = {"max_steps": 200}
-TRAINING_LOGIC = "sokoban_training"
+CONSTRUCTOR_KWARGS = {"max_moves": 80}
+TRAINING_LOGIC = "rush_hour_training"
 
 # ── Optimization configuration ───────────────────────────────────────
 NUM_ITERS = 5
