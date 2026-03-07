@@ -41,9 +41,12 @@ Tool_Creation/
 │   ├── drafts/             # Saved prompt text files
 │   └── results/            # Saved optimizer run outputs
 │
-├── test_llm_pipeline.ipynb # Interactive notebook: iterative LLM optimization loop
-│                           #   (per-level baselines, 70/30 optimize/rewrite,
-│                           #    mastery confirmation, multi-level eval)
+├── orchestrator/           # Step 7: game-agnostic optimization orchestrator
+│   ├── __init__.py         # Exports: Evaluator, OptimizationRunner
+│   ├── config.json         # Central configuration (game, MCTS, optimization)
+│   ├── evaluator.py        # Evaluator — multi-run eval, composite scoring, mastery
+│   ├── runner.py           # OptimizationRunner — config-driven iterative LLM loop
+│   └── test_llm_pipeline.ipynb  # Thin notebook driver using orchestrator module
 │
 └── tests/                  # Pytest suite (193 tests)
     ├── test_mcts_engine.py     # 63 tests — Sokoban levels, engine, tool swap
@@ -165,9 +168,30 @@ result = opt.run(
 fn = result["function"]   # callable, or None if smoke test failed
 ```
 
-The iterative optimization loop (with per-level baselines, mastery
-confirmation, and 70/30 prompting) is demonstrated in
-`test_llm_pipeline.ipynb`.
+### Orchestrator
+
+`orchestrator/` encapsulates the full iterative optimization loop into
+reusable, game-agnostic Python modules:
+
+- **`config.json`** — central JSON configuration for game, MCTS, and
+  optimization parameters. Swap game/levels without touching code.
+- **`Evaluator`** — runs MCTS games with a given tool function, computes
+  composite scores (weighted solve_rate + avg_returns), tracks per-level
+  baselines, and handles mastery confirmation.
+- **`OptimizationRunner`** — config-driven main loop. Dynamically loads
+  any `Game` subclass, plays traces, calls the LLM `Optimizer`, evaluates
+  candidates, and accepts/rejects based on per-level baselines.
+
+```python
+from orchestrator import OptimizationRunner
+
+runner = OptimizationRunner.from_config("orchestrator/config.json")
+summary = runner.run()   # iterative LLM optimization loop
+print(summary["best_fn"], summary["mastered_levels"])
+```
+
+The notebook `orchestrator/test_llm_pipeline.ipynb` is a thin driver that
+imports, configures, and runs the orchestrator.
 
 ## Running Tests
 
@@ -190,7 +214,7 @@ python -m pytest tests/test_llm_querier.py -v
 | 4 | ✅ | Trace logger (JSON records) |
 | 5 | ✅ | Prompt builder (game rules + traces + tool source) |
 | 6 | ✅ | LLM querying — 3-step pipeline (analysis → draft → critique), `Optimizer`, per-level baselines, mastery confirmation, 70/30 optimize/rewrite prompting, iterative loop in `test_llm_pipeline.ipynb` |
-| 7 | ⬜ | Single-loop test on 10 Sokoban levels |
+| 7 | ✅ | Orchestrator encapsulation — `Evaluator`, `OptimizationRunner`, `config.json`, game-agnostic design |
 | 8 | ⬜ | Multi-loop iterative improvement |
 
 ## Requirements
