@@ -10,8 +10,14 @@ All configuration comes from two files in `MCTS_tools/`:
 
 The orchestrator (OptimizationRunner.from_config()) reads both files
 and drives the iterative LLM optimization loop.
+
+Usage:
+    python test_llm_pipeline.py [--output OUTPUT_FILE]
+    Default output file: pipeline_output.txt (in project root)
 """
 
+import argparse
+import atexit
 import importlib
 import sys
 import importlib.util
@@ -22,9 +28,65 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+
+def _parse_args():
+    p = argparse.ArgumentParser(description="Run MCTS + LLM optimization pipeline")
+    p.add_argument(
+        "--output", "-o",
+        type=Path,
+        default=ROOT / "pipeline_output.txt",
+        help="Write stdout/stderr to this file as well as the terminal (default: pipeline_output.txt)",
+    )
+    return p.parse_args()
+
+
+class _Tee:
+    """Write to both a file and the original stream."""
+    def __init__(self, stream, path: Path):
+        self._stream = stream
+        self._path = path
+        self._file = open(path, "w", encoding="utf-8")  # noqa: SIM115
+
+    def write(self, data):
+        self._stream.write(data)
+        self._file.write(data)
+        self._file.flush()
+
+    def flush(self):
+        self._stream.flush()
+        self._file.flush()
+
+    def close(self):
+        self._file.close()
+
+
+# Parse args and tee output to file
+_args = _parse_args()
+_tee_stdout = _Tee(sys.stdout, _args.output)
+_tee_stderr = _Tee(sys.stderr, _args.output)
+sys.stdout = _tee_stdout
+sys.stderr = _tee_stderr
+
+
+def _close_output_files():
+    if hasattr(sys.stdout, "close"):
+        try:
+            sys.stdout.close()
+        except Exception:
+            pass
+    if hasattr(sys.stderr, "close"):
+        try:
+            sys.stderr.close()
+        except Exception:
+            pass
+
+
+atexit.register(_close_output_files)
+
 from orchestrator import OptimizationRunner, Evaluator
 from mcts import MCTSEngine
 
+print(f"Output also saved to: {_args.output}")
 print(f"Working dir: {Path('.').resolve()}")
 print(f"Tool_Creation root: {ROOT}")
 print("All imports OK ✓")
@@ -97,28 +159,27 @@ print(f"Final hyperparams: {summary.get('current_hyperparams', {})}")
 print(f"Mastered: {sorted(summary.get('mastered_levels', set()))}")
 print(f"Level best scores: {summary.get('level_best_scores', {})}")
 
+# Always run final evaluation: baseline vs optimized (or baseline vs baseline if none adopted)
+eval_levels = sorted(ev.level_baselines.keys())
 if not has_optimized:
-    print("\nNo optimized functions adopted — skipping comparative eval.")
-else:
-    # Only eval on levels visited during optimization (have baselines)
-    eval_levels = sorted(ev.level_baselines.keys())
-    print(f"\nEvaluating {len(eval_levels)} levels (n=3 each)…")
+    print("\nNo optimized functions adopted — comparison will show baseline vs baseline.")
+print(f"\nEvaluating {len(eval_levels)} levels (n=3 each)…")
 
-    rows = []
-    for lvl in eval_levels:
-        avg_b, sr_b, steps_b, _, t_b = ev.multi_eval(None, lvl, n=3, logging=False)
-        avg_o, sr_o, steps_o, _, t_o = ev.multi_eval(
-            None, lvl, n=3, logging=False, extra_tools=opt_tools,
-        )
-        rows.append((lvl, sr_b, sr_o, avg_b, avg_o, steps_b, steps_o, t_b, t_o))
-        print(f"{lvl}: baseline={avg_b:.3f} ({sr_b:.0%})  optimized={avg_o:.3f} ({sr_o:.0%})  "
-              f"[{t_b:.1f}s + {t_o:.1f}s]")
+rows = []
+for lvl in eval_levels:
+    avg_b, sr_b, steps_b, _, t_b = ev.multi_eval(None, lvl, n=3, logging=False)
+    avg_o, sr_o, steps_o, _, t_o = ev.multi_eval(
+        None, lvl, n=3, logging=False, extra_tools=opt_tools,
+    )
+    rows.append((lvl, sr_b, sr_o, avg_b, avg_o, steps_b, steps_o, t_b, t_o))
+    print(f"{lvl}: baseline={avg_b:.3f} ({sr_b:.0%})  optimized={avg_o:.3f} ({sr_o:.0%})  "
+          f"[{t_b:.1f}s + {t_o:.1f}s]")
 
-    print(f"\n{'Level':<10} {'Base Solve%':>12} {'Opt Solve%':>12} "
-          f"{'Base AvgRet':>12} {'Opt AvgRet':>12} "
-          f"{'Base Steps':>11} {'Opt Steps':>11}")
-    print("─" * 82)
-    for lvl, sr_b, sr_o, avg_b, avg_o, steps_b, steps_o, *_ in rows:
-        print(f"{lvl:<10} {sr_b*100:>11.0f}% {sr_o*100:>11.0f}% "
-              f"{avg_b:>12.3f} {avg_o:>12.3f} "
-              f"{steps_b:>11.1f} {steps_o:>11.1f}")
+print(f"\n{'Level':<10} {'Base Solve%':>12} {'Opt Solve%':>12} "
+      f"{'Base AvgRet':>12} {'Opt AvgRet':>12} "
+      f"{'Base Steps':>11} {'Opt Steps':>11}")
+print("─" * 82)
+for lvl, sr_b, sr_o, avg_b, avg_o, steps_b, steps_o, *_ in rows:
+    print(f"{lvl:<10} {sr_b*100:>11.0f}% {sr_o*100:>11.0f}% "
+          f"{avg_b:>12.3f} {avg_o:>12.3f} "
+          f"{steps_b:>11.1f} {steps_o:>11.1f}")

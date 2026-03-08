@@ -45,6 +45,9 @@ _MCTS_TOOLS_DIR = _TOOL_CREATION_DIR / "MCTS_tools"
 VALID_PHASES = ("selection", "expansion", "simulation", "backpropagation", "hyperparams")
 VALID_ACTIONS = ("create", "modify")
 
+# LLM-generated hyperparams are written here only (never overwrite hyperparams.py)
+HYPERPARAMS_GENERATED_FILENAME = "generated_hyperparams.py"
+
 # Expected function signatures (param names) per phase
 EXPECTED_SIGNATURES: dict[str, list[str]] = {
     "selection": ["root", "exploration_weight"],
@@ -276,8 +279,12 @@ class ToolManager:
                 "\n".join(f"  - {e}" for e in validation["errors"])
             )
 
-        fname = parsed["file_name"]
         code = parsed["code"]
+        # Never write to hyperparams.py; use generated_hyperparams.py so user file is untouched
+        if phase == "hyperparams":
+            fname = HYPERPARAMS_GENERATED_FILENAME
+        else:
+            fname = parsed["file_name"]
         phase_dir = self.tools_dir / phase
         phase_dir.mkdir(parents=True, exist_ok=True)
 
