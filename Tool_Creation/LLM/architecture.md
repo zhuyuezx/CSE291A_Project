@@ -12,7 +12,7 @@ llm/
 ├── game_infos/          — static game rule descriptions (*.txt)
 │   ├── sokoban.txt
 │   └── rush_hour.txt
-├── drafts/              — saved raw prompt files (*.txt, auto-generated)
+├── drafts/              — saved raw proVmpt files (*.txt, auto-generated)
 ├── prompt_builder.py    — assembles structured prompts
 ├── llm_querier.py       — sends prompts to LLM API, extracts code
 ├── tool_manager.py      — parses/validates/installs LLM-generated tools

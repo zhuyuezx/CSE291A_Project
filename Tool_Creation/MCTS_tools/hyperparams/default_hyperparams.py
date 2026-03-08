@@ -17,11 +17,11 @@ Returned dict keys:
 """
 
 # ── Game configuration ───────────────────────────────────────────────
-GAME_NAME = "rush_hour"
-GAME_CLASS = "RushHour"
+GAME_NAME = "sokoban"
+GAME_CLASS = "Sokoban"
 GAME_MODULE = "mcts.games"
-CONSTRUCTOR_KWARGS = {"max_moves": 80}
-TRAINING_LOGIC = "rush_hour_training"
+CONSTRUCTOR_KWARGS = {}
+TRAINING_LOGIC = "sokoban_training"
 
 # ── Optimization configuration ───────────────────────────────────────
 # PHASES: only phases that create MCTS tool Python files under MCTS_tools/<phase>/

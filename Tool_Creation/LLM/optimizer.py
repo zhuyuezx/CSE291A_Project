@@ -104,6 +104,7 @@ class Optimizer:
         tool_list: dict[str, str],
         state_factory: Callable[[], Any] | None = None,
         additional_context: str | None = None,
+        session_tag: str | None = None,
     ) -> dict[str, Any]:
         """
         Run the LLM optimisation pipeline.
@@ -121,6 +122,10 @@ class Optimizer:
         additional_context : str, optional
             Free-form text included in the prompt (e.g. previous
             iteration results, improvement history).
+        session_tag : str, optional
+            Override the debug session tag for this run (e.g.
+            ``"iter2_level5_simulation"``).  Each call with a new tag
+            creates a separate debug log folder.
 
         Returns
         -------
@@ -133,6 +138,10 @@ class Optimizer:
             function       — the loaded callable (or None)
             error          — str or None
         """
+        # Start a fresh debug session for this run
+        tag = session_tag or f"{self.game}_{self.target_phase}"
+        self.querier.new_session(tag)
+
         out: dict[str, Any] = {
             "llm_result": None,
             "parsed": None,
@@ -234,7 +243,9 @@ class Optimizer:
     @property
     def querier(self) -> LLMQuerier:
         if self._querier is None:
-            self._querier = LLMQuerier()
+            self._querier = LLMQuerier(
+                session_tag=f"{self.game}_{self.target_phase}"
+            )
         return self._querier
 
     @property
@@ -434,7 +445,7 @@ class Optimizer:
                 f"  Smoke test failed: {error}. "
                 f"Attempting repair ({attempt + 1}/{self.max_repair_attempts})…"
             )
-            repair_result = self._repair(parsed, func_name, tb, state_factory)
+            repair_result = self._repair(parsed, func_name, tb, state_factory, attempt=attempt)
             if repair_result is None:
                 continue
 
@@ -486,6 +497,7 @@ class Optimizer:
         func_name: str,
         tb_text: str | None,
         state_factory: Callable[[], Any] | None,
+        attempt: int = 0,
     ) -> dict[str, Any] | None:
         """Send a targeted repair prompt to the LLM."""
         broken_code = parsed.get("code", "")
@@ -514,7 +526,11 @@ class Optimizer:
             f"DESCRIPTION: <one-line description of what you fixed>\n"
             f"```python\n<complete corrected function here>\n```"
         )
-        result = self.querier.query(repair_prompt, required_func_name=func_name)
+        result = self.querier.query(
+            repair_prompt,
+            required_func_name=func_name,
+            step_name=f"repair_{attempt + 1}",
+        )
         if result["status"] == "error":
             return None
         return result

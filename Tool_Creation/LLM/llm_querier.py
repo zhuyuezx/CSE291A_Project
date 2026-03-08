@@ -73,6 +73,139 @@ def _get_model() -> str:
 
 _LLM_DIR = Path(__file__).resolve().parent
 _RESULTS_DIR = _LLM_DIR / "results"
+_DEBUG_DIR = _LLM_DIR / "debug_logs"
+
+
+class DebugLogger:
+    """
+    Writes per-call Markdown debug logs into a session folder.
+
+    Parameters
+    ----------
+    session_tag : str
+        Prefix for the session folder name (e.g. "sokoban_simulation").
+    debug_root : Path | None
+        Root directory for all sessions. Defaults to LLM/debug_logs/.
+    """
+
+    def __init__(
+        self,
+        session_tag: str = "session",
+        debug_root: "Path | None" = None,
+    ):
+        root = Path(debug_root) if debug_root else _DEBUG_DIR
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.session_dir = root / f"{session_tag}_{ts}"
+        self.active = False
+        self._records: list[dict] = []
+        self._used_names: dict[str, int] = {}  # name -> count of uses
+
+        try:
+            self.session_dir.mkdir(parents=True, exist_ok=True)
+            self.active = True
+        except Exception as e:
+            print(f"[DebugLogger] WARNING: Could not create session folder "
+                  f"{self.session_dir}: {e}. Debug logging disabled.")
+
+    def log(
+        self,
+        step_name: str,
+        prompt: str,
+        response_text: str,
+        metadata: dict,
+    ) -> None:
+        """Write one step's prompt+response to a .md file and rewrite index.md."""
+        if not self.active:
+            return
+
+        # Resolve collision
+        resolved_name = self._resolve_name(step_name)
+
+        # Write per-step file
+        file_path = self.session_dir / f"{resolved_name}.md"
+        file_path.write_text(
+            self._render_step(resolved_name, prompt, response_text, metadata),
+            encoding="utf-8",
+        )
+
+        # Track for index
+        self._records.append({
+            "step": resolved_name,
+            "status": metadata.get("status", "unknown"),
+            "elapsed": metadata.get("elapsed_seconds", 0),
+            "tokens": metadata.get("token_count"),
+            "validation": metadata.get("validation", {}),
+        })
+
+        # Rewrite index
+        self._write_index()
+
+    def _resolve_name(self, name: str) -> str:
+        """Return name, or name_2, name_3, ... on collision."""
+        if name not in self._used_names:
+            self._used_names[name] = 1
+            return name
+        self._used_names[name] += 1
+        return f"{name}_{self._used_names[name]}"
+
+    def _render_step(
+        self,
+        step_name: str,
+        prompt: str,
+        response_text: str,
+        metadata: dict,
+    ) -> str:
+        validation = metadata.get("validation") or {}
+        valid_str = "N/A"
+        if validation:
+            if validation.get("valid"):
+                valid_str = "valid"
+            elif validation.get("error"):
+                valid_str = f"invalid — {validation['error'][:80]}"
+
+        token_str = str(metadata.get("token_count")) if metadata.get("token_count") else "N/A"
+
+        return (
+            f"# {step_name}\n\n"
+            f"| Field      | Value |\n"
+            f"|------------|-------|\n"
+            f"| Timestamp  | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} |\n"
+            f"| Model      | {metadata.get('model', 'unknown')} |\n"
+            f"| Elapsed    | {metadata.get('elapsed_seconds', 0):.2f}s |\n"
+            f"| Status     | {metadata.get('status', 'unknown')} |\n"
+            f"| Tokens     | {token_str} |\n"
+            f"| Validation | {valid_str} |\n"
+            f"\n---\n\n"
+            f"## Prompt\n\n{prompt}\n\n"
+            f"---\n\n"
+            f"## Response\n\n{response_text}\n"
+        )
+
+    def _write_index(self) -> None:
+        rows = []
+        total_elapsed = 0.0
+        for r in self._records:
+            validation = r.get("validation") or {}
+            valid_str = "N/A"
+            if validation:
+                valid_str = "valid" if validation.get("valid") else "invalid"
+            token_str = str(r["tokens"]) if r["tokens"] is not None else "N/A"
+            elapsed = r.get("elapsed") or 0
+            total_elapsed += elapsed
+            rows.append(
+                f"| {r['step']:<25} | {r['status']:<7} | {elapsed:.2f}s "
+                f"| {token_str:<6} | {valid_str} |"
+            )
+
+        table = "\n".join(rows)
+        content = (
+            f"# Session: {self.session_dir.name}\n\n"
+            f"| Step                      | Status  | Elapsed | Tokens | Validation |\n"
+            f"|---------------------------|---------|---------|--------|------------|\n"
+            f"{table}\n\n"
+            f"**Total elapsed:** {total_elapsed:.2f}s\n"
+        )
+        (self.session_dir / "index.md").write_text(content, encoding="utf-8")
 
 
 # ── Code extraction ──────────────────────────────────────────────────
@@ -147,6 +280,9 @@ class LLMQuerier:
         base_url: str | None = None,
         model: str | None = None,
         results_dir: str | Path | None = None,
+        session_tag: str | None = None,
+        debug: bool | None = None,
+        _debug_root: "Path | None" = None,   # for testing only
     ):
         self.api_keys = api_keys or _get_api_keys()
         self.base_url = base_url or _get_base_url()
@@ -158,10 +294,31 @@ class LLMQuerier:
                 "No API keys configured. Set API_KEYS in .env or pass api_keys=[]."
             )
 
+        self._debug_enabled = debug if debug is not None else os.getenv("LLM_DEBUG", "0") == "1"
+        self._debug_root = _debug_root
+        self._logger: DebugLogger | None = (
+            DebugLogger(session_tag or "session", debug_root=_debug_root)
+            if self._debug_enabled else None
+        )
+        self._call_counter = 0
+
+    def new_session(self, session_tag: str) -> None:
+        """
+        Start a fresh debug session with its own folder.
+
+        Replaces the current DebugLogger (if any) and resets the call
+        counter.  No-op when debug logging is disabled.
+        """
+        if not self._debug_enabled:
+            return
+        self._logger = DebugLogger(session_tag, debug_root=self._debug_root)
+        self._call_counter = 0
+
     def query(
         self,
         prompt: str,
         required_func_name: str | None = None,
+        step_name: str | None = None,
     ) -> dict[str, Any]:
         """
         Send a single prompt to the LLM and return the result.
@@ -172,6 +329,9 @@ class LLMQuerier:
             The full prompt text (from PromptBuilder).
         required_func_name : str, optional
             If given, validate that the extracted code defines this function.
+        step_name : str, optional
+            Name for the debug log file (e.g. "step1_analysis").
+            If None and debug=True, auto-named "query_N".
 
         Returns
         -------
@@ -183,7 +343,7 @@ class LLMQuerier:
             elapsed_seconds — time taken
             status       — 'success' or 'error'
         """
-        return self._run_async(self._query_async(prompt, required_func_name))
+        return self._run_async(self._query_async(prompt, required_func_name, step_name))
 
     def query_batch(
         self,
@@ -248,7 +408,7 @@ class LLMQuerier:
         total_start = time.time()
 
         # ── Step 1: Analysis ──
-        step1_result = self.query(analysis_prompt)
+        step1_result = self.query(analysis_prompt, step_name="step1_analysis")
         if step1_result["status"] == "error":
             step1_result["step1_analysis"] = None
             step1_result["step1_elapsed"] = step1_result["elapsed_seconds"]
@@ -259,7 +419,8 @@ class LLMQuerier:
 
         # ── Step 2: Code generation using analysis ──
         gen_prompt = generation_prompt_fn(analysis_text)
-        step2_result = self.query(gen_prompt, required_func_name=required_func_name)
+        step2_result = self.query(gen_prompt, required_func_name=required_func_name,
+                                   step_name="step2_generation")
 
         # Merge into a single result
         step2_result["step1_analysis"] = analysis_text
@@ -298,7 +459,7 @@ class LLMQuerier:
         total_start = time.time()
 
         # ── Step 1: Analysis ──
-        step1_result = self.query(analysis_prompt)
+        step1_result = self.query(analysis_prompt, step_name="step1_analysis")
         if step1_result["status"] == "error":
             step1_result["step1_analysis"] = None
             step1_result["step1_elapsed"] = step1_result["elapsed_seconds"]
@@ -309,7 +470,8 @@ class LLMQuerier:
 
         # ── Step 2: Draft code generation ──
         gen_prompt = generation_prompt_fn(analysis_text)
-        step2_result = self.query(gen_prompt, required_func_name=required_func_name)
+        step2_result = self.query(gen_prompt, required_func_name=required_func_name,
+                                   step_name="step2_generation")
 
         if step2_result["status"] == "error":
             step2_result["step1_analysis"] = analysis_text
@@ -322,7 +484,8 @@ class LLMQuerier:
 
         # ── Step 3: Critique & refine ──
         critique_prompt = critique_prompt_fn(analysis_text, draft_code)
-        step3_result = self.query(critique_prompt, required_func_name=required_func_name)
+        step3_result = self.query(critique_prompt, required_func_name=required_func_name,
+                                   step_name="step3_critique")
 
         # Merge everything into the final result
         step3_result["step1_analysis"] = analysis_text
@@ -386,6 +549,7 @@ class LLMQuerier:
         self,
         prompt: str,
         required_func_name: str | None = None,
+        step_name: str | None = None,
     ) -> dict[str, Any]:
         """Single async query."""
         client = AsyncOpenAI(
@@ -393,6 +557,10 @@ class LLMQuerier:
             api_key=random.choice(self.api_keys),
             base_url=self.base_url,
         )
+
+        # Resolve step name before the call so counter is consistent
+        resolved_step = step_name or f"query_{self._call_counter}"
+        self._call_counter += 1
 
         start = time.time()
         try:
@@ -411,11 +579,18 @@ class LLMQuerier:
                 if code else {"valid": False, "error": "No code block found in response."}
             )
 
+            # Extract token count if available
+            token_count = None
+            try:
+                token_count = response.usage.total_tokens
+            except Exception:
+                pass
+
             # Also parse structured header fields if present
             from .tool_manager import parse_response as _parse
             parsed = _parse(text)
 
-            return {
+            result = {
                 "response": text,
                 "code": code,
                 "validation": validation,
@@ -425,9 +600,24 @@ class LLMQuerier:
                 "status": "success",
             }
 
+            # Debug logging
+            if self._logger:
+                self._logger.log(
+                    resolved_step, prompt, text,
+                    {
+                        "status": "success",
+                        "elapsed_seconds": round(elapsed, 2),
+                        "model": self.model,
+                        "validation": validation,
+                        "token_count": token_count,
+                    }
+                )
+
+            return result
+
         except Exception as e:
             elapsed = time.time() - start
-            return {
+            error_result = {
                 "response": None,
                 "code": None,
                 "validation": {"valid": False, "error": str(e)},
@@ -436,6 +626,21 @@ class LLMQuerier:
                 "status": "error",
                 "error": str(e),
             }
+
+            # Debug logging for errors too
+            if self._logger:
+                self._logger.log(
+                    resolved_step, prompt, f"ERROR: {e}",
+                    {
+                        "status": "error",
+                        "elapsed_seconds": round(elapsed, 2),
+                        "model": self.model,
+                        "validation": {"valid": False, "error": str(e)},
+                        "token_count": None,
+                    }
+                )
+
+            return error_result
         finally:
             try:
                 await client.close()
