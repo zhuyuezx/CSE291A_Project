@@ -57,6 +57,12 @@ EXPECTED_SIGNATURES: dict[str, list[str]] = {
     "hyperparams": [],  # get_hyperparams() takes no args
 }
 
+# Optional aliases for specific phase/parameter-position pairs.
+_PARAM_ALIASES: dict[str, dict[int, set[str]]] = {
+    # Accept either "root" or "node" for selection's first argument.
+    "selection": {0: {"root", "node"}},
+}
+
 
 # ── Response parsing ─────────────────────────────────────────────────
 
@@ -184,7 +190,7 @@ def validate(parsed: dict[str, Any], phase: str | None = None) -> dict[str, Any]
     if phase and func_name and func_name in defined_funcs:
         expected_params = EXPECTED_SIGNATURES.get(phase)
         if expected_params:
-            _check_signature(tree, func_name, expected_params, errors)
+            _check_signature(tree, func_name, expected_params, errors, phase=phase)
 
     return {"valid": len(errors) == 0, "errors": errors}
 
@@ -194,6 +200,7 @@ def _check_signature(
     func_name: str,
     expected_params: list[str],
     errors: list[str],
+    phase: str | None = None,
 ) -> None:
     """Verify function has the expected parameter names."""
     for node in ast.walk(tree):
@@ -207,10 +214,14 @@ def _check_signature(
                         f"Expected params: {expected_params}, got: {actual_params}"
                     )
                     break
-                if actual_params[i] != expected:
+                actual = actual_params[i]
+                allowed = {expected}
+                if phase in _PARAM_ALIASES and i in _PARAM_ALIASES[phase]:
+                    allowed = set(_PARAM_ALIASES[phase][i])
+                if actual not in allowed:
                     errors.append(
-                        f"Function '{func_name}' param {i} is '{actual_params[i]}', "
-                        f"expected '{expected}'. Full expected: {expected_params}"
+                        f"Function '{func_name}' param {i} is '{actual}', "
+                        f"expected one of {sorted(allowed)}. Full expected: {expected_params}"
                     )
                     break
             return
