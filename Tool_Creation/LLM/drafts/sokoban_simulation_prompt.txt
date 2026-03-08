@@ -72,7 +72,7 @@ Each state is described by:
 
 
 ------------------------------------------------------------
-CURRENT HEURISTIC CODE (simulation)
+TARGET HEURISTIC TO IMPROVE (simulation)
 ------------------------------------------------------------
 ```python
 def default_simulation(state, perspective_player: int, max_depth: int = 50) -> float:
@@ -101,38 +101,31 @@ GAMEPLAY TRACES
 ------------------------------------------------------------
 
 --- Trace #1 ---
-Game:       Sokoban (level3)
-Timestamp:  2026-03-05T19:32:37.676746
+Game:       Sokoban (level1)
+Timestamp:  2026-03-05T20:12:37.221183
 Iterations: 200
 Solved:     True
-Steps:      5
+Steps:      3
 Returns:    [1.0]
 
   Move 1: action=0, total_visits=200
-    State: Step 0/200 | Boxes on target: 0/1 | Total distance: 3
-    Children: [3(v=48, avg=0.042), 2(v=41, avg=0.000), 1(v=40, avg=0.000), 0(v=71, avg=0.127)]
+    State: Step 0/200 | Boxes on target: 0/1 | Total distance: 1
+    Children: [3(v=10, avg=0.000), 2(v=17, avg=0.235), 1(v=14, avg=0.143), 0(v=159, avg=0.780)]
   Move 2: action=3, total_visits=200
-    State: Step 1/200 | Boxes on target: 0/1 | Total distance: 2
-    Children: [3(v=66, avg=0.106), 2(v=46, avg=0.022), 1(v=46, avg=0.022), 0(v=42, avg=0.000)]
-  Move 3: action=0, total_visits=200
-    State: Step 2/200 | Boxes on target: 0/1 | Total distance: 2
-    Children: [3(v=20, avg=0.150), 2(v=18, avg=0.111), 1(v=13, avg=0.000), 0(v=149, avg=0.651)]
-  Move 4: action=2, total_visits=200
-    State: Step 3/200 | Boxes on target: 0/1 | Total distance: 2
-    Children: [3(v=11, avg=0.091), 2(v=164, avg=0.848), 1(v=11, avg=0.091), 0(v=14, avg=0.214)]
-  Move 5: action=2, total_visits=200
-    State: Step 4/200 | Boxes on target: 0/1 | Total distance: 1
-    Children: [3(v=16, avg=0.438), 2(v=156, avg=1.000), 1(v=13, avg=0.308), 0(v=15, avg=0.400)]
+    State: Step 1/200 | Boxes on target: 0/1 | Total distance: 1
+    Children: [3(v=173, avg=0.896), 2(v=15, avg=0.267), 1(v=12, avg=0.167)]
+  Move 3: action=1, total_visits=200
+    State: Step 2/200 | Boxes on target: 0/1 | Total distance: 1
+    Children: [3(v=24, avg=0.583), 2(v=16, avg=0.438), 1(v=160, avg=1.000)]
 
 Final state:
-Step 5/200 | Boxes on target: 1/1 | Total distance: 0
-########
-#      #
-# *@   #
-#      #
-#      #
-#      #
-########
+Step 3/200 | Boxes on target: 1/1 | Total distance: 0
+######
+#    #
+#  @ #
+#  * #
+#    #
+######
 
 ------------------------------------------------------------
 TASK
