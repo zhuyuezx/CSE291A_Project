@@ -23,6 +23,7 @@ from LLM.llm_querier import (
     LLMQuerier,
     extract_python_code,
     validate_function,
+    _DEBUG_DIR,
 )
 
 
@@ -473,3 +474,264 @@ class TestLLMQuerierThreeStep:
 
         assert result["status"] == "error"
         assert result["step1_analysis"] == "Analysis text"
+
+
+# ─── DebugLogger ──────────────────────────────────────────────────────
+
+class TestDebugLogger:
+    def test_creates_session_folder(self, tmp_path):
+        from LLM.llm_querier import DebugLogger
+        logger = DebugLogger(session_tag="test_sim", debug_root=tmp_path)
+        assert logger.active is True
+        assert logger.session_dir.exists()
+        assert logger.session_dir.name.startswith("test_sim_")
+
+    def test_log_writes_md_file(self, tmp_path):
+        from LLM.llm_querier import DebugLogger
+        logger = DebugLogger(session_tag="test_sim", debug_root=tmp_path)
+        metadata = {
+            "status": "success", "elapsed_seconds": 1.5,
+            "model": "gpt-test", "validation": {"valid": True, "error": None},
+            "token_count": 100,
+        }
+        logger.log("step1_analysis", "my prompt", "my response", metadata)
+        log_file = logger.session_dir / "step1_analysis.md"
+        assert log_file.exists()
+        content = log_file.read_text()
+        assert "## Prompt" in content
+        assert "my prompt" in content
+        assert "## Response" in content
+        assert "my response" in content
+        assert "gpt-test" in content
+        assert "1.5" in content
+
+    def test_log_writes_index_md(self, tmp_path):
+        from LLM.llm_querier import DebugLogger
+        logger = DebugLogger(session_tag="test_sim", debug_root=tmp_path)
+        metadata = {
+            "status": "success", "elapsed_seconds": 2.0,
+            "model": "gpt-test", "validation": {"valid": True, "error": None},
+            "token_count": 50,
+        }
+        logger.log("step1_analysis", "p", "r", metadata)
+        index_file = logger.session_dir / "index.md"
+        assert index_file.exists()
+        content = index_file.read_text()
+        assert "step1_analysis" in content
+        assert "success" in content
+
+    def test_collision_appends_suffix(self, tmp_path):
+        from LLM.llm_querier import DebugLogger
+        logger = DebugLogger(session_tag="test_sim", debug_root=tmp_path)
+        metadata = {
+            "status": "success", "elapsed_seconds": 1.0,
+            "model": "m", "validation": {"valid": True, "error": None},
+            "token_count": None,
+        }
+        logger.log("step1_analysis", "p1", "r1", metadata)
+        logger.log("step1_analysis", "p2", "r2", metadata)
+        assert (logger.session_dir / "step1_analysis.md").exists()
+        assert (logger.session_dir / "step1_analysis_2.md").exists()
+
+    def test_folder_creation_failure_sets_inactive(self, tmp_path):
+        from LLM.llm_querier import DebugLogger
+        # Point to a path that can't be created (file in the way)
+        blocker = tmp_path / "blocked"
+        blocker.write_text("I am a file, not a directory")
+        logger = DebugLogger(session_tag="x", debug_root=blocker / "sub")
+        assert logger.active is False
+
+    def test_inactive_logger_log_is_noop(self, tmp_path):
+        from LLM.llm_querier import DebugLogger
+        blocker = tmp_path / "blocked"
+        blocker.write_text("file")
+        logger = DebugLogger(session_tag="x", debug_root=blocker / "sub")
+        # Should not raise
+        logger.log("step1", "p", "r", {"status": "success", "elapsed_seconds": 0,
+                                        "model": "m", "validation": {}, "token_count": None})
+        # No files written anywhere
+        assert not (blocker / "sub").exists()
+
+
+# ─── LLMQuerier debug init ────────────────────────────────────────────
+
+class TestLLMQuerierDebugInit:
+    def test_debug_false_no_logger(self):
+        q = LLMQuerier(api_keys=["k"], debug=False)
+        assert q._logger is None
+
+    def test_debug_true_creates_logger(self, tmp_path):
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        assert q._logger is not None
+        assert q._logger.active is True
+
+    def test_debug_env_var_enables_logger(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("LLM_DEBUG", "1")
+        q = LLMQuerier(api_keys=["k"], _debug_root=tmp_path)
+        assert q._logger is not None
+
+    def test_debug_env_var_off_by_default(self, monkeypatch):
+        monkeypatch.delenv("LLM_DEBUG", raising=False)
+        q = LLMQuerier(api_keys=["k"], debug=None)
+        assert q._logger is None
+
+    def test_session_tag_passed_to_logger(self, tmp_path):
+        q = LLMQuerier(
+            api_keys=["k"], debug=True,
+            session_tag="chess_selection", _debug_root=tmp_path
+        )
+        assert "chess_selection" in q._logger.session_dir.name
+
+    def test_default_session_tag_is_session(self, tmp_path):
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        assert q._logger.session_dir.name.startswith("session_")
+
+    def test_new_session_creates_separate_folder(self, tmp_path):
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        first_dir = q._logger.session_dir
+        q.new_session("level5_simulation")
+        second_dir = q._logger.session_dir
+        assert first_dir != second_dir
+        assert "level5_simulation" in second_dir.name
+        assert second_dir.exists()
+
+    def test_new_session_resets_call_counter(self, tmp_path):
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        q._call_counter = 5
+        q.new_session("fresh")
+        assert q._call_counter == 0
+
+    def test_new_session_noop_when_debug_off(self):
+        q = LLMQuerier(api_keys=["k"], debug=False)
+        q.new_session("anything")
+        assert q._logger is None
+
+
+# ─── LLMQuerier debug logging per query ──────────────────────────────
+
+class TestLLMQuerierDebugLogging:
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_query_writes_debug_file(self, mock_openai_class, tmp_path):
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(
+            return_value=_make_mock_response(
+                "```python\ndef default_simulation(state, player): return 0.5\n```"
+            )
+        )
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        q.query("test prompt", step_name="step1_analysis")
+
+        log_file = q._logger.session_dir / "step1_analysis.md"
+        assert log_file.exists()
+        content = log_file.read_text()
+        assert "test prompt" in content
+        assert "default_simulation" in content
+
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_query_auto_names_call_counter(self, mock_openai_class, tmp_path):
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(
+            return_value=_make_mock_response("```python\ndef f(): pass\n```")
+        )
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        q.query("p1")
+        q.query("p2")
+
+        files = list(q._logger.session_dir.glob("query_*.md"))
+        assert len(files) == 2
+
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_query_no_debug_no_files(self, mock_openai_class, tmp_path):
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(
+            return_value=_make_mock_response("```python\ndef f(): pass\n```")
+        )
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k"], debug=False)
+        q.query("test prompt")
+
+        assert q._logger is None
+
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_query_writes_index_md(self, mock_openai_class, tmp_path):
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(
+            return_value=_make_mock_response("```python\ndef f(): pass\n```")
+        )
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        q.query("p1", step_name="step1_analysis")
+        q.query("p2", step_name="step2_generation")
+
+        index = q._logger.session_dir / "index.md"
+        assert index.exists()
+        content = index.read_text()
+        assert "step1_analysis" in content
+        assert "step2_generation" in content
+
+
+# ─── Debug logging in multi-step methods ─────────────────────────────
+
+class TestMultiStepDebugLogging:
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_two_step_log_files_named_correctly(self, mock_openai_class, tmp_path):
+        analysis_resp = _make_mock_response("Analysis text")
+        gen_resp = _make_mock_response(
+            "```python\ndef default_simulation(s, p): return 0.5\n```"
+        )
+        call_count = 0
+
+        async def _create(**kwargs):
+            nonlocal call_count
+            resp = [analysis_resp, gen_resp][call_count]
+            call_count += 1
+            return resp
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = _create
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        q.query_two_step(
+            analysis_prompt="Analyze",
+            generation_prompt_fn=lambda a: f"Generate from: {a}",
+        )
+
+        assert (q._logger.session_dir / "step1_analysis.md").exists()
+        assert (q._logger.session_dir / "step2_generation.md").exists()
+
+    @patch("LLM.llm_querier.AsyncOpenAI")
+    def test_three_step_log_files_named_correctly(self, mock_openai_class, tmp_path):
+        responses = [
+            _make_mock_response("Analysis text"),
+            _make_mock_response("```python\ndef default_simulation(s, p): return 0.5\n```"),
+            _make_mock_response("```python\ndef default_simulation(s, p): return 1.0\n```"),
+        ]
+        call_count = 0
+
+        async def _create(**kwargs):
+            nonlocal call_count
+            resp = responses[call_count]
+            call_count += 1
+            return resp
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = _create
+        mock_openai_class.return_value = mock_client
+
+        q = LLMQuerier(api_keys=["k"], debug=True, _debug_root=tmp_path)
+        q.query_three_step(
+            analysis_prompt="Analyze",
+            generation_prompt_fn=lambda a: f"Generate: {a}",
+            critique_prompt_fn=lambda a, c: f"Critique: {c}",
+        )
+
+        assert (q._logger.session_dir / "step1_analysis.md").exists()
+        assert (q._logger.session_dir / "step2_generation.md").exists()
+        assert (q._logger.session_dir / "step3_critique.md").exists()

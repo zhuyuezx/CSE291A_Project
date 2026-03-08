@@ -1,0 +1,17 @@
+# Load .env so API_KEYS, OPENAI_BASE_URL, MODEL_NAME are set (required for LLM pipeline)
+python-dotenv>=1.0.0
+
+# OpenAI-compatible API client (LLM/llm_querier.py, mcts/utilities/multi_mcp_llm_template.py)
+openai>=1.0.0
+
+# HTTP client (tools/weather.py, tools/mcp_weather_server.py, mcp_host.py)
+requests>=2.28.0
+
+# MCP client (mcp_host.py: ClientSession, StdioServerParameters, stdio_client)
+mcp>=1.0.0
+
+# MCP server (tools/mcp_weather_server.py: FastMCP)
+fastmcp>=2.0.0
+
+# Tests
+pytest>=7.0.0

@@ -442,6 +442,7 @@ class OptimizationRunner:
                 tool_list=tl,
                 state_factory=state_factory,
                 additional_context=history,
+                session_tag=f"iter{iteration}_{cur_level}_{opt_phase}",
             )
             t_opt = time.time() - t_opt_start
             if self.verbose:

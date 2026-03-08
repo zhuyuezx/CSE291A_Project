@@ -17,17 +17,20 @@ Returned dict keys:
 """
 
 # ── Game configuration ───────────────────────────────────────────────
-GAME_NAME = "rush_hour"
-GAME_CLASS = "RushHour"
+GAME_NAME = "sokoban"
+GAME_CLASS = "Sokoban"
 GAME_MODULE = "mcts.games"
-CONSTRUCTOR_KWARGS = {"max_moves": 80}
-TRAINING_LOGIC = "rush_hour_training"
+CONSTRUCTOR_KWARGS = {}
+TRAINING_LOGIC = "sokoban_training"
 
 # ── Optimization configuration ───────────────────────────────────────
+# PHASES: only phases that create MCTS tool Python files under MCTS_tools/<phase>/
+# (selection, expansion, simulation, backpropagation). Omit "hyperparams" to avoid
+# tuning get_hyperparams(); include it to also optimize engine parameters via LLM.
 NUM_ITERS = 5
 THREE_STEP = True
 HISTORY_WINDOW = 3
-PHASES = ["simulation", "hyperparams", "expansion"]
+PHASES = ["simulation", "expansion"]  # tool-creation phases only
 LOGGING = True
 
 
