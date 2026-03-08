@@ -41,8 +41,34 @@ Each state is described by:
     (sum of Manhattan distance from each box to its nearest target).
 
 == Reward ==
-  - Solved (all boxes on targets): return 1.0
-  - Otherwise (deadlock, max steps, or game still running): return 0.0
+The state.returns() method returns a SHAPED continuous reward in [0, 1]:
+  - Solved (all boxes on targets): 1.0
+  - Deadlocked (box stuck in non-target corner): 0.0
+  - Otherwise: a weighted combination of:
+       70% — fraction of boxes on target  (boxes_on_targets / num_targets)
+       30% — distance score  (1 − total_box_distance / max_dist)
+    This gives a fine-grained gradient even when the puzzle is not yet solved.
+
+== GameState API ==
+Public attributes (not methods):
+  walls     : frozenset[tuple[int,int]]   – wall positions
+  targets   : frozenset[tuple[int,int]]   – target positions
+  boxes     : set[tuple[int,int]]         – current box positions
+  player    : tuple[int,int]              – current player position
+  height, width : int                     – grid dimensions
+  num_targets   : int                     – number of targets
+  steps, max_steps : int                  – current / maximum step count
+
+Public methods (call with parentheses):
+  clone()            → new independent copy of the state
+  legal_actions()    → list[int]  (subset of {0,1,2,3})
+  apply_action(a)    → None (mutates the state in-place)
+  is_terminal()      → bool
+  returns()          → list[float]  (shaped reward, see above)
+  current_player()   → int (always 0, single-player game)
+  state_key()        → str (hashable key for transposition)
+  boxes_on_targets() → int
+  total_box_distance() → int  (sum of min Manhattan dist per box)
 
 == Key Strategic Concepts ==
   - Avoid pushing boxes into corners (unless the corner IS a target).

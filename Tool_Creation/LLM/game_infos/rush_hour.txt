@@ -1,0 +1,82 @@
+Game: Rush Hour
+
+== Overview ==
+Rush Hour is a single-player sliding block puzzle on a 6×6 grid.
+Vehicles (cars of length 2 and trucks of length 3) are placed
+horizontally or vertically and can only slide along their orientation.
+The goal is to slide the primary piece (piece A, always horizontal) to
+the right edge of its row so it can exit the board.
+
+== Symbols ==
+  .   empty cell
+  x   wall (fixed obstacle)
+  A   primary piece (the "red car" — always horizontal)
+  B-Z other vehicles (cars or trucks)
+
+== Rules ==
+1. A vehicle can slide forward or backward along its orientation
+   (left/right for horizontal, up/down for vertical).
+2. A vehicle cannot pass through or overlap another vehicle or a wall.
+3. A vehicle can slide multiple cells in one move, as long as all
+   intermediate cells are empty.
+4. The puzzle is solved when piece A is flush against the right edge of
+   its row (i.e., it can "exit" the board).
+5. No piece can be rotated or lifted — sliding only.
+
+== Actions ==
+Each action is a tuple (piece_index, steps):
+  - piece_index: integer identifying the vehicle (0 = primary piece A,
+    1 = B, 2 = C, etc.)
+  - steps: integer indicating how many cells to slide.
+    Positive = right (horizontal) or down (vertical).
+    Negative = left (horizontal) or up (vertical).
+
+== State Representation ==
+Each state tracks:
+  - pieces: list of vehicles, each with position (top-left cell index),
+    size (2 or 3), and orientation (horizontal or vertical)
+  - walls: tuple of cell indices with fixed obstacles
+  - occupied: flat boolean array (36 cells) marking blocked positions
+  - target: cell index where piece A's top-left must reach for the exit
+  - moves_made: number of moves applied so far
+  - max_moves: move budget (game terminates if exceeded)
+  - Derived: primary_distance (cells A still needs to slide right),
+    blocking_count (occupied cells between A and exit)
+
+== Reward ==
+The state.returns() method returns:
+  - Solved (piece A at target): [1.0]
+  - Not solved: [0.0]
+
+== GameState API ==
+Public attributes:
+  pieces      : list[_Piece]   — vehicle objects (pieces[0] = primary)
+  walls       : tuple[int,...] — wall cell indices
+  occupied    : list[bool]     — 36-element occupancy grid
+  target      : int            — target position for piece A
+  moves_made  : int            — moves taken so far
+  max_moves   : int            — move budget
+
+Public methods:
+  clone()            → new independent copy of the state
+  legal_actions()    → list[tuple[int,int]]  — (piece_idx, steps)
+  apply_action(a)    → None (mutates in-place)
+  is_terminal()      → bool
+  returns()          → list[float]
+  current_player()   → int (always 0, single-player)
+  state_key()        → str (hashable key for transposition)
+  primary_distance() → int (cells A must still slide)
+  blocking_count()   → int (blocking cells between A and exit)
+  num_pieces()       → int
+
+== Key Strategic Concepts ==
+  - Focus on clearing the path between piece A and the right edge.
+  - Identify which vehicles are blocking piece A's row and work to
+    move those out of the way first.
+  - Moving a blocking vehicle may require first moving other vehicles
+    that block IT — plan recursively.
+  - Prefer moves that open up the primary row over moves on distant
+    pieces.
+  - Fewer total moves is better — each unnecessary move wastes budget.
+  - Trucks (size 3) have fewer places they can go, so clearing space
+    for them takes more planning.

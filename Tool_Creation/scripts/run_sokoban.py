@@ -17,9 +17,9 @@ import sys
 from pathlib import Path
 
 # Ensure the Tool_Creation directory is on sys.path
-_SCRIPT_DIR = Path(__file__).resolve().parent
-if str(_SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPT_DIR))
+_TOOL_CREATION_DIR = Path(__file__).resolve().parent.parent
+if str(_TOOL_CREATION_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOL_CREATION_DIR))
 
 from mcts import MCTSEngine
 from mcts.games import Sokoban
@@ -43,8 +43,8 @@ def parse_args() -> argparse.Namespace:
         help="Number of games to play. Default: 1",
     )
     p.add_argument(
-        "--max-rollout-depth", type=int, default=50,
-        help="Max rollout depth for simulation. Default: 50",
+        "--max-rollout-depth", type=int, default=500,
+        help="Max rollout depth for simulation. Default: 500",
     )
     p.add_argument(
         "--phase", default="simulation",

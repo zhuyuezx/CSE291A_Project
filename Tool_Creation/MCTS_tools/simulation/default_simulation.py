@@ -8,7 +8,7 @@ then return the reward from the perspective player's viewpoint.
 import random
 
 
-def default_simulation(state, perspective_player: int, max_depth: int = 50) -> float:
+def default_simulation(state, perspective_player: int, max_depth: int = 1000) -> float:
     """
     Random rollout simulation.
 

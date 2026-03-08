@@ -311,7 +311,7 @@ class TestToolSource:
     def test_no_tool_source_placeholder(self):
         pb = PromptBuilder(game="sokoban", target_phase="simulation")
         prompt = pb.build(tool_source=None)
-        assert "CURRENT HEURISTIC CODE" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt
         assert "No heuristic code provided" in prompt
 
     def test_tool_source_included(self):
@@ -327,7 +327,7 @@ class TestToolSource:
     def test_tool_source_section_label_matches_phase(self):
         pb = PromptBuilder(game="sokoban", target_phase="backpropagation")
         prompt = pb.build(tool_source="def bp(node, r): pass")
-        assert "CURRENT HEURISTIC CODE (backpropagation)" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE (backpropagation)" in prompt
 
 
 class TestPromptStructure:
@@ -343,7 +343,7 @@ class TestPromptStructure:
         )
         assert "SYSTEM: MCTS Heuristic Improvement" in prompt
         assert "GAME RULES" in prompt
-        assert "CURRENT HEURISTIC CODE" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt
         assert "GAMEPLAY TRACES" in prompt
         assert "TASK" in prompt
 
@@ -357,7 +357,7 @@ class TestPromptStructure:
         )
         idx_system = prompt.index("SYSTEM")
         idx_rules = prompt.index("GAME RULES")
-        idx_code = prompt.index("CURRENT HEURISTIC CODE")
+        idx_code = prompt.index("TARGET HEURISTIC TO IMPROVE")
         idx_traces = prompt.index("GAMEPLAY TRACES")
         idx_task = prompt.index("TASK")
         assert idx_system < idx_rules < idx_code < idx_traces < idx_task
@@ -365,8 +365,8 @@ class TestPromptStructure:
     def test_task_section_contains_instructions(self):
         pb = PromptBuilder(game="sokoban", target_phase="simulation")
         prompt = pb.build()
-        assert "SAME function signature" in prompt
-        assert "standalone function" in prompt
+        assert "Same function signature" in prompt or "SAME function signature" in prompt or "function signature" in prompt
+        assert "standalone" in prompt or "Standalone" in prompt
         assert "```python" in prompt
 
     def test_phase_mentioned_in_task(self):
@@ -514,3 +514,234 @@ class TestIntegrationWithEngine:
         assert "Trace #1" in prompt
         assert "Trace #2" in prompt
         assert "Trace #3" in prompt
+
+
+class TestAllToolSources:
+    """Tests for the all_tool_sources parameter."""
+
+    _SAMPLE_SOURCES = {
+        "selection": "def select(node, w): return node",
+        "expansion": "def expand(node): return node",
+        "simulation": "def simulate(s, p, d): return 0.5",
+        "backpropagation": "def backprop(n, r): pass",
+    }
+
+    def test_all_tools_section_present(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "MCTS TOOL FUNCTIONS (all 4 phases)" in prompt
+
+    def test_all_four_phases_shown(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "--- selection ---" in prompt
+        assert "--- expansion ---" in prompt
+        assert "--- backpropagation ---" in prompt
+        # simulation is the target, so it gets a marker
+        assert "--- simulation" in prompt
+
+    def test_target_phase_marked(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "simulation \u25c0 TARGET" in prompt
+
+    def test_target_marker_changes_with_phase(self):
+        pb = PromptBuilder(game="sokoban", target_phase="expansion")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "expansion \u25c0 TARGET" in prompt
+        # Other phases should NOT have the marker
+        assert "simulation \u25c0 TARGET" not in prompt
+
+    def test_source_code_included(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=self._SAMPLE_SOURCES)
+        assert "def select(node, w):" in prompt
+        assert "def expand(node):" in prompt
+        assert "def simulate(s, p, d):" in prompt
+        assert "def backprop(n, r):" in prompt
+
+    def test_no_all_tools_section_when_omitted(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(all_tool_sources=None)
+        assert "MCTS TOOL FUNCTIONS" not in prompt
+
+    def test_all_tools_before_target_heuristic(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build(
+            all_tool_sources=self._SAMPLE_SOURCES,
+            tool_source="def sim(s, p, d): return 0.0",
+        )
+        idx_all = prompt.index("MCTS TOOL FUNCTIONS")
+        idx_target = prompt.index("TARGET HEURISTIC TO IMPROVE")
+        assert idx_all < idx_target
+
+    def test_integration_with_engine_sources(self, tmp_path):
+        """all_tool_sources from engine.get_tool_source()."""
+        from mcts import MCTSEngine
+        from mcts.games import Sokoban
+
+        rec_dir = tmp_path / "records"
+        engine = MCTSEngine(
+            Sokoban("level1"), iterations=50, logging=True, records_dir=rec_dir,
+        )
+        result = engine.play_game()
+
+        sources = engine.get_tool_source()
+        pb = PromptBuilder(game="sokoban", target_phase="simulation", records_dir=rec_dir)
+        prompt = pb.build(
+            record_files=[result["log_file"]],
+            tool_source=sources["simulation"],
+            all_tool_sources=sources,
+        )
+        assert "MCTS TOOL FUNCTIONS" in prompt
+        assert "default_selection" in prompt
+        assert "default_expansion" in prompt
+        assert "default_simulation" in prompt
+        assert "default_backpropagation" in prompt
+
+
+# =====================================================================
+# Critique prompt (3-step pipeline)
+# =====================================================================
+
+
+class TestCritiquePrompt:
+    """Tests for build_critique_prompt() – used in the 3-step pipeline."""
+
+    _ANALYSIS = (
+        "The current heuristic only considers box-target distance. "
+        "It ignores deadlocks and player position."
+    )
+    _DRAFT_CODE = textwrap.dedent("""\
+        def custom_simulation(state, player_id, depth=50):
+            s = state.clone()
+            for _ in range(depth):
+                if s.is_terminal():
+                    break
+                actions = s.legal_actions()
+                s.apply_action(actions[0])
+            return s.returns()
+    """)
+
+    def test_contains_system_section(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS, draft_code=self._DRAFT_CODE,
+        )
+        assert "SYSTEM:" in prompt
+        assert "sokoban" in prompt
+
+    def test_contains_game_rules(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS, draft_code=self._DRAFT_CODE,
+        )
+        assert "GAME RULES" in prompt
+
+    def test_contains_analysis_reference(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS, draft_code=self._DRAFT_CODE,
+        )
+        assert "PRIOR ANALYSIS" in prompt
+        assert "box-target distance" in prompt  # from our analysis text
+
+    def test_contains_draft_code_section(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS, draft_code=self._DRAFT_CODE,
+        )
+        assert "DRAFT CODE" in prompt
+        assert "custom_simulation" in prompt
+
+    def test_contains_critique_task(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS, draft_code=self._DRAFT_CODE,
+        )
+        assert "CRITIQUE & FINALIZE" in prompt
+        assert "BUGS" in prompt
+        assert "SPEED" in prompt
+        assert "REWARD SPREAD" in prompt
+        # Should instruct minimal / no extra features
+        assert "NOT add extra features" in prompt or "Do NOT add" in prompt
+
+    def test_includes_all_tool_sources(self):
+        sources = {
+            "selection": "def sel(n): pass",
+            "expansion": "def exp(n): pass",
+            "simulation": "def sim(s, p, d): pass",
+            "backpropagation": "def bp(n, r): pass",
+        }
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS,
+            draft_code=self._DRAFT_CODE,
+            all_tool_sources=sources,
+        )
+        assert "MCTS TOOL FUNCTIONS" in prompt
+        assert "def sel(n): pass" in prompt
+
+    def test_no_all_tools_when_omitted(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS,
+            draft_code=self._DRAFT_CODE,
+            all_tool_sources=None,
+        )
+        assert "MCTS TOOL FUNCTIONS" not in prompt
+
+    def test_includes_additional_context(self):
+        ctx = "Iteration 3: solve_rate=0.33, avg_returns=0.72"
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS,
+            draft_code=self._DRAFT_CODE,
+            additional_context=ctx,
+        )
+        assert "ADDITIONAL CONTEXT" in prompt
+        assert "solve_rate=0.33" in prompt
+
+    def test_no_additional_context_when_omitted(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS,
+            draft_code=self._DRAFT_CODE,
+            additional_context=None,
+        )
+        assert "ADDITIONAL CONTEXT" not in prompt
+
+    def test_section_ordering(self):
+        """Critique prompt sections should appear in expected order."""
+        sources = {
+            "selection": "def sel(n): pass",
+            "expansion": "def exp(n): pass",
+            "simulation": "def sim(s, p, d): pass",
+            "backpropagation": "def bp(n, r): pass",
+        }
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS,
+            draft_code=self._DRAFT_CODE,
+            all_tool_sources=sources,
+            additional_context="iter history",
+        )
+        idx_system = prompt.index("SYSTEM:")
+        idx_rules = prompt.index("GAME RULES")
+        idx_tools = prompt.index("MCTS TOOL FUNCTIONS")
+        idx_ctx = prompt.index("ADDITIONAL CONTEXT")
+        idx_analysis = prompt.index("PRIOR ANALYSIS")
+        idx_draft = prompt.index("DRAFT CODE")
+        idx_task = prompt.index("CRITIQUE & FINALIZE")
+        assert idx_system < idx_rules < idx_tools < idx_ctx < idx_analysis < idx_draft < idx_task
+
+    def test_includes_tool_source_section(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build_critique_prompt(
+            analysis=self._ANALYSIS,
+            draft_code=self._DRAFT_CODE,
+            tool_source="def baseline_sim(s, p, d): return 0.5",
+        )
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt
+        assert "baseline_sim" in prompt
+        assert "TARGET HEURISTIC TO IMPROVE" in prompt

@@ -13,6 +13,6 @@
 
 6. LLM querying (not to connect with MCTS first), but just feed game trace into it and see if it can generate a better, valid heuristic function.
 
-7. then test single loop on 10 sokoban levels and see if it is really working
+7. encapsulate LLM optimization + MCTS engine into a workable architecure, and test it on full sokoban optimization loops.
 
 8. if it is working, test on multiple loops

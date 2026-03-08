@@ -313,7 +313,7 @@ class MCTSEngine:
                 print(state)
                 print()
 
-        solved = state.returns()[0] > 0  # player 0 won / solved
+        solved = state.returns()[0] >= 1.0  # full solve / win only
         result: dict[str, Any] = {
             "solved": solved,
             "steps": len(moves),
