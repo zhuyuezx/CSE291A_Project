@@ -36,6 +36,10 @@ from typing import Any, Callable
 
 from mcts import MCTSEngine, Game
 from LLM import Optimizer
+from LLM.tool_registry import ToolRegistry
+from LLM.tool_aggregator import ToolAggregator
+from LLM.tool_cluster import cluster_tools
+from LLM.tool_merge import merge_tools as merge_tool_sources
 
 from .evaluator import Evaluator
 
@@ -239,6 +243,11 @@ class OptimizationRunner:
         history_window: int = 3,
         logging: bool = True,
         verbose: bool = True,
+        enable_registry: bool = False,
+        enable_aggregator: bool = False,
+        enable_cluster_merge: bool = False,
+        cluster_merge_interval: int = 5,
+        registry_history_len: int = 10,
     ):
         self.game_name = game_name
         self.game_factory = game_factory
@@ -250,6 +259,16 @@ class OptimizationRunner:
         self.history_window = history_window
         self.logging = logging
         self.verbose = verbose
+
+        # Tool-evolution features (all optional)
+        self.enable_registry = enable_registry
+        self.enable_aggregator = enable_aggregator
+        self.enable_cluster_merge = enable_cluster_merge
+        self.cluster_merge_interval = cluster_merge_interval
+        self.registry_history_len = registry_history_len
+
+        self.registry: ToolRegistry | None = ToolRegistry() if enable_registry else None
+        self.aggregator: ToolAggregator | None = None
 
         # Derived from training logic
         self.levels: list[str] = training.LEVELS
@@ -352,6 +371,11 @@ class OptimizationRunner:
             history_window=getattr(hp_mod, "HISTORY_WINDOW", 3),
             logging=getattr(hp_mod, "LOGGING", True),
             verbose=verbose,
+            enable_registry=getattr(hp_mod, "ENABLE_TOOL_REGISTRY", False),
+            enable_aggregator=getattr(hp_mod, "ENABLE_AGGREGATOR", False),
+            enable_cluster_merge=getattr(hp_mod, "ENABLE_CLUSTER_MERGE", False),
+            cluster_merge_interval=getattr(hp_mod, "CLUSTER_MERGE_INTERVAL", 5),
+            registry_history_len=getattr(hp_mod, "REGISTRY_HISTORY_LEN", 10),
         )
 
     # ------------------------------------------------------------------
@@ -377,6 +401,95 @@ class OptimizationRunner:
             if fn is not None:
                 eng.set_tool(phase, fn)
         return eng
+
+    # ------------------------------------------------------------------
+    # Cluster + merge
+    # ------------------------------------------------------------------
+
+    def _run_cluster_merge(
+        self,
+        optimizers: dict[str, "Optimizer"],
+        current_phase: str,
+    ) -> None:
+        """
+        Run tool clustering and merging for all tool phases that have
+        more than one tool in the registry.  Installs merged tools via
+        ToolManager and registers them.
+        """
+        if self.registry is None:
+            return
+
+        for phase in self.tool_phases:
+            all_tools = self.registry.get_all_phase_tools(phase)
+            if len(all_tools) < 2:
+                continue
+
+            if self.verbose:
+                print(f"  Cluster+Merge: {phase} ({len(all_tools)} tools)")
+
+            querier = optimizers.get(phase, optimizers.get(current_phase))
+            q = querier.querier if querier else None
+
+            try:
+                clusters = cluster_tools(all_tools, phase=phase, querier=q)
+            except Exception as e:
+                if self.verbose:
+                    print(f"    Clustering failed: {e}")
+                continue
+
+            for cluster in clusters:
+                names = cluster.get("tool_names", [])
+                if len(names) < 2:
+                    continue
+
+                # Gather source code for the tools in this cluster
+                sources: list[tuple[str, str]] = []
+                for entry in self.registry.entries:
+                    if entry.phase == phase and entry.function_name in names:
+                        if entry.source_snippet:
+                            sources.append((entry.function_name, entry.source_snippet))
+                if len(sources) < 2:
+                    continue
+
+                try:
+                    merged = merge_tool_sources(
+                        tool_sources=sources,
+                        phase=phase,
+                        querier=q,
+                        suggested_name=cluster.get("suggested_master_tool_name"),
+                    )
+                except Exception as e:
+                    if self.verbose:
+                        print(f"    Merge failed for cluster {names}: {e}")
+                    continue
+
+                if merged is None or not merged.get("code"):
+                    continue
+
+                # Validate and install through the existing ToolManager path
+                from LLM.tool_manager import ToolManager, validate as tm_validate
+                validation = tm_validate(merged, phase=phase)
+                if not validation["valid"]:
+                    if self.verbose:
+                        print(f"    Merged tool invalid: {validation['errors']}")
+                    continue
+
+                try:
+                    mgr = ToolManager()
+                    path = mgr.install(merged, phase=phase, overwrite=True)
+                    self.registry.register(
+                        phase=phase,
+                        path=str(path),
+                        function_name=merged.get("function_name", ""),
+                        description=f"[MERGED] {merged.get('description', '')}",
+                        iteration=0,
+                        source_snippet=merged.get("code", ""),
+                    )
+                    if self.verbose:
+                        print(f"    Installed merged tool: {path.name}")
+                except Exception as e:
+                    if self.verbose:
+                        print(f"    Install failed: {e}")
 
     # ------------------------------------------------------------------
     # History builder
@@ -483,6 +596,15 @@ class OptimizationRunner:
                 verbose=self.verbose,
             )
 
+        # Lazily initialise the aggregator once we have a querier
+        if self.enable_aggregator and self.registry is not None:
+            first_opt = next(iter(optimizers.values()))
+            self.aggregator = ToolAggregator(
+                registry=self.registry,
+                querier=first_opt.querier,
+                history_len=self.registry_history_len,
+            )
+
         # Compute initial baseline
         if self.verbose:
             hp = self.current_hyperparams
@@ -552,6 +674,22 @@ class OptimizationRunner:
                 if self.all_results else None
             )
 
+            # --- 2b. Aggregator summary (optional) ---
+            if self.aggregator is not None:
+                try:
+                    agg_summary = self.aggregator.summarize(
+                        phase=opt_phase,
+                        recent_results=self.all_results[-self.history_window:],
+                        current_level=cur_level,
+                    )
+                    if agg_summary:
+                        history = (history + "\n\n" + agg_summary) if history else agg_summary
+                        if self.verbose:
+                            print(f"  Aggregator: injected {len(agg_summary)}-char strategic summary")
+                except Exception as agg_err:
+                    if self.verbose:
+                        print(f"  Aggregator warning: {agg_err}")
+
             # --- 3. Optimize (analysis → draft → critique) ---
             t_opt_start = time.time()
             opt = optimizers[opt_phase]
@@ -561,6 +699,8 @@ class OptimizationRunner:
                 state_factory=state_factory,
                 additional_context=history,
                 session_tag=f"iter{iteration}_{cur_level}_{opt_phase}",
+                registry=self.registry,
+                iteration=iteration,
             )
             t_opt = time.time() - t_opt_start
             if self.verbose:
@@ -732,6 +872,29 @@ class OptimizationRunner:
                     print("  Eval:  SKIPPED (smoke test failed or error)")
                     if result.get("error"):
                         print(f"         {result['error'][:120]}")
+
+            # --- 5. Update registry metrics for this iteration ---
+            if self.registry is not None and fn is not None:
+                try:
+                    entries = self.registry.get_history(opt_phase, last_k=1)
+                    if entries:
+                        entries[0].metrics = {
+                            "composite": iter_record["composite"],
+                            "solve_rate": iter_record["solve_rate"],
+                            "avg_returns": iter_record["avg_returns"],
+                            "adopted": iter_record["adopted"],
+                        }
+                        self.registry._save()
+                except Exception:
+                    pass
+
+            # --- 6. Periodic cluster + merge (optional) ---
+            if (
+                self.enable_cluster_merge
+                and self.registry is not None
+                and iteration % self.cluster_merge_interval == 0
+            ):
+                self._run_cluster_merge(optimizers, opt_phase)
 
             total_time = t_play + t_opt + (iter_record["eval_time"] or 0)
             if self.verbose:

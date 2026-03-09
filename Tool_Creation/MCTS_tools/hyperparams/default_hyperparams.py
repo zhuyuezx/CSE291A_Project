@@ -33,6 +33,15 @@ HISTORY_WINDOW = 3
 PHASES = ["simulation", "expansion"]  # tool-creation phases only
 LOGGING = True
 
+# ── Tool evolution configuration (new — all optional) ────────────────
+# Set these to True to enable the corresponding features.
+# With all set to False, the pipeline behaves identically to before.
+ENABLE_TOOL_REGISTRY = True
+ENABLE_AGGREGATOR = False
+ENABLE_CLUSTER_MERGE = False
+CLUSTER_MERGE_INTERVAL = 5       # run cluster+merge every N iterations
+REGISTRY_HISTORY_LEN = 10        # how many past tools per phase to show
+
 
 def get_hyperparams():
     """

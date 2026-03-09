@@ -105,6 +105,8 @@ class Optimizer:
         state_factory: Callable[[], Any] | None = None,
         additional_context: str | None = None,
         session_tag: str | None = None,
+        registry: Any | None = None,
+        iteration: int = 0,
     ) -> dict[str, Any]:
         """
         Run the LLM optimisation pipeline.
@@ -126,6 +128,11 @@ class Optimizer:
             Override the debug session tag for this run (e.g.
             ``"iter2_level5_simulation"``).  Each call with a new tag
             creates a separate debug log folder.
+        registry : ToolRegistry, optional
+            If provided, the installed tool is automatically registered
+            in the global tool registry after a successful smoke test.
+        iteration : int
+            Current iteration number (used for registry metadata).
 
         Returns
         -------
@@ -221,6 +228,22 @@ class Optimizer:
                 out["error"] = "Smoke test failed after repair attempts."
                 return out
             self._log("  Smoke test passed ✓")
+
+            # Register in global tool registry (if provided)
+            if registry is not None and installed_path is not None:
+                try:
+                    source_snippet = parsed.get("code", "")
+                    registry.register(
+                        phase=self.target_phase,
+                        path=str(installed_path),
+                        function_name=parsed.get("function_name", ""),
+                        description=parsed.get("description", ""),
+                        iteration=iteration,
+                        source_snippet=source_snippet,
+                    )
+                    self._log("  Registered in tool registry ✓")
+                except Exception as reg_err:
+                    self._log(f"  Registry warning: {reg_err}")
 
         except Exception as e:
             out["error"] = f"Pipeline error: {e}\n{traceback.format_exc()}"
