@@ -177,19 +177,49 @@ class MCTSEngine:
         return self._tools[phase]
 
     def get_tool_source(self) -> dict[str, str]:
-        """Return the source code of each tool (for prompt building)."""
+        """Return the full source file for each tool (for prompt building).
+
+        Reads the entire .py file so that helper functions, imports, and
+        other context defined alongside the main tool function are
+        included in LLM prompts.
+        """
         sources: dict[str, str] = {}
         for phase, fn in self._tools.items():
-            try:
-                sources[phase] = inspect.getsource(fn)
-            except (OSError, TypeError):
-                # If loaded dynamically, read the file directly
-                path = self._tool_paths.get(phase)
-                if path and os.path.isfile(path):
-                    sources[phase] = Path(path).read_text()
-                else:
+            # Prefer reading the full file over inspect.getsource (which
+            # only returns the single function body).
+            stored_path = self._tool_paths.get(phase)
+            source = self._read_tool_file(phase, fn, stored_path)
+            if source is not None:
+                sources[phase] = source
+            else:
+                # Last resort: single-function source via inspect
+                try:
+                    sources[phase] = inspect.getsource(fn)
+                except (OSError, TypeError):
                     sources[phase] = f"# source unavailable for {fn.__name__}"
         return sources
+
+    @staticmethod
+    def _read_tool_file(phase: str, fn: Callable, stored_path: str | None = None) -> str | None:
+        """Try to read the full .py file that defines *fn*."""
+        # 1. Try the stored path (from load_tool or __init__)
+        if stored_path and os.path.isfile(stored_path):
+            return Path(stored_path).read_text(encoding="utf-8")
+        # 2. Try inspect.getfile on the function object
+        try:
+            fpath = inspect.getfile(fn)
+            if fpath and os.path.isfile(fpath):
+                return Path(fpath).read_text(encoding="utf-8")
+        except (OSError, TypeError):
+            pass
+        # 3. Fall back to the default path from tool_config.json
+        try:
+            default = _get_default_path(phase)
+            if default and os.path.isfile(default):
+                return Path(default).read_text(encoding="utf-8")
+        except Exception:
+            pass
+        return None
 
     def reset_tool(self, phase: str) -> None:
         """Reset a phase tool to its default from tool_config.json."""

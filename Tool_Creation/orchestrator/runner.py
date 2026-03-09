@@ -25,6 +25,7 @@ Usage::
 
 from __future__ import annotations
 
+import ast
 import importlib
 import importlib.util
 import inspect
@@ -103,6 +104,118 @@ def _make_game_factory(
     return factory
 
 
+def _tool_file_is_self_contained(path: Path) -> bool:
+    """
+    Return True if every private name called in the file (names starting
+    with '_') is also defined at module level in the same file.
+
+    This catches the common LLM failure mode of generating a function that
+    calls helper functions it forgot to include.
+    """
+    try:
+        source = path.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+    except Exception:
+        return False
+
+    # Collect all names defined at module level
+    defined = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            defined.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    defined.add(t.id)
+
+    # Collect all private names called anywhere in the file
+    called_private = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            func = node.func
+            if isinstance(func, ast.Name) and func.id.startswith("_"):
+                called_private.add(func.id)
+
+    missing = called_private - defined
+    return len(missing) == 0
+
+
+def _smoke_test_fn(fn: Callable, phase: str, state_factory: Callable) -> bool:
+    """
+    Run a quick smoke test on *fn* using the same arg-building logic as
+    Optimizer._build_smoke_args.  Returns True if the call completes without
+    raising.
+    """
+    from LLM.optimizer import EXPECTED_SIGNATURES
+    from mcts.node import MCTSNode
+    try:
+        test_state = state_factory()
+        sig_params = EXPECTED_SIGNATURES.get(phase, [])
+        args = []
+        for p in sig_params:
+            if p in ("state",):
+                args.append(test_state)
+            elif p in ("perspective_player", "player"):
+                args.append(0)
+            elif p in ("max_depth", "depth"):
+                args.append(50)
+            elif p in ("root", "node"):
+                args.append(MCTSNode(test_state))
+            elif p in ("exploration_weight",):
+                args.append(1.41)
+            elif p in ("reward",):
+                args.append(0.5)
+            else:
+                args.append(None)
+        fn(*args)
+        return True
+    except Exception:
+        return False
+
+
+def _load_installed_tools(
+    phases: list[str],
+    state_factory: Callable | None = None,
+) -> dict[str, Callable | None]:
+    """
+    For each phase, load the most recently modified non-default tool file
+    from MCTS_tools/<phase>/ that passes both a self-containment check and
+    a live smoke test.
+
+    This lets a new session resume from the best previously generated code
+    instead of always starting from the built-in defaults.
+    """
+    from mcts.mcts_engine import _TOOLS_DIR, _load_function_from_file
+    result: dict[str, Callable | None] = {p: None for p in phases}
+    for phase in phases:
+        phase_dir = _TOOLS_DIR / phase
+        if not phase_dir.is_dir():
+            continue
+        candidates = [
+            p for p in phase_dir.glob("*.py")
+            if not p.name.startswith("default_")
+        ]
+        if not candidates:
+            continue
+        # Try candidates newest-first; accept the first one that passes all checks
+        candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        for candidate in candidates:
+            if not _tool_file_is_self_contained(candidate):
+                continue
+            try:
+                fn = _load_function_from_file(
+                    candidate, func_name=f"default_{phase}"
+                )
+            except Exception:
+                continue
+            # Smoke-test against a real game state when a factory is available
+            if state_factory is not None and not _smoke_test_fn(fn, phase, state_factory):
+                continue
+            result[phase] = fn
+            break
+    return result
+
+
 class OptimizationRunner:
     """
     Iterative LLM optimization loop — game-agnostic.
@@ -153,12 +266,17 @@ class OptimizationRunner:
         self.current_hyperparams: dict = hyperparams_fn()
 
         # Tool function state — per-phase
-        self.best_fns: dict[str, Callable | None] = {
-            p: None for p in self.tool_phases
-        }
-        self.current_fns: dict[str, Callable | None] = {
-            p: None for p in self.tool_phases
-        }
+        # Load previously installed (non-default) tools so sessions resume
+        # with the best available code rather than always starting from scratch.
+        # Pass a state_factory so hallucinated API calls are caught at load time.
+        _sf = lambda: game_factory(self.start_level).new_initial_state()
+        loaded = _load_installed_tools(self.tool_phases, state_factory=_sf)
+        self.best_fns: dict[str, Callable | None] = dict(loaded)
+        self.current_fns: dict[str, Callable | None] = dict(loaded)
+        if loaded and verbose:
+            for phase, fn in loaded.items():
+                if fn is not None:
+                    print(f"  Resuming {phase} from previously installed tool.")
         self.all_results: list[dict] = []
         self.active_levels: list[str] = list(self.levels)
 

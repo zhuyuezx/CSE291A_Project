@@ -88,12 +88,12 @@ def parse_response(response: str) -> dict[str, Any]:
     _extract_field(response, r"FILE_NAME:\s*(\S+)", "file_name", result)
     _extract_field(response, r"FUNCTION_NAME:\s*(\S+)", "function_name", result)
 
-    # Description can have spaces
+    # Description is optional — present but not required for validation
     desc_match = re.search(r"DESCRIPTION:\s*(.+)", response)
     if desc_match:
         result["description"] = desc_match.group(1).strip().strip("*").strip()
     else:
-        result["parse_errors"].append("Missing DESCRIPTION field.")
+        result["description"] = ""
 
     # Extract code block
     code_match = re.search(r"```python\s*\n(.*?)```", response, re.DOTALL)
