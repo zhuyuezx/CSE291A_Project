@@ -411,7 +411,13 @@ class Optimizer:
             elif p in ("max_depth", "depth"):
                 args.append(50)
             elif p in ("root", "node"):
-                args.append(test_state)      # node-like stub
+                # Build a real MCTSNode so expansion functions that access
+                # node._untried_actions / node.children / node.state work.
+                try:
+                    from mcts.node import MCTSNode
+                    args.append(MCTSNode(test_state))
+                except Exception:
+                    args.append(test_state)
             elif p in ("exploration_weight",):
                 args.append(1.41)
             elif p in ("reward",):
