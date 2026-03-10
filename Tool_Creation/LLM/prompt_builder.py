@@ -385,6 +385,8 @@ class PromptBuilder:
     def _build_task_section(self) -> str:
         if self.target_phase == "hyperparams":
             return self._build_hyperparams_task_section()
+        if self.target_phase == "expansion":
+            return self._build_expansion_task_section()
         sep = "-" * 60
         return (
             f"{sep}\n"
@@ -430,6 +432,45 @@ class PromptBuilder:
             f"- FILE_NAME must end in .py and contain only [a-z0-9_].\n"
             f"- FUNCTION_NAME must match the main function defined in the code.\n"
             f"- The code block must be valid Python that can run standalone."
+        )
+
+    def _build_expansion_task_section(self) -> str:
+        """Task section for expansion phase (receives MCTSNode, returns child node)."""
+        sep = "-" * 60
+        return (
+            f"{sep}\n"
+            f"TASK — IMPROVE THE EXPANSION HEURISTIC\n"
+            f"{sep}\n"
+            f"Improve the 'expansion' function above. The function receives a single\n"
+            f"argument: **node** (an MCTSNode).\n\n"
+            f"MCTSNode API (you must respect this):\n"
+            f"  - node.state          — the GameState at this node\n"
+            f"  - node._untried_actions — **list** of actions not yet expanded\n"
+            f"    (use .remove(action) or .pop() to remove; do NOT use .discard() — it is a list, not a set)\n"
+            f"  - node.children      — dict mapping action -> child MCTSNode\n"
+            f"  - node.visits, node.value — visit count and cumulative value\n\n"
+            f"Your function must: pick one action from node._untried_actions, remove it\n"
+            f"from the list, create a child MCTSNode with the resulting state, store it\n"
+            f"in node.children[action], and return that child. Use list methods only.\n\n"
+            f"You must NEVER return None. The engine expects a child MCTSNode every time.\n"
+            f"If you prune some actions as bad, still pick one (e.g. the least bad) to expand.\n\n"
+            f"CONSTRAINTS:\n"
+            f"  • Same signature: def default_expansion(node):\n"
+            f"  • Always return a single MCTSNode (the new child); never None.\n"
+            f"  • Do not add attributes to MCTSNode that are not set on first use in your\n"
+            f"    function (e.g. if you use node._action_scores, set it at the start:\n"
+            f"    if not hasattr(node, '_action_scores'): node._action_scores = {{}}.\n"
+            f"  • Standalone function, standard library only.\n\n"
+            f"You MUST format your response EXACTLY as follows:\n\n"
+            f"ACTION: modify\n"
+            f"FILE_NAME: <filename>.py\n"
+            f"FUNCTION_NAME: default_expansion\n"
+            f"DESCRIPTION: <one-line: what you changed and why>\n"
+            f"```python\n"
+            f"<your complete function code here>\n"
+            f"```\n\n"
+            f"Rules: FILE_NAME must end in .py; FUNCTION_NAME must be default_expansion;\n"
+            f"code must be valid Python. Use node._untried_actions.remove(x) or .pop(), never .discard()."
         )
 
     def _build_analysis_task_section(self) -> str:

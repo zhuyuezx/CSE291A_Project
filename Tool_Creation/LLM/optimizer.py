@@ -105,6 +105,8 @@ class Optimizer:
         state_factory: Callable[[], Any] | None = None,
         additional_context: str | None = None,
         session_tag: str | None = None,
+        registry: Any | None = None,
+        iteration: int = 0,
     ) -> dict[str, Any]:
         """
         Run the LLM optimisation pipeline.
@@ -126,6 +128,11 @@ class Optimizer:
             Override the debug session tag for this run (e.g.
             ``"iter2_level5_simulation"``).  Each call with a new tag
             creates a separate debug log folder.
+        registry : ToolRegistry, optional
+            If provided, the installed tool is automatically registered
+            in the global tool registry after a successful smoke test.
+        iteration : int
+            Current iteration number (used for registry metadata).
 
         Returns
         -------
@@ -221,6 +228,22 @@ class Optimizer:
                 out["error"] = "Smoke test failed after repair attempts."
                 return out
             self._log("  Smoke test passed ✓")
+
+            # Register in global tool registry (if provided)
+            if registry is not None and installed_path is not None:
+                try:
+                    source_snippet = parsed.get("code", "")
+                    registry.register(
+                        phase=self.target_phase,
+                        path=str(installed_path),
+                        function_name=parsed.get("function_name", ""),
+                        description=parsed.get("description", ""),
+                        iteration=iteration,
+                        source_snippet=source_snippet,
+                    )
+                    self._log("  Registered in tool registry ✓")
+                except Exception as reg_err:
+                    self._log(f"  Registry warning: {reg_err}")
 
         except Exception as e:
             out["error"] = f"Pipeline error: {e}\n{traceback.format_exc()}"
@@ -518,11 +541,22 @@ class Optimizer:
             ]
             attr_lines = "\n".join(f"  {n}: {t}" for n, t in state_attrs)
 
+        mcts_node_note = ""
+        if self.target_phase == "expansion":
+            mcts_node_note = (
+                "== MCTSNode (expansion receives this) ==\n"
+                "node.state = GameState, node.children = dict, node.visits/value = numbers.\n"
+                "node._untried_actions is a **list** (use .remove(item) or .pop(), NOT .discard()).\n"
+                "You must NEVER return None; always return the new child MCTSNode.\n"
+                "If you add node._action_scores or similar, set it at the start: "
+                "if not hasattr(node, '_action_scores'): node._action_scores = {}.\n\n"
+            )
         repair_prompt = (
             f"You previously generated the following {self.game} MCTS "
             f"{self.target_phase} function, but it raised a runtime error.\n\n"
             f"== BROKEN CODE ==\n```python\n{broken_code}\n```\n\n"
             f"== RUNTIME ERROR ==\n{tb_text}\n\n"
+            f"{mcts_node_note}"
             f"== ACTUAL GameState PUBLIC API ==\n{attr_lines}\n\n"
             f"Fix ONLY the broken parts. Keep the heuristic strategy the same.\n"
             f"Return using the SAME structured format.\n\n"

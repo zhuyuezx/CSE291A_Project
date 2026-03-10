@@ -12,6 +12,10 @@ from .tool_manager import (
     validate,
 )
 from .optimizer import Optimizer
+from .tool_registry import ToolRegistry, ToolEntry
+from .tool_cluster import cluster_tools
+from .tool_merge import merge_tools
+from .tool_aggregator import ToolAggregator
 
 __all__ = [
     "PromptBuilder",
@@ -22,4 +26,9 @@ __all__ = [
     "parse_response",
     "validate",
     "Optimizer",
+    "ToolRegistry",
+    "ToolEntry",
+    "cluster_tools",
+    "merge_tools",
+    "ToolAggregator",
 ]

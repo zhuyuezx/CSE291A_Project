@@ -33,6 +33,15 @@ HISTORY_WINDOW = 3
 PHASES = ["simulation", "expansion"]  # tool-creation phases only
 LOGGING = True
 
+# ── Tool evolution configuration (new — all optional) ────────────────
+# Set to True to enable; False to disable. With all False, the pipeline
+# behaves identically to the original (no registry, no aggregator, no merge).
+ENABLE_TOOL_REGISTRY = False     # True: record every installed tool to LLM/registry/tool_registry.json
+ENABLE_AGGREGATOR = False       # True: inject strategic summary from past tools into each optimizer run
+ENABLE_CLUSTER_MERGE = False    # True: periodically cluster and merge tools per phase
+CLUSTER_MERGE_INTERVAL = 5      # run cluster+merge every N iterations (when ENABLE_CLUSTER_MERGE)
+REGISTRY_HISTORY_LEN = 10        # how many past tools per phase to show (when aggregator/registry on)
+
 
 def get_hyperparams():
     """
