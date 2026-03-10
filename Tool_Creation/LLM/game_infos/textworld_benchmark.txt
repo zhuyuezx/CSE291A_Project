@@ -1,0 +1,76 @@
+Game: TextWorld Benchmark (symbolic hw2-style suite)
+
+== Overview ==
+This is a pure-Python planning benchmark aligned with the case grid from
+hw2_part2.ipynb:
+  - game types: coin, mapreader
+  - variants: deterministic, stochastic, punishment
+  - seeds: 0, 1, 2
+
+The benchmark is symbolic and clone-friendly for MCTS. It is designed
+to mirror the homework's test structure, not to replicate the original
+TextWorld-Express engine byte-for-byte.
+
+== Game Types ==
+coin:
+  Navigate to the coin and take it.
+
+mapreader:
+  Take the map, read it to reveal the goal room, then navigate to the
+  goal room.
+
+== Variants ==
+deterministic:
+  Actions execute as chosen.
+
+stochastic:
+  With probability 0.25, a meaningful legal action is sampled instead of
+  the intended action.
+
+punishment:
+  If the action leaves the room description unchanged, the step receives
+  a negative reward contribution.
+
+== State ==
+Public attributes:
+  config
+  room
+  graph
+  doors
+  inventory_items
+  map_read
+  known_goal_room
+  task_completed
+  partial_credit
+  steps
+  reward_accumulator
+
+Public helper methods:
+  look_text()
+  inventory_text()
+  observation_text()
+  distance_to_goal()
+
+Public GameState methods:
+  clone()
+  legal_actions()
+  apply_action(action)
+  is_terminal()
+  returns()
+  current_player()
+  state_key()
+
+== Rewards ==
+returns() yields:
+  [1.0]   full success
+  [0.5]   partial progress for mapreader after the map has been read
+  [0.0]   failure / timeout
+  negative values are possible in punishment mode
+
+== Planning Hints ==
+  - Avoid wasting steps on look/inventory/task when progress actions exist.
+  - For coin: prioritize moving toward the coin room and taking the coin.
+  - For mapreader: take map, read map, then move toward the revealed goal.
+  - In punishment mode, avoid oscillatory or no-op actions.
+  - In stochastic mode, prefer actions whose accidental alternatives are
+    less damaging.

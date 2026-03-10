@@ -1,5 +1,8 @@
 from .connect_four import ConnectFour, ConnectFourState
 from .rush_hour import RushHour, RushHourState
 from .sliding_puzzle import SlidingPuzzle, SlidingPuzzleState
+from .textworld_benchmark import TextWorldBenchmark, TextWorldBenchmarkState
 from .sokoban import Sokoban, SokobanState
+from .textworld_coin import TextWorldCoin, TextWorldCoinState
+from .textworld_express import TextWorldExpressGame, TextWorldExpressState
 from .tic_tac_toe import TicTacToe, TicTacToeState

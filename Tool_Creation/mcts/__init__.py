@@ -12,3 +12,4 @@ Modules:
 from .games.game_interface import Game, GameState
 from .node import MCTSNode
 from .mcts_engine import MCTSEngine
+from .puct import make_puct_selection, make_puct_expansion, make_dqn_prior_fn

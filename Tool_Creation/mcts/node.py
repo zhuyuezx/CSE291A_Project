@@ -22,7 +22,7 @@ class MCTSNode:
     __slots__ = (
         "state", "parent", "parent_action",
         "children", "_untried_actions",
-        "visits", "value",
+        "visits", "value", "prior",
     )
 
     def __init__(
@@ -38,6 +38,7 @@ class MCTSNode:
         self._untried_actions: list[Any] = list(state.legal_actions())
         self.visits: int = 0
         self.value: float = 0.0       # cumulative value (sum of backprop'd rewards)
+        self.prior: float = 0.0       # policy prior P(s, a) for edge parent->node
 
     # ── Tree policy helpers ──────────────────────────────────────────
 
@@ -61,6 +62,7 @@ class MCTSNode:
         return (
             f"MCTSNode(visits={self.visits}, "
             f"value={self.value:.2f}, "
+            f"prior={self.prior:.3f}, "
             f"children={len(self.children)}, "
             f"untried={len(self._untried_actions)})"
         )
