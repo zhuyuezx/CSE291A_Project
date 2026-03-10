@@ -541,11 +541,22 @@ class Optimizer:
             ]
             attr_lines = "\n".join(f"  {n}: {t}" for n, t in state_attrs)
 
+        mcts_node_note = ""
+        if self.target_phase == "expansion":
+            mcts_node_note = (
+                "== MCTSNode (expansion receives this) ==\n"
+                "node.state = GameState, node.children = dict, node.visits/value = numbers.\n"
+                "node._untried_actions is a **list** (use .remove(item) or .pop(), NOT .discard()).\n"
+                "You must NEVER return None; always return the new child MCTSNode.\n"
+                "If you add node._action_scores or similar, set it at the start: "
+                "if not hasattr(node, '_action_scores'): node._action_scores = {}.\n\n"
+            )
         repair_prompt = (
             f"You previously generated the following {self.game} MCTS "
             f"{self.target_phase} function, but it raised a runtime error.\n\n"
             f"== BROKEN CODE ==\n```python\n{broken_code}\n```\n\n"
             f"== RUNTIME ERROR ==\n{tb_text}\n\n"
+            f"{mcts_node_note}"
             f"== ACTUAL GameState PUBLIC API ==\n{attr_lines}\n\n"
             f"Fix ONLY the broken parts. Keep the heuristic strategy the same.\n"
             f"Return using the SAME structured format.\n\n"

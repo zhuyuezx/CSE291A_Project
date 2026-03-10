@@ -290,8 +290,11 @@ class LLMQuerier:
         self.results_dir = Path(results_dir) if results_dir else _RESULTS_DIR
 
         if not self.api_keys:
+            _env_path = Path(__file__).resolve().parent.parent / ".env"
             raise ValueError(
-                "No API keys configured. Set API_KEYS in .env or pass api_keys=[]."
+                "No API keys configured. Create Tool_Creation/.env from .env.example "
+                "and set API_KEYS=your-key (comma-separated for multiple). "
+                f"Or pass api_keys=[...] to LLMQuerier(). (.env exists: {_env_path.exists()})"
             )
 
         self._debug_enabled = debug if debug is not None else os.getenv("LLM_DEBUG", "0") == "1"

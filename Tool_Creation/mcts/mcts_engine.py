@@ -264,7 +264,11 @@ class MCTSEngine:
 
             # 2. Expansion -- add a child if node has untried actions
             if not node.is_terminal:
-                node = expand_fn(node)
+                child = expand_fn(node)
+                if child is None:
+                    # Expansion returned None (e.g. all actions pruned); skip this iteration
+                    continue
+                node = child
 
             # 3. Simulation -- random rollout from the node
             reward = simulate_fn(
