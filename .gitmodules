@@ -1,0 +1,3 @@
+[submodule "sokoban-solver"]
+	path = sokoban-solver
+	url = https://github.com/zhuyuezx/sokoban-solver.git
