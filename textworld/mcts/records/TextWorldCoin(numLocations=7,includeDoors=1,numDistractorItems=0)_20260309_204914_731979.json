@@ -1,0 +1,583 @@
+{
+  "metadata": {
+    "game": "TextWorldCoin(numLocations=7,includeDoors=1,numDistractorItems=0)",
+    "timestamp": "2026-03-09T20:49:14.551750",
+    "iterations": 100,
+    "max_rollout_depth": 50,
+    "exploration_weight": 1.41,
+    "tools": {
+      "selection": "(set programmatically)",
+      "expansion": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\expansion\\default_expansion.py",
+      "simulation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\simulation\\default_simulation.py",
+      "backpropagation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\backpropagation\\default_backpropagation.py"
+    }
+  },
+  "moves": [
+    {
+      "move_number": 1,
+      "player": 0,
+      "state_before": "You are in room 0 out of 6. There is a closed door to the east.\nInventory: empty",
+      "state_key": "room=0|coin=0|doors=000000|inv=|steps=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "open door to east": {
+          "visits": 45,
+          "value": 12.9,
+          "avg_value": 0.2867
+        },
+        "inventory": {
+          "visits": 27,
+          "value": 6.475,
+          "avg_value": 0.2398
+        },
+        "look around": {
+          "visits": 28,
+          "value": 6.7,
+          "avg_value": 0.2393
+        }
+      }
+    },
+    {
+      "move_number": 2,
+      "player": 0,
+      "state_before": "You are in room 0 out of 6. There is a open door to the east.\nInventory: empty",
+      "state_key": "room=0|coin=0|doors=100000|inv=|steps=1",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to east",
+        "move east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 41,
+          "value": 12.775,
+          "avg_value": 0.3116
+        },
+        "close door to east": {
+          "visits": 20,
+          "value": 4.95,
+          "avg_value": 0.2475
+        },
+        "inventory": {
+          "visits": 18,
+          "value": 3.85,
+          "avg_value": 0.2139
+        },
+        "look around": {
+          "visits": 21,
+          "value": 5.825,
+          "avg_value": 0.2774
+        }
+      }
+    },
+    {
+      "move_number": 3,
+      "player": 0,
+      "state_before": "You are in room 1 out of 6. There is a open door to the west. There is a closed door to the east.\nInventory: empty",
+      "state_key": "room=1|coin=0|doors=100000|inv=|steps=2",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "open door to east": {
+          "visits": 24,
+          "value": 7.275,
+          "avg_value": 0.3031
+        },
+        "move west": {
+          "visits": 18,
+          "value": 5.725,
+          "avg_value": 0.3181
+        },
+        "close door to west": {
+          "visits": 20,
+          "value": 6.0,
+          "avg_value": 0.3
+        },
+        "inventory": {
+          "visits": 18,
+          "value": 5.0,
+          "avg_value": 0.2778
+        },
+        "look around": {
+          "visits": 20,
+          "value": 6.125,
+          "avg_value": 0.3062
+        }
+      }
+    },
+    {
+      "move_number": 4,
+      "player": 0,
+      "state_before": "You are in room 1 out of 6. There is a open door to the west. There is a open door to the east.\nInventory: empty",
+      "state_key": "room=1|coin=0|doors=110000|inv=|steps=3",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "close door to east",
+        "move east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 24,
+          "value": 6.975,
+          "avg_value": 0.2906
+        },
+        "close door to east": {
+          "visits": 16,
+          "value": 4.825,
+          "avg_value": 0.3016
+        },
+        "move west": {
+          "visits": 13,
+          "value": 3.075,
+          "avg_value": 0.2365
+        },
+        "close door to west": {
+          "visits": 18,
+          "value": 5.65,
+          "avg_value": 0.3139
+        },
+        "inventory": {
+          "visits": 15,
+          "value": 3.925,
+          "avg_value": 0.2617
+        },
+        "look around": {
+          "visits": 14,
+          "value": 3.3,
+          "avg_value": 0.2357
+        }
+      }
+    },
+    {
+      "move_number": 5,
+      "player": 0,
+      "state_before": "You are in room 2 out of 6. There is a open door to the west. There is a closed door to the east.\nInventory: empty",
+      "state_key": "room=2|coin=0|doors=110000|inv=|steps=4",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "open door to east": {
+          "visits": 28,
+          "value": 11.25,
+          "avg_value": 0.4018
+        },
+        "move west": {
+          "visits": 16,
+          "value": 5.125,
+          "avg_value": 0.3203
+        },
+        "close door to west": {
+          "visits": 22,
+          "value": 9.25,
+          "avg_value": 0.4205
+        },
+        "inventory": {
+          "visits": 19,
+          "value": 6.875,
+          "avg_value": 0.3618
+        },
+        "look around": {
+          "visits": 15,
+          "value": 4.25,
+          "avg_value": 0.2833
+        }
+      }
+    },
+    {
+      "move_number": 6,
+      "player": 0,
+      "state_before": "You are in room 2 out of 6. There is a open door to the west. There is a open door to the east.\nInventory: empty",
+      "state_key": "room=2|coin=0|doors=111000|inv=|steps=5",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "close door to east",
+        "move east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 29,
+          "value": 13.025,
+          "avg_value": 0.4491
+        },
+        "close door to east": {
+          "visits": 13,
+          "value": 3.825,
+          "avg_value": 0.2942
+        },
+        "move west": {
+          "visits": 11,
+          "value": 3.175,
+          "avg_value": 0.2886
+        },
+        "close door to west": {
+          "visits": 17,
+          "value": 7.2,
+          "avg_value": 0.4235
+        },
+        "inventory": {
+          "visits": 14,
+          "value": 5.325,
+          "avg_value": 0.3804
+        },
+        "look around": {
+          "visits": 16,
+          "value": 6.15,
+          "avg_value": 0.3844
+        }
+      }
+    },
+    {
+      "move_number": 7,
+      "player": 0,
+      "state_before": "You are in room 3 out of 6. There is a open door to the west. There is a closed door to the east.\nInventory: empty",
+      "state_key": "room=3|coin=0|doors=111000|inv=|steps=6",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "open door to east": {
+          "visits": 29,
+          "value": 14.05,
+          "avg_value": 0.4845
+        },
+        "move west": {
+          "visits": 15,
+          "value": 5.7,
+          "avg_value": 0.38
+        },
+        "close door to west": {
+          "visits": 24,
+          "value": 12.15,
+          "avg_value": 0.5062
+        },
+        "inventory": {
+          "visits": 18,
+          "value": 7.025,
+          "avg_value": 0.3903
+        },
+        "look around": {
+          "visits": 14,
+          "value": 4.35,
+          "avg_value": 0.3107
+        }
+      }
+    },
+    {
+      "move_number": 8,
+      "player": 0,
+      "state_before": "You are in room 3 out of 6. There is a open door to the west. There is a open door to the east.\nInventory: empty",
+      "state_key": "room=3|coin=0|doors=111100|inv=|steps=7",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "close door to east",
+        "move east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 30,
+          "value": 17.125,
+          "avg_value": 0.5708
+        },
+        "close door to east": {
+          "visits": 14,
+          "value": 6.7,
+          "avg_value": 0.4786
+        },
+        "move west": {
+          "visits": 10,
+          "value": 3.4,
+          "avg_value": 0.34
+        },
+        "close door to west": {
+          "visits": 19,
+          "value": 10.75,
+          "avg_value": 0.5658
+        },
+        "inventory": {
+          "visits": 12,
+          "value": 4.75,
+          "avg_value": 0.3958
+        },
+        "look around": {
+          "visits": 15,
+          "value": 7.425,
+          "avg_value": 0.495
+        }
+      }
+    },
+    {
+      "move_number": 9,
+      "player": 0,
+      "state_before": "You are in room 4 out of 6. There is a open door to the west. There is a closed door to the east.\nInventory: empty",
+      "state_key": "room=4|coin=0|doors=111100|inv=|steps=8",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "open door to east": {
+          "visits": 29,
+          "value": 17.9,
+          "avg_value": 0.6172
+        },
+        "move west": {
+          "visits": 14,
+          "value": 6.6,
+          "avg_value": 0.4714
+        },
+        "close door to west": {
+          "visits": 20,
+          "value": 11.4,
+          "avg_value": 0.57
+        },
+        "inventory": {
+          "visits": 14,
+          "value": 6.475,
+          "avg_value": 0.4625
+        },
+        "look around": {
+          "visits": 23,
+          "value": 14.45,
+          "avg_value": 0.6283
+        }
+      }
+    },
+    {
+      "move_number": 10,
+      "player": 0,
+      "state_before": "You are in room 4 out of 6. There is a open door to the west. There is a open door to the east.\nInventory: empty",
+      "state_key": "room=4|coin=0|doors=111110|inv=|steps=9",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "close door to east",
+        "move east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 21,
+          "value": 11.325,
+          "avg_value": 0.5393
+        },
+        "close door to east": {
+          "visits": 16,
+          "value": 9.3,
+          "avg_value": 0.5812
+        },
+        "move west": {
+          "visits": 14,
+          "value": 7.825,
+          "avg_value": 0.5589
+        },
+        "close door to west": {
+          "visits": 19,
+          "value": 12.8,
+          "avg_value": 0.6737
+        },
+        "inventory": {
+          "visits": 17,
+          "value": 10.775,
+          "avg_value": 0.6338
+        },
+        "look around": {
+          "visits": 13,
+          "value": 6.175,
+          "avg_value": 0.475
+        }
+      }
+    },
+    {
+      "move_number": 11,
+      "player": 0,
+      "state_before": "You are in room 5 out of 6. There is a open door to the west. There is a closed door to the east.\nInventory: empty",
+      "state_key": "room=5|coin=0|doors=111110|inv=|steps=10",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "open door to east": {
+          "visits": 38,
+          "value": 30.8,
+          "avg_value": 0.8105
+        },
+        "move west": {
+          "visits": 8,
+          "value": 2.975,
+          "avg_value": 0.3719
+        },
+        "close door to west": {
+          "visits": 24,
+          "value": 18.275,
+          "avg_value": 0.7615
+        },
+        "inventory": {
+          "visits": 11,
+          "value": 5.0,
+          "avg_value": 0.4545
+        },
+        "look around": {
+          "visits": 19,
+          "value": 13.425,
+          "avg_value": 0.7066
+        }
+      }
+    },
+    {
+      "move_number": 12,
+      "player": 0,
+      "state_before": "You are in room 5 out of 6. There is a open door to the west. There is a open door to the east.\nInventory: empty",
+      "state_key": "room=5|coin=0|doors=111111|inv=|steps=11",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "close door to east",
+        "move east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 32,
+          "value": 30.05,
+          "avg_value": 0.9391
+        },
+        "close door to east": {
+          "visits": 16,
+          "value": 13.8,
+          "avg_value": 0.8625
+        },
+        "move west": {
+          "visits": 7,
+          "value": 3.35,
+          "avg_value": 0.4786
+        },
+        "close door to west": {
+          "visits": 16,
+          "value": 12.8,
+          "avg_value": 0.8
+        },
+        "inventory": {
+          "visits": 16,
+          "value": 13.15,
+          "avg_value": 0.8219
+        },
+        "look around": {
+          "visits": 13,
+          "value": 9.675,
+          "avg_value": 0.7442
+        }
+      }
+    },
+    {
+      "move_number": 13,
+      "player": 0,
+      "state_before": "You are in room 6 out of 6. You see a coin here. There is a open door to the west.\nInventory: empty",
+      "state_key": "room=6|coin=0|doors=111111|inv=|steps=12",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "close door to west",
+        "move west",
+        "take coin"
+      ],
+      "action_chosen": "take coin",
+      "root_visits": 100,
+      "children_stats": {
+        "take coin": {
+          "visits": 42,
+          "value": 42.0,
+          "avg_value": 1.0
+        },
+        "move west": {
+          "visits": 11,
+          "value": 8.725,
+          "avg_value": 0.7932
+        },
+        "close door to west": {
+          "visits": 17,
+          "value": 15.625,
+          "avg_value": 0.9191
+        },
+        "inventory": {
+          "visits": 14,
+          "value": 11.925,
+          "avg_value": 0.8518
+        },
+        "look around": {
+          "visits": 16,
+          "value": 14.475,
+          "avg_value": 0.9047
+        }
+      }
+    }
+  ],
+  "outcome": {
+    "solved": true,
+    "steps": 13,
+    "returns": [
+      1.0
+    ],
+    "final_state": "You are in room 6 out of 6. There is a open door to the west.\nInventory: coin"
+  }
+}

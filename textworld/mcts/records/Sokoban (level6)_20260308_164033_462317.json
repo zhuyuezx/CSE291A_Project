@@ -1,0 +1,4225 @@
+{
+  "metadata": {
+    "game": "Sokoban (level6)",
+    "timestamp": "2026-03-08T16:40:07.664374",
+    "iterations": 200,
+    "max_rollout_depth": 500,
+    "exploration_weight": 1.41,
+    "tools": {
+      "selection": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\selection\\default_selection.py",
+      "expansion": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\expansion\\default_expansion.py",
+      "simulation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\simulation\\default_simulation.py",
+      "backpropagation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\Tool_Creation\\MCTS_tools\\backpropagation\\default_backpropagation.py"
+    }
+  },
+  "moves": [
+    {
+      "move_number": 1,
+      "player": 0,
+      "state_before": "Step 0/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 2,
+      "player": 0,
+      "state_before": "Step 1/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 3,
+      "player": 0,
+      "state_before": "Step 2/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 4,
+      "player": 0,
+      "state_before": "Step 3/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 5,
+      "player": 0,
+      "state_before": "Step 4/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 6,
+      "player": 0,
+      "state_before": "Step 5/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 7,
+      "player": 0,
+      "state_before": "Step 6/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 8,
+      "player": 0,
+      "state_before": "Step 7/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 9,
+      "player": 0,
+      "state_before": "Step 8/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 10,
+      "player": 0,
+      "state_before": "Step 9/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 11,
+      "player": 0,
+      "state_before": "Step 10/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 12,
+      "player": 0,
+      "state_before": "Step 11/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 13,
+      "player": 0,
+      "state_before": "Step 12/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 14,
+      "player": 0,
+      "state_before": "Step 13/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 15,
+      "player": 0,
+      "state_before": "Step 14/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 16,
+      "player": 0,
+      "state_before": "Step 15/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 17,
+      "player": 0,
+      "state_before": "Step 16/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 18,
+      "player": 0,
+      "state_before": "Step 17/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 19,
+      "player": 0,
+      "state_before": "Step 18/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 20,
+      "player": 0,
+      "state_before": "Step 19/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 21,
+      "player": 0,
+      "state_before": "Step 20/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 22,
+      "player": 0,
+      "state_before": "Step 21/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 23,
+      "player": 0,
+      "state_before": "Step 22/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 24,
+      "player": 0,
+      "state_before": "Step 23/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 25,
+      "player": 0,
+      "state_before": "Step 24/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 26,
+      "player": 0,
+      "state_before": "Step 25/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 27,
+      "player": 0,
+      "state_before": "Step 26/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 28,
+      "player": 0,
+      "state_before": "Step 27/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 29,
+      "player": 0,
+      "state_before": "Step 28/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 30,
+      "player": 0,
+      "state_before": "Step 29/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 31,
+      "player": 0,
+      "state_before": "Step 30/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 32,
+      "player": 0,
+      "state_before": "Step 31/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 33,
+      "player": 0,
+      "state_before": "Step 32/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 34,
+      "player": 0,
+      "state_before": "Step 33/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 35,
+      "player": 0,
+      "state_before": "Step 34/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 36,
+      "player": 0,
+      "state_before": "Step 35/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 37,
+      "player": 0,
+      "state_before": "Step 36/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 38,
+      "player": 0,
+      "state_before": "Step 37/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 39,
+      "player": 0,
+      "state_before": "Step 38/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 40,
+      "player": 0,
+      "state_before": "Step 39/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 41,
+      "player": 0,
+      "state_before": "Step 40/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 42,
+      "player": 0,
+      "state_before": "Step 41/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 43,
+      "player": 0,
+      "state_before": "Step 42/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 44,
+      "player": 0,
+      "state_before": "Step 43/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 45,
+      "player": 0,
+      "state_before": "Step 44/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 46,
+      "player": 0,
+      "state_before": "Step 45/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 47,
+      "player": 0,
+      "state_before": "Step 46/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 48,
+      "player": 0,
+      "state_before": "Step 47/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 49,
+      "player": 0,
+      "state_before": "Step 48/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 50,
+      "player": 0,
+      "state_before": "Step 49/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 51,
+      "player": 0,
+      "state_before": "Step 50/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 52,
+      "player": 0,
+      "state_before": "Step 51/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 53,
+      "player": 0,
+      "state_before": "Step 52/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 54,
+      "player": 0,
+      "state_before": "Step 53/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 55,
+      "player": 0,
+      "state_before": "Step 54/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 56,
+      "player": 0,
+      "state_before": "Step 55/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 57,
+      "player": 0,
+      "state_before": "Step 56/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 58,
+      "player": 0,
+      "state_before": "Step 57/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 59,
+      "player": 0,
+      "state_before": "Step 58/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 60,
+      "player": 0,
+      "state_before": "Step 59/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 61,
+      "player": 0,
+      "state_before": "Step 60/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 62,
+      "player": 0,
+      "state_before": "Step 61/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 63,
+      "player": 0,
+      "state_before": "Step 62/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 64,
+      "player": 0,
+      "state_before": "Step 63/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 65,
+      "player": 0,
+      "state_before": "Step 64/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 66,
+      "player": 0,
+      "state_before": "Step 65/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 67,
+      "player": 0,
+      "state_before": "Step 66/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 68,
+      "player": 0,
+      "state_before": "Step 67/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 69,
+      "player": 0,
+      "state_before": "Step 68/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 70,
+      "player": 0,
+      "state_before": "Step 69/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 71,
+      "player": 0,
+      "state_before": "Step 70/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 72,
+      "player": 0,
+      "state_before": "Step 71/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 73,
+      "player": 0,
+      "state_before": "Step 72/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 74,
+      "player": 0,
+      "state_before": "Step 73/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 75,
+      "player": 0,
+      "state_before": "Step 74/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 76,
+      "player": 0,
+      "state_before": "Step 75/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 77,
+      "player": 0,
+      "state_before": "Step 76/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 78,
+      "player": 0,
+      "state_before": "Step 77/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 79,
+      "player": 0,
+      "state_before": "Step 78/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 80,
+      "player": 0,
+      "state_before": "Step 79/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 81,
+      "player": 0,
+      "state_before": "Step 80/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 82,
+      "player": 0,
+      "state_before": "Step 81/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 83,
+      "player": 0,
+      "state_before": "Step 82/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 84,
+      "player": 0,
+      "state_before": "Step 83/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 85,
+      "player": 0,
+      "state_before": "Step 84/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 86,
+      "player": 0,
+      "state_before": "Step 85/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 87,
+      "player": 0,
+      "state_before": "Step 86/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 88,
+      "player": 0,
+      "state_before": "Step 87/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 89,
+      "player": 0,
+      "state_before": "Step 88/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 90,
+      "player": 0,
+      "state_before": "Step 89/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 91,
+      "player": 0,
+      "state_before": "Step 90/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 92,
+      "player": 0,
+      "state_before": "Step 91/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 93,
+      "player": 0,
+      "state_before": "Step 92/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 94,
+      "player": 0,
+      "state_before": "Step 93/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 95,
+      "player": 0,
+      "state_before": "Step 94/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 96,
+      "player": 0,
+      "state_before": "Step 95/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 97,
+      "player": 0,
+      "state_before": "Step 96/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 98,
+      "player": 0,
+      "state_before": "Step 97/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 99,
+      "player": 0,
+      "state_before": "Step 98/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 100,
+      "player": 0,
+      "state_before": "Step 99/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 101,
+      "player": 0,
+      "state_before": "Step 100/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 102,
+      "player": 0,
+      "state_before": "Step 101/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 103,
+      "player": 0,
+      "state_before": "Step 102/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 104,
+      "player": 0,
+      "state_before": "Step 103/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 105,
+      "player": 0,
+      "state_before": "Step 104/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 106,
+      "player": 0,
+      "state_before": "Step 105/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 107,
+      "player": 0,
+      "state_before": "Step 106/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 108,
+      "player": 0,
+      "state_before": "Step 107/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 109,
+      "player": 0,
+      "state_before": "Step 108/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 110,
+      "player": 0,
+      "state_before": "Step 109/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 111,
+      "player": 0,
+      "state_before": "Step 110/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 112,
+      "player": 0,
+      "state_before": "Step 111/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 113,
+      "player": 0,
+      "state_before": "Step 112/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 114,
+      "player": 0,
+      "state_before": "Step 113/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 115,
+      "player": 0,
+      "state_before": "Step 114/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 116,
+      "player": 0,
+      "state_before": "Step 115/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 117,
+      "player": 0,
+      "state_before": "Step 116/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 118,
+      "player": 0,
+      "state_before": "Step 117/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 119,
+      "player": 0,
+      "state_before": "Step 118/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 120,
+      "player": 0,
+      "state_before": "Step 119/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 121,
+      "player": 0,
+      "state_before": "Step 120/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 122,
+      "player": 0,
+      "state_before": "Step 121/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 123,
+      "player": 0,
+      "state_before": "Step 122/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 124,
+      "player": 0,
+      "state_before": "Step 123/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 125,
+      "player": 0,
+      "state_before": "Step 124/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 126,
+      "player": 0,
+      "state_before": "Step 125/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 127,
+      "player": 0,
+      "state_before": "Step 126/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 128,
+      "player": 0,
+      "state_before": "Step 127/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 129,
+      "player": 0,
+      "state_before": "Step 128/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 130,
+      "player": 0,
+      "state_before": "Step 129/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 131,
+      "player": 0,
+      "state_before": "Step 130/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 132,
+      "player": 0,
+      "state_before": "Step 131/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 133,
+      "player": 0,
+      "state_before": "Step 132/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 134,
+      "player": 0,
+      "state_before": "Step 133/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 135,
+      "player": 0,
+      "state_before": "Step 134/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 136,
+      "player": 0,
+      "state_before": "Step 135/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 137,
+      "player": 0,
+      "state_before": "Step 136/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 138,
+      "player": 0,
+      "state_before": "Step 137/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 139,
+      "player": 0,
+      "state_before": "Step 138/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 140,
+      "player": 0,
+      "state_before": "Step 139/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 141,
+      "player": 0,
+      "state_before": "Step 140/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 142,
+      "player": 0,
+      "state_before": "Step 141/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 143,
+      "player": 0,
+      "state_before": "Step 142/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 144,
+      "player": 0,
+      "state_before": "Step 143/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 145,
+      "player": 0,
+      "state_before": "Step 144/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 146,
+      "player": 0,
+      "state_before": "Step 145/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 147,
+      "player": 0,
+      "state_before": "Step 146/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 148,
+      "player": 0,
+      "state_before": "Step 147/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 149,
+      "player": 0,
+      "state_before": "Step 148/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 150,
+      "player": 0,
+      "state_before": "Step 149/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 151,
+      "player": 0,
+      "state_before": "Step 150/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 152,
+      "player": 0,
+      "state_before": "Step 151/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 153,
+      "player": 0,
+      "state_before": "Step 152/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 154,
+      "player": 0,
+      "state_before": "Step 153/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 155,
+      "player": 0,
+      "state_before": "Step 154/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 156,
+      "player": 0,
+      "state_before": "Step 155/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 157,
+      "player": 0,
+      "state_before": "Step 156/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 158,
+      "player": 0,
+      "state_before": "Step 157/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 159,
+      "player": 0,
+      "state_before": "Step 158/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 160,
+      "player": 0,
+      "state_before": "Step 159/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 161,
+      "player": 0,
+      "state_before": "Step 160/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 162,
+      "player": 0,
+      "state_before": "Step 161/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 163,
+      "player": 0,
+      "state_before": "Step 162/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 164,
+      "player": 0,
+      "state_before": "Step 163/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 165,
+      "player": 0,
+      "state_before": "Step 164/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 166,
+      "player": 0,
+      "state_before": "Step 165/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 167,
+      "player": 0,
+      "state_before": "Step 166/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 168,
+      "player": 0,
+      "state_before": "Step 167/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 169,
+      "player": 0,
+      "state_before": "Step 168/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 170,
+      "player": 0,
+      "state_before": "Step 169/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 171,
+      "player": 0,
+      "state_before": "Step 170/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 172,
+      "player": 0,
+      "state_before": "Step 171/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 173,
+      "player": 0,
+      "state_before": "Step 172/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 174,
+      "player": 0,
+      "state_before": "Step 173/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 175,
+      "player": 0,
+      "state_before": "Step 174/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 176,
+      "player": 0,
+      "state_before": "Step 175/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 177,
+      "player": 0,
+      "state_before": "Step 176/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 178,
+      "player": 0,
+      "state_before": "Step 177/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 179,
+      "player": 0,
+      "state_before": "Step 178/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 180,
+      "player": 0,
+      "state_before": "Step 179/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 181,
+      "player": 0,
+      "state_before": "Step 180/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 182,
+      "player": 0,
+      "state_before": "Step 181/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 183,
+      "player": 0,
+      "state_before": "Step 182/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 184,
+      "player": 0,
+      "state_before": "Step 183/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 185,
+      "player": 0,
+      "state_before": "Step 184/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 186,
+      "player": 0,
+      "state_before": "Step 185/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 187,
+      "player": 0,
+      "state_before": "Step 186/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 188,
+      "player": 0,
+      "state_before": "Step 187/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 189,
+      "player": 0,
+      "state_before": "Step 188/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 190,
+      "player": 0,
+      "state_before": "Step 189/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 191,
+      "player": 0,
+      "state_before": "Step 190/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 192,
+      "player": 0,
+      "state_before": "Step 191/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 193,
+      "player": 0,
+      "state_before": "Step 192/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 194,
+      "player": 0,
+      "state_before": "Step 193/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 195,
+      "player": 0,
+      "state_before": "Step 194/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 196,
+      "player": 0,
+      "state_before": "Step 195/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 197,
+      "player": 0,
+      "state_before": "Step 196/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 198,
+      "player": 0,
+      "state_before": "Step 197/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 199,
+      "player": 0,
+      "state_before": "Step 198/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########",
+      "state_key": "P(4, 6)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "3"
+      ],
+      "action_chosen": "3",
+      "root_visits": 200,
+      "children_stats": {
+        "3": {
+          "visits": 200,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    },
+    {
+      "move_number": 200,
+      "player": 0,
+      "state_before": "Step 199/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .# @#\n#########",
+      "state_key": "P(4, 7)B((2, 6), (3, 6))",
+      "legal_actions": [
+        "0",
+        "2"
+      ],
+      "action_chosen": "2",
+      "root_visits": 200,
+      "children_stats": {
+        "2": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "0": {
+          "visits": 100,
+          "value": 0.0,
+          "avg_value": 0.0
+        }
+      }
+    }
+  ],
+  "outcome": {
+    "solved": false,
+    "steps": 200,
+    "returns": [
+      0.0
+    ],
+    "final_state": "Step 200/200 | Boxes on target: 0/2 | Total distance: 7\n  ####   \n###  ####\n#     $ #\n# #  #$ #\n# . .#@ #\n#########"
+  }
+}
