@@ -161,10 +161,11 @@ class TestMoveTrace:
         assert "state_key" in move
         assert "legal_actions" in move
         assert "action_chosen" in move
+        assert "action" in move
         assert "root_visits" in move
-        assert "children_stats" in move
+        assert "children_stats" not in move
 
-    def test_children_stats_have_visit_counts(self, tmp_records):
+    def test_action_has_human_label(self, tmp_records):
         game = TicTacToe()
         engine = MCTSEngine(game, iterations=30, logging=True,
                             records_dir=tmp_records)
@@ -172,12 +173,10 @@ class TestMoveTrace:
         result = engine.play_game()
         move = result["trace"]["moves"][0]
 
-        assert len(move["children_stats"]) > 0
-        for action_key, stats in move["children_stats"].items():
-            assert "visits" in stats
-            assert "value" in stats
-            assert "avg_value" in stats
-            assert stats["visits"] > 0
+        # TicTacToe.action_mapping returns cell(row,col) labels
+        assert "action" in move
+        assert isinstance(move["action"], str)
+        assert len(move["action"]) > 0
 
     def test_action_chosen_is_in_legal_actions(self, tmp_records):
         game = TicTacToe()

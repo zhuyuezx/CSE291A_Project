@@ -10,10 +10,10 @@ Encapsulates the full train loop:
   6. Accept/reject with per-level baselines
   7. Track mastery and remove solved levels
 
-Configuration sources (all in ``MCTS_tools/``):
-  - ``hyperparams/default_hyperparams.py`` — engine params, game identity,
-    and optimization orchestration settings
-  - ``training_logic/<game>_training.py`` — levels, mastery criteria, etc.
+Configuration sources:
+  - ``mcts/hyperparams/<game>_hyperparams.py`` — engine params, game identity,
+    and optimization orchestration settings (one file per game)
+  - ``mcts/training_logic/<game>_training.py`` — levels, mastery criteria, etc.
 
 Usage::
 
@@ -46,15 +46,16 @@ from .evaluator import Evaluator
 # ── Paths ────────────────────────────────────────────────────────────
 _TOOL_CREATION_DIR = Path(__file__).resolve().parent.parent
 _MCTS_TOOLS_DIR = _TOOL_CREATION_DIR / "MCTS_tools"
+_MCTS_DIR = _TOOL_CREATION_DIR / "mcts"
 
 
 def _load_training_logic(module_name: str):
-    """Load a training logic module from MCTS_tools/training_logic/."""
-    path = _MCTS_TOOLS_DIR / "training_logic" / f"{module_name}.py"
+    """Load a training logic module from mcts/training_logic/."""
+    path = _MCTS_DIR / "training_logic" / f"{module_name}.py"
     if not path.exists():
         raise FileNotFoundError(
             f"Training logic file not found: {path}\n"
-            f"Create MCTS_tools/training_logic/{module_name}.py"
+            f"Create mcts/training_logic/{module_name}.py"
         )
     spec = importlib.util.spec_from_file_location(module_name, str(path))
     module = importlib.util.module_from_spec(spec)
@@ -62,13 +63,13 @@ def _load_training_logic(module_name: str):
     return module
 
 
-def _load_hyperparams_module(filename: str = "default_hyperparams.py"):
-    """Load the full hyperparams module from MCTS_tools/hyperparams/."""
-    path = _MCTS_TOOLS_DIR / "hyperparams" / filename
+def _load_hyperparams_module(filename: str = "sokoban_hyperparams.py"):
+    """Load the full hyperparams module from mcts/hyperparams/."""
+    path = _MCTS_DIR / "hyperparams" / filename
     if not path.exists():
         raise FileNotFoundError(
             f"Hyperparams file not found: {path}\n"
-            f"Create MCTS_tools/hyperparams/{filename}"
+            f"Create mcts/hyperparams/{filename}"
         )
     spec = importlib.util.spec_from_file_location("hyperparams", str(path))
     module = importlib.util.module_from_spec(spec)
@@ -76,10 +77,16 @@ def _load_hyperparams_module(filename: str = "default_hyperparams.py"):
     return module
 
 
-def _get_hyperparams_source() -> str:
-    """Return the source code of the current hyperparams file."""
-    path = _MCTS_TOOLS_DIR / "hyperparams" / "default_hyperparams.py"
-    return path.read_text(encoding="utf-8")
+def _get_hyperparams_source(game_name: str = "sokoban") -> str:
+    """Return the source code of the hyperparams file for the given game."""
+    path = _MCTS_DIR / "hyperparams" / f"{game_name}_hyperparams.py"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    # Fallback: return the sokoban (default) hyperparams source
+    fallback = _MCTS_DIR / "hyperparams" / "sokoban_hyperparams.py"
+    if fallback.exists():
+        return fallback.read_text(encoding="utf-8")
+    return "# (hyperparams source unavailable)"
 
 
 def _make_game_factory(
@@ -184,6 +191,7 @@ def _load_installed_tools(
     """
     For each phase, load the most recently modified non-default tool file
     from MCTS_tools/<phase>/ that passes both a self-containment check and
+
     a live smoke test.
 
     This lets a new session resume from the best previously generated code
@@ -314,14 +322,16 @@ class OptimizationRunner:
     @classmethod
     def from_config(
         cls,
-        hyperparams_file: str = "default_hyperparams.py",
+        hyperparams_file: str = "sokoban_hyperparams.py",
         verbose: bool = True,
     ) -> "OptimizationRunner":
         """Create an OptimizationRunner from the hyperparams module.
 
         All configuration (game identity, optimization settings, and
         engine parameters) is read from a single Python file in
-        ``MCTS_tools/hyperparams/``.
+        ``MCTS_tools/hyperparams/``.  Pass ``hyperparams_file`` to select a
+        game:  ``"sokoban_hyperparams.py"``, ``"rush_hour_hyperparams.py"``,
+        or ``"quoridor_hyperparams.py"``.
         """
         hp_mod = _load_hyperparams_module(hyperparams_file)
 
@@ -767,7 +777,7 @@ class OptimizationRunner:
 
             # Include hyperparams source in tool_list for LLM context
             if "hyperparams" in self.phases:
-                tl["hyperparams"] = _get_hyperparams_source()
+                tl["hyperparams"] = _get_hyperparams_source(self.game_name)
 
             p_ret = play_result["returns"]
             p_ret_val = p_ret[0] if isinstance(p_ret, list) else p_ret
