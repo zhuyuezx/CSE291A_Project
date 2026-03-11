@@ -33,10 +33,13 @@ Usage::
 from __future__ import annotations
 
 import importlib.util
+import random
 import sys
 import traceback
 from pathlib import Path
 from typing import Any, Callable
+
+NUM_SMOKE_SCENARIOS = 4
 
 # Ensure Tool_Creation is importable
 _TOOL_CREATION = Path(__file__).resolve().parent.parent
@@ -78,7 +81,7 @@ class Optimizer:
         max_moves_per_trace: int = 30,
         two_step: bool = True,
         three_step: bool = False,
-        max_repair_attempts: int = 1,
+        max_repair_attempts: int = 5,
         verbose: bool = True,
     ):
         self.game = game
@@ -364,6 +367,46 @@ class Optimizer:
         spec.loader.exec_module(mod)
         return getattr(mod, func_name)
 
+    def _build_smoke_test_scenarios(
+        self,
+        state_factory: Callable[[], Any],
+        num_scenarios: int = NUM_SMOKE_SCENARIOS,
+    ) -> list[tuple[list, str]]:
+        """
+        Build (args_list, label) for each scenario. Uses varied states:
+        s0=initial, s1=after 1 move, s2=after 2 moves, etc.
+        """
+        rng = random.Random(42)
+        scenarios: list[tuple[list, str]] = []
+        sig_params = EXPECTED_SIGNATURES.get(self.target_phase, [])
+
+        if not sig_params:
+            # hyperparams: no args, single scenario
+            return [([], "get_hyperparams")]
+
+        states: list[Any] = []
+        s0 = state_factory()
+        states.append(s0)
+
+        for i in range(1, num_scenarios):
+            prev = states[-1]
+            if prev.is_terminal():
+                break
+            actions = prev.legal_actions()
+            if not actions:
+                break
+            s = prev.clone()
+            s.apply_action(rng.choice(actions))
+            states.append(s)
+
+        rewards = [0.5, 0.0, 1.0, 0.3]
+        for i, st in enumerate(states):
+            label = "initial" if i == 0 else f"after_{i}_moves"
+            args = self._build_smoke_args(sig_params, st, reward=rewards[i % len(rewards)])
+            scenarios.append((args, label))
+
+        return scenarios
+
     def _smoke_test(
         self,
         installed_path: Path,
@@ -371,7 +414,7 @@ class Optimizer:
         state_factory: Callable[[], Any] | None,
     ):
         """
-        Load and call the function on a fresh initial state.
+        Load and call the function on multiple test scenarios.
 
         Returns (fn, passed: bool, error: str | None, tb: str | None).
         """
@@ -381,26 +424,30 @@ class Optimizer:
             return None, False, str(e), traceback.format_exc()
 
         if state_factory is None:
-            # No state factory → just check that the module loads
             return fn, True, None, None
 
-        test_state = state_factory()
-        try:
-            # Build smoke-test args from EXPECTED_SIGNATURES
-            sig_params = EXPECTED_SIGNATURES.get(self.target_phase, [])
-            test_args = self._build_smoke_args(sig_params, test_state)
-            result = fn(*test_args)
-            # Phase-specific return-type check
-            if self.target_phase == "simulation":
-                assert isinstance(result, (int, float)), (
-                    f"Expected numeric, got {type(result)}"
-                )
-            return fn, True, None, None
-        except Exception as e:
-            return None, False, str(e), traceback.format_exc()
+        scenarios = self._build_smoke_test_scenarios(state_factory)
+        for args, label in scenarios:
+            try:
+                result = fn(*args)
+                if self.target_phase == "simulation":
+                    assert isinstance(result, (int, float)), (
+                        f"Expected numeric, got {type(result)}"
+                    )
+                if self.target_phase == "hyperparams":
+                    assert isinstance(result, dict), (
+                        f"Expected dict from get_hyperparams, got {type(result)}"
+                    )
+            except Exception as e:
+                err_msg = f"[scenario '{label}'] {e}"
+                return None, False, err_msg, traceback.format_exc()
+
+        return fn, True, None, None
 
     @staticmethod
-    def _build_smoke_args(sig_params: list[str], test_state) -> list:
+    def _build_smoke_args(
+        sig_params: list[str], test_state, reward: float = 0.5
+    ) -> list:
         """Create plausible test arguments from parameter names."""
         args: list = []
         for p in sig_params:
@@ -411,8 +458,6 @@ class Optimizer:
             elif p in ("max_depth", "depth"):
                 args.append(50)
             elif p in ("root", "node"):
-                # Build a real MCTSNode so expansion functions that access
-                # node._untried_actions / node.children / node.state work.
                 try:
                     from mcts.node import MCTSNode
                     args.append(MCTSNode(test_state))
@@ -421,7 +466,7 @@ class Optimizer:
             elif p in ("exploration_weight",):
                 args.append(1.41)
             elif p in ("reward",):
-                args.append(0.5)
+                args.append(reward)
             else:
                 args.append(None)
         return args

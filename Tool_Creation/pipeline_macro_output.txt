@@ -1,130 +1,224 @@
-Traceback (most recent call last):
-  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 567, in _query_async
-    response = await client.chat.completions.create(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<4 lines>...
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
-    return await self._post(
-           ^^^^^^^^^^^^^^^^^
-    ...<49 lines>...
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/openai/_base_client.py", line 1884, in post
-    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/openai/_base_client.py", line 1604, in request
-    response = await self._client.send(
-               ^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<3 lines>...
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1629, in send
-    response = await self._send_handling_auth(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<4 lines>...
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
-    response = await self._send_handling_redirects(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<3 lines>...
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
-    response = await self._send_single_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1730, in _send_single_request
-    response = await transport.handle_async_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
-    resp = await self._pool.handle_async_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
-    raise exc from None
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
-    response = await connection.handle_async_request(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        pool_request.request
-        ^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
-    return await self._connection.handle_async_request(request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
-    raise exc
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
-    ) = await self._receive_response_headers(**kwargs)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
-    event = await self._receive_event(timeout=timeout)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
-    data = await self._network_stream.read(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        self.READ_NUM_BYTES, timeout=timeout
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_backends/anyio.py", line 35, in read
-    return await self._stream.receive(max_bytes=max_bytes)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/anyio/streams/tls.py", line 244, in receive
-    data = await self._call_sslobject_method(self._ssl_object.read, max_bytes)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/anyio/streams/tls.py", line 187, in _call_sslobject_method
-    data = await self.transport_stream.receive()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 1269, in receive
-    await self._protocol.read_event.wait()
-  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/locks.py", line 213, in wait
-    await fut
-asyncio.exceptions.CancelledError
+Output also saved to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/pipeline_macro_output.txt
+Working dir: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation
+Tool_Creation root: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation
+Hyperparams file: sokoban_macro_hyperparams.py
+All imports OK ✓
+Baseline (level5): SOLVED in 7 steps  returns=[1.0]
+Hyperparams: iterations=500, max_depth=1000, C=1.41
+Optimize phases: ['selection', 'expansion', 'simulation', 'backpropagation']
+Trace: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/mcts/records/Sokoban_Macro (level5)_20260311_001911_931794.json
+  Resuming selection from previously installed tool.
+  Resuming expansion from previously installed tool.
+  Resuming simulation from previously installed tool.
+  Resuming backpropagation from previously installed tool.
+Starting level: level5
+Hyperparams: iterations=500, max_depth=1000, C=1.410
+Phases to optimize: ['selection', 'expansion', 'simulation', 'backpropagation']
+  Computing baseline for level5…
+    level5: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (1.5s)
+  ⏳ level5 hit 100% on 3 runs — confirming with 7 more games…
+  ❌ Confirmation failed: 57% on 7 runs (10.7s)
+  Reject floor for level5: 0.5000
+  Active levels: ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10']
 
-During handling of the above exception, another exception occurred:
+############################################################
+  ITERATION 1/10, LEVEL=level5, PHASE=simulation
+  Baseline composite=1.0000, reject_floor=0.5000
+  Active levels: 10/10, mastered: []
+############################################################
+  Play: SOLVED in 7 steps  returns=1.0000  (0.1s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=37.16s
+  Step-1 analysis length: 5062 chars
+Step 5/6: Parsing & validating response…
+  Validation passed ✓
+  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/simulation/simulation.py
+Step 6/6: Smoke testing…
+  Smoke test failed: name '_simple_corner_deadlock' is not defined. Attempting repair (1/1)…
+  Smoke test passed ✓
+  Optimize (simulation): 45.3s
+  Eval (3 runs, level5): avg_returns=1.0000, solve_rate=100%, composite=1.0000, avg_steps=7  (0.2s)
+  ⏳ level5 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level5 MASTERED — 10/10 solved (0.5s)
+    9 levels remain.
+  → Accepted on level5 (comp=1.0000 ≥ floor=0.5000)
+  Iteration total: 45.6s
+  Computing baseline for level10…
+    level10: composite=0.6667, solve_rate=67%, avg_returns=0.6667 (0.6s)
 
-Traceback (most recent call last):
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/./scripts/test_llm_pipeline_macro.py", line 136, in <module>
-    summary = runner.run()
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/orchestrator/runner.py", line 558, in run
-    result = opt.run(
-        record_files=[play_trace] if play_trace else [],
-    ...<3 lines>...
-        session_tag=f"iter{iteration}_{cur_level}_{opt_phase}",
-    )
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/optimizer.py", line 159, in run
-    llm_result = self._query_three_step(
-        record_files, tool_source, tool_list, additional_context
-    )
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/optimizer.py", line 345, in _query_three_step
-    return self.querier.query_three_step(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        analysis_prompt=analysis_prompt,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<2 lines>...
-        required_func_name=func_name,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 462, in query_three_step
-    step1_result = self.query(analysis_prompt, step_name="step1_analysis")
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 346, in query
-    return self._run_async(self._query_async(prompt, required_func_name, step_name))
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 542, in _run_async
-    return asyncio.run(coro)
-           ~~~~~~~~~~~^^^^^^
-  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 132, in run
-    raise KeyboardInterrupt()
-KeyboardInterrupt
+############################################################
+  ITERATION 2/10, LEVEL=level10, PHASE=simulation
+  Baseline composite=0.6667, reject_floor=0.3333
+  Active levels: 9/10, mastered: ['level5']
+############################################################
+  Play: UNSOLVED in 9 steps  returns=0.0000  (0.1s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=34.18s
+  Step-1 analysis length: 4962 chars
+Step 5/6: Parsing & validating response…
+  Validation passed ✓
+  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/simulation/default_simulation.py
+Step 6/6: Smoke testing…
+  Smoke test passed ✓
+  Optimize (simulation): 34.2s
+  Eval (3 runs, level10): avg_returns=0.0000, solve_rate=0%, composite=0.0000, avg_steps=9  (0.2s)
+  ✗ Rejected on level10 (comp=0.0000 < floor=0.3333) — reverting to best
+  Iteration total: 34.4s
+  Computing baseline for level8…
+    level8: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (0.3s)
+  ⏳ level8 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level8 MASTERED — 10/10 solved (0.8s)
+
+############################################################
+  ITERATION 3/10, LEVEL=level8, PHASE=simulation
+  ⏭️ level8 already mastered — skipping optimize
+############################################################
+  Computing baseline for level6…
+    level6: composite=0.0000, solve_rate=0%, avg_returns=0.0000 (0.1s)
+
+############################################################
+  ITERATION 4/10, LEVEL=level6, PHASE=backpropagation
+  Baseline composite=0.0000, reject_floor=0.0000
+  Active levels: 8/10, mastered: ['level5', 'level8']
+############################################################
+  Play: UNSOLVED in 4 steps  returns=0.0000  (0.0s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=26.35s
+  Step-1 analysis length: 4235 chars
+Step 5/6: Parsing & validating response…
+  Validation passed ✓
+  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/backpropagation/backpropagation.py
+Step 6/6: Smoke testing…
+  Smoke test failed: name '_ag' is not defined. Attempting repair (1/1)…
+  Smoke test passed ✓
+  Optimize (backpropagation): 33.7s
+  Eval (3 runs, level6): avg_returns=0.0000, solve_rate=0%, composite=0.0000, avg_steps=4  (0.1s)
+  → Accepted on level6 (comp=0.0000 ≥ floor=0.0000)
+  Iteration total: 33.8s
+  Computing baseline for level1…
+    level1: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (0.0s)
+  ⏳ level1 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level1 MASTERED — 10/10 solved (0.0s)
+
+############################################################
+  ITERATION 5/10, LEVEL=level1, PHASE=simulation
+  ⏭️ level1 already mastered — skipping optimize
+############################################################
+  Computing baseline for level2…
+    level2: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (0.0s)
+  ⏳ level2 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level2 MASTERED — 10/10 solved (0.0s)
+
+############################################################
+  ITERATION 6/10, LEVEL=level2, PHASE=selection
+  ⏭️ level2 already mastered — skipping optimize
+############################################################
+  Computing baseline for level9…
+    level9: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (0.3s)
+  ⏳ level9 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level9 MASTERED — 10/10 solved (0.6s)
+
+############################################################
+  ITERATION 7/10, LEVEL=level9, PHASE=expansion
+  ⏭️ level9 already mastered — skipping optimize
+############################################################
+
+############################################################
+  ITERATION 8/10, LEVEL=level10, PHASE=simulation
+  Baseline composite=0.6667, reject_floor=0.3333
+  Active levels: 5/10, mastered: ['level1', 'level2', 'level5', 'level8', 'level9']
+############################################################
+  Play: UNSOLVED in 10 steps  returns=0.0000  (0.1s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=40.16s
+  Step-1 analysis length: 5176 chars
+Step 5/6: Parsing & validating response…
+  Validation passed ✓
+  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/simulation/simulation.py
+Step 6/6: Smoke testing…
+  Smoke test failed: name '_simple_corner_deadlock' is not defined. Attempting repair (1/1)…
+  Optimize (simulation): 48.7s
+  Eval:  SKIPPED (smoke test failed or error)
+         Smoke test failed after repair attempts.
+  Iteration total: 48.8s
+
+############################################################
+  ITERATION 9/10, LEVEL=level6, PHASE=backpropagation
+  Baseline composite=0.0000, reject_floor=0.0000
+  Active levels: 5/10, mastered: ['level1', 'level2', 'level5', 'level8', 'level9']
+############################################################
+  Play: UNSOLVED in 4 steps  returns=0.0000  (0.0s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=26.5s
+  Step-1 analysis length: 4881 chars
+Step 5/6: Parsing & validating response…
+  Validation passed ✓
+  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/backpropagation/backpropagation.py
+Step 6/6: Smoke testing…
+  Smoke test passed ✓
+  Optimize (backpropagation): 26.5s
+  Eval (3 runs, level6): avg_returns=0.0000, solve_rate=0%, composite=0.0000, avg_steps=4  (0.1s)
+  → Accepted on level6 (comp=0.0000 ≥ floor=0.0000)
+  Iteration total: 26.6s
+  Computing baseline for level4…
+    level4: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (0.0s)
+  ⏳ level4 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level4 MASTERED — 10/10 solved (0.0s)
+
+############################################################
+  ITERATION 10/10, LEVEL=level4, PHASE=expansion
+  ⏭️ level4 already mastered — skipping optimize
+############################################################
+
+============================================================
+Iterative optimization complete — 10 iterations done.
+Final hyperparams: iterations=500, max_depth=1000, C=1.410
+Mastered 6/10 levels: ['level1', 'level2', 'level4', 'level5', 'level8', 'level9']
+Aggregate best composite (avg of 8 levels): 0.8333
+  level1: best=1.0000 (baseline=1.0000, Δ=+0.0000) [MASTERED]
+  level10: best=0.6667 (baseline=0.6667, Δ=+0.0000)
+  level2: best=1.0000 (baseline=1.0000, Δ=+0.0000) [MASTERED]
+  level4: best=1.0000 (baseline=1.0000, Δ=+0.0000) [MASTERED]
+  level5: best=1.0000 (baseline=1.0000, Δ=+0.0000) [MASTERED]
+  level6: best=0.0000 (baseline=0.0000, Δ=+0.0000)
+  level8: best=1.0000 (baseline=1.0000, Δ=+0.0000) [MASTERED]
+  level9: best=1.0000 (baseline=1.0000, Δ=+0.0000) [MASTERED]
+============================================================
+
+best_fns: {'selection': 'set', 'expansion': 'set', 'simulation': 'set', 'backpropagation': 'set'}
+Final hyperparams: {'iterations': 500, 'max_rollout_depth': 1000, 'exploration_weight': 1.41}
+Best fns: {'selection': 'set', 'expansion': 'set', 'simulation': 'set', 'backpropagation': 'set'}
+Final hyperparams: {'iterations': 500, 'max_rollout_depth': 1000, 'exploration_weight': 1.41}
+Mastered: ['level1', 'level2', 'level4', 'level5', 'level8', 'level9']
+Level best scores: {'level5': 1.0, 'level10': 0.6666666666666666, 'level8': 1.0, 'level6': 0.0, 'level1': 1.0, 'level2': 1.0, 'level9': 1.0, 'level4': 1.0}
+
+Evaluating 8 levels (n=3 each)…
+level1: baseline=1.000 (100%)  optimized=1.000 (100%)  [0.0s + 0.0s]
+level10: baseline=1.000 (100%)  optimized=0.000 (0%)  [0.2s + 0.2s]
+level2: baseline=1.000 (100%)  optimized=1.000 (100%)  [0.0s + 0.0s]
+level4: baseline=1.000 (100%)  optimized=1.000 (100%)  [0.0s + 0.0s]
+level5: baseline=0.000 (0%)  optimized=1.000 (100%)  [8.2s + 0.2s]
+level6: baseline=0.000 (0%)  optimized=0.000 (0%)  [0.0s + 0.0s]
+level8: baseline=1.000 (100%)  optimized=0.000 (0%)  [0.3s + 0.3s]
+level9: baseline=1.000 (100%)  optimized=0.000 (0%)  [0.3s + 7.2s]
+
+Level       Base Solve%   Opt Solve%  Base AvgRet   Opt AvgRet  Base Steps   Opt Steps
+──────────────────────────────────────────────────────────────────────────────────
+level1             100%         100%        1.000        1.000         1.0         1.0
+level10            100%           0%        1.000        0.000         8.0        10.0
+level2             100%         100%        1.000        1.000         1.0         1.7
+level4             100%         100%        1.000        1.000         2.0         2.0
+level5               0%         100%        0.000        1.000       209.0         7.0
+level6               0%           0%        0.000        0.000         6.0         4.0
+level8             100%           0%        1.000        0.000        12.0         6.0
+level9             100%           0%        1.000        0.000         8.0       333.0

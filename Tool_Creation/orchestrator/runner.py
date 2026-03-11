@@ -239,6 +239,7 @@ class OptimizationRunner:
         history_window: int = 3,
         logging: bool = True,
         verbose: bool = True,
+        max_repair_attempts: int = 5,
     ):
         self.game_name = game_name
         self.game_factory = game_factory
@@ -250,6 +251,7 @@ class OptimizationRunner:
         self.history_window = history_window
         self.logging = logging
         self.verbose = verbose
+        self.max_repair_attempts = max_repair_attempts
 
         # Derived from training logic
         self.levels: list[str] = training.LEVELS
@@ -352,6 +354,7 @@ class OptimizationRunner:
             history_window=getattr(hp_mod, "HISTORY_WINDOW", 3),
             logging=getattr(hp_mod, "LOGGING", True),
             verbose=verbose,
+            max_repair_attempts=getattr(hp_mod, "MAX_REPAIR_ATTEMPTS", 5),
         )
 
     # ------------------------------------------------------------------
@@ -480,6 +483,7 @@ class OptimizationRunner:
                 game=self.game_name,
                 target_phase=phase,
                 three_step=self.three_step,
+                max_repair_attempts=self.max_repair_attempts,
                 verbose=self.verbose,
             )
 

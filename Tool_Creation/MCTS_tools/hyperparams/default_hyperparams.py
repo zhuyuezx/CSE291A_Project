@@ -34,6 +34,8 @@ THREE_STEP = True
 HISTORY_WINDOW = 3
 PHASES = ["selection", "expansion", "simulation", "backpropagation"] # tool-creation phases only
 LOGGING = True
+# LLM smoke test: repair attempts when generated code fails
+MAX_REPAIR_ATTEMPTS = 5
 
 
 def get_hyperparams():
