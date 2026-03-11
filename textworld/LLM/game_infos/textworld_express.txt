@@ -1,0 +1,86 @@
+Game: TextWorld-Express (coin / mapreader homework environments)
+
+== Overview ==
+This is a single-player text adventure environment. The agent receives a
+text description of the current room ("look"), an inventory string, and
+a list of valid text actions such as "move east", "open door to north",
+"take coin", or "read map".
+
+The two main homework variants are:
+  - coin: navigate the map and take the coin.
+  - mapreader: obtain and read the map, then navigate correctly.
+
+The environment is deterministic when run with a fixed seed and the base
+TextWorldExpressEnv.
+
+== State Representation ==
+Each state exposes:
+  - observation : str   current room description
+  - inventory   : str   inventory description
+  - valid_actions : list[str]   currently valid actions
+  - steps / max_steps : int
+  - total_reward : float   cumulative environment reward so far
+  - history : list[str]    actions taken from the initial state
+
+String representation:
+  observation + "\\n" + inventory
+
+== Actions ==
+Actions are strings. The legal action set changes by state. Examples:
+  move west / move east / move north / move south
+  open door to west / close door to east
+  take coin / take map / read map / put coin in box
+
+The adapter filters out:
+  - "inventory"
+  - "look around"
+because the homework code removes those from the policy action set.
+
+== Goal / Reward ==
+Single-player episodic task.
+
+Returns are cumulative environment rewards:
+  - full success is typically 1.0
+  - partial success may be 0.5
+  - failure / timeout is usually 0.0
+
+The GameState returns() method always returns [total_reward].
+This means simulation code can use the cumulative score even when the
+episode ends early at a depth or step limit.
+
+== GameState API ==
+Public attributes:
+  observation : str
+  inventory : str
+  valid_actions : list[str]
+  steps, max_steps : int
+  total_reward : float
+  history : list[str]
+
+Public methods:
+  clone() -> independent copy of the state
+  legal_actions() -> list[str]
+  apply_action(action: str) -> None
+  is_terminal() -> bool
+  returns() -> list[float]
+  current_player() -> int   (always 0)
+  state_key() -> str
+
+== Important Reasoning Notes ==
+  - This is a text game, not a grid board. You cannot assume row/col,
+    walls, boxes, or any Sokoban-style attributes.
+  - Valid actions are already provided by state.legal_actions().
+  - Good heuristics should use the text observation, inventory, reward,
+    valid action structure, and history length.
+  - If the heuristic uses string matching, keep it robust and cheap.
+  - Avoid relying on unavailable helpers or external packages.
+  - Generated code must be self-contained and only use public GameState
+    fields/methods listed above.
+
+== Strategic Hints ==
+  - Prefer actions that directly advance task completion:
+      take coin, take map, read map, open useful door, move toward novel
+      rooms, avoid useless close/open oscillations.
+  - Penalize obvious loops and repeated states.
+  - Inventory matters: if the required item is already in inventory,
+    actions that use it may become high-value.

@@ -1,0 +1,21 @@
+{
+    "tools_dir": "../MCTS_tools",
+    "phases": {
+        "selection": {
+            "folder": "selection",
+            "default": "default_selection.py"
+        },
+        "expansion": {
+            "folder": "expansion",
+            "default": "default_expansion.py"
+        },
+        "simulation": {
+            "folder": "simulation",
+            "default": "default_simulation.py"
+        },
+        "backpropagation": {
+            "folder": "backpropagation",
+            "default": "default_backpropagation.py"
+        }
+    }
+}
