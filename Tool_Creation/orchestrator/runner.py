@@ -180,37 +180,37 @@ def _check_cross_level_regression(
     cur_level: str,
     all_tools: dict[str, Callable],
     verbose: bool,
-    sample_size: int = 3,
     n_per_level: int = 2,
-    regression_threshold: float = 0.5,
 ) -> bool:
     """
-    Run a quick check on other levels with the candidate tools.
-    Returns True if any significant regression (baseline >= 50% → new < 50%).
+    Compare total games won with candidate tools vs baseline.
+    Returns True if total wins with tools < total wins with baseline (reject).
+    Accepts adoption when total wins went up or stayed the same.
     """
     if not all_tools:
         return False
-    other_levels = [
-        lv for lv in ev.level_baselines
-        if lv != cur_level and ev.level_baselines[lv].get("solve_rate", 0) >= regression_threshold
-    ]
-    sample = other_levels[:sample_size]
-    if not sample:
+    levels = sorted(ev.level_baselines.keys())
+    if not levels:
         return False
-    has_regression = False
-    for sl in sample:
-        bl_sr = ev.level_baselines[sl]["solve_rate"]
-        _, sr, _, _, _ = ev.multi_eval(
-            None, sl, n=n_per_level, logging=False, extra_tools=all_tools
+
+    baseline_wins = 0
+    tools_wins = 0
+    for lv in levels:
+        _, _, _, results_bl, _ = ev.multi_eval(
+            None, lv, n=n_per_level, logging=False
         )
-        if sr < regression_threshold and bl_sr >= regression_threshold:
-            has_regression = True
-            if verbose:
-                print(
-                    f"  ⚠️ Cross-level regression on {sl}: "
-                    f"baseline {bl_sr:.0%} → {sr:.0%} (n={n_per_level})"
-                )
-    return has_regression
+        _, _, _, results_tools, _ = ev.multi_eval(
+            None, lv, n=n_per_level, logging=False, extra_tools=all_tools
+        )
+        baseline_wins += sum(1 for r in results_bl if r.get("solved"))
+        tools_wins += sum(1 for r in results_tools if r.get("solved"))
+
+    if verbose:
+        print(
+            f"  Cross-level: baseline wins={baseline_wins}, with tools wins={tools_wins} "
+            f"(n={n_per_level} per level, {len(levels)} levels)"
+        )
+    return tools_wins < baseline_wins
 
 
 def _load_installed_tools(
@@ -797,7 +797,7 @@ class OptimizationRunner:
                                 if has_regression:
                                     if self.verbose:
                                         print(
-                                            "  ✗ Rejected due to cross-level regression"
+                                            "  ✗ Rejected: total games won with tools < baseline"
                                         )
                                     self.current_fns[opt_phase] = self.best_fns[
                                         opt_phase

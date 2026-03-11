@@ -12,8 +12,9 @@ Usage:
 import argparse
 import atexit
 import importlib
-import sys
 import importlib.util
+import shutil
+import sys
 from pathlib import Path
 
 # ── Setup: add Tool_Creation to sys.path ─────────────────────────────
@@ -78,6 +79,11 @@ def _close_output_files():
 
 
 atexit.register(_close_output_files)
+
+# Clear __pycache__ in MCTS_tools to avoid hangs from stale/corrupt .pyc files
+# (e.g. expansion/__pycache__ can cause exec_module to hang)
+for _d in (ROOT / "MCTS_tools").rglob("__pycache__"):
+    shutil.rmtree(_d, ignore_errors=True)
 
 from orchestrator import OptimizationRunner, Evaluator
 from mcts import MCTSEngine
