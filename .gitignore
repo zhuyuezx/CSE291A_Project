@@ -5,3 +5,4 @@ __pycache__/
 .env
 Tool_Creation/LLM/results
 Tool_Creation/MCTS_tools/*
+textworld/mcts/records/
