@@ -1,6 +1,8 @@
 """
 OptimizationRunner — game-agnostic iterative LLM optimization loop.
 
+Phase interaction: see docs/MCTS_phase_interaction.md.
+
 Encapsulates the full train loop:
   1. Pick a level (via game-specific training logic)
   2. Pick which component to optimize (tool phase or hyperparams)
@@ -171,6 +173,40 @@ def _smoke_test_fn(fn: Callable, phase: str, state_factory: Callable) -> bool:
         return True
     except Exception:
         return False
+
+
+def _check_cross_level_regression(
+    ev: Evaluator,
+    cur_level: str,
+    all_tools: dict[str, Callable],
+    verbose: bool,
+    sample_size: int = 3,
+    n_per_level: int = 2,
+    regression_threshold: float = 0.5,
+) -> None:
+    """
+    After adopting a new tool, run a quick check on other levels.
+    Warn if we see significant regression (baseline >= 50% → new < 50%).
+    """
+    if not all_tools or not verbose:
+        return
+    other_levels = [
+        lv for lv in ev.level_baselines
+        if lv != cur_level and ev.level_baselines[lv].get("solve_rate", 0) >= regression_threshold
+    ]
+    sample = other_levels[:sample_size]
+    if not sample:
+        return
+    for sl in sample:
+        bl_sr = ev.level_baselines[sl]["solve_rate"]
+        _, sr, _, _, _ = ev.multi_eval(
+            None, sl, n=n_per_level, logging=False, extra_tools=all_tools
+        )
+        if sr < regression_threshold and bl_sr >= regression_threshold:
+            print(
+                f"  ⚠️ Cross-level regression on {sl}: "
+                f"baseline {bl_sr:.0%} → {sr:.0%} (n={n_per_level})"
+            )
 
 
 def _load_installed_tools(
@@ -746,6 +782,13 @@ class OptimizationRunner:
                             self.current_fns[opt_phase] = fn
                             iter_record["adopted"] = True
                             iter_record["is_best"] = True
+                            all_tools = {
+                                p: f for p, f in self.current_fns.items()
+                                if f is not None
+                            }
+                            _check_cross_level_regression(
+                                ev, cur_level, all_tools, self.verbose
+                            )
                         elif comp >= reject_floor:
                             if self.verbose:
                                 print(
@@ -753,7 +796,15 @@ class OptimizationRunner:
                                     f"(comp={comp:.4f} ≥ floor={reject_floor:.4f})"
                                 )
                             self.current_fns[opt_phase] = fn
+                            self.best_fns[opt_phase] = fn
                             iter_record["adopted"] = True
+                            all_tools = {
+                                p: f for p, f in self.current_fns.items()
+                                if f is not None
+                            }
+                            _check_cross_level_regression(
+                                ev, cur_level, all_tools, self.verbose
+                            )
                         else:
                             if self.verbose:
                                 print(

@@ -142,14 +142,15 @@ print(f"Final hyperparams: {summary.get('current_hyperparams', {})}")
 
 # ── Cell 4: Multi-Level Evaluation ───────────────────────────────────
 
-best_fns = summary["best_fns"]
+# Use current_fns (coherent set after all iterations) not best_fns (per-phase historical mix)
+current_fns = summary["current_fns"]
 levels   = summary["active_levels"] + list(summary.get("mastered_levels", []))
 ev       = runner.evaluator
 
-opt_tools = {p: f for p, f in best_fns.items() if f is not None} or None
+opt_tools = {p: f for p, f in current_fns.items() if f is not None} or None
 
 has_optimized = opt_tools is not None
-print(f"Best fns: { {p: ('set' if f else 'None') for p, f in best_fns.items()} }")
+print(f"Current fns (optimized eval): { {p: ('set' if f else 'None') for p, f in current_fns.items()} }")
 print(f"Final hyperparams: {summary.get('current_hyperparams', {})}")
 print(f"Mastered: {sorted(summary.get('mastered_levels', set()))}")
 print(f"Level best scores: {summary.get('level_best_scores', {})}")
