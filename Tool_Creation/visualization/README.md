@@ -1,5 +1,51 @@
 # CSE291A Winter 2026 Project
 
+## Use newest JSON records to draw baseline vs optimized trajectory
+
+You can generate **baseline vs optimized** comparison GIFs **from existing trace JSONs** (no MCTS rerun).
+
+### TextWorld Coin (from `textworld/mcts/records/`)
+
+From the **project root**:
+
+```bash
+python Tool_Creation/visualization/textworld/records_compare.py \
+  --from-records \
+  --records-dir textworld/mcts/records \
+  --game-filter "TextWorldCoin" \
+  --output textworld_coin_baseline_vs_opt.gif \
+  --max-steps 20 \
+  --fps 1
+```
+
+- **Auto-picks** the newest **baseline** record (all tools `default_*.py`) and newest **optimized** record (e.g. simulation `"(set programmatically)"`) from `textworld/mcts/records/`.
+- Output: `Tool_Creation/visualization/output/textworld/textworld_coin_baseline_vs_opt.gif` (side-by-side trajectory with world map + observation/inventory/actions).
+
+To compare two **specific** JSON files:
+
+```bash
+python Tool_Creation/visualization/textworld/records_compare.py \
+  --baseline-record "textworld/mcts/records/TextWorldCoin(numLocations=5,...)_<timestamp>.json" \
+  --opt-record      "textworld/mcts/records/TextWorldCoin(numLocations=5,...)_<timestamp>.json" \
+  --output my_compare.gif \
+  --max-steps 20 \
+  --fps 1
+```
+
+### Sokoban (from `Tool_Creation/mcts/records/`)
+
+From the **project root**:
+
+```bash
+cd Tool_Creation
+python -m visualization.plot_game_trajectory --game sokoban --level level3 --from-records
+```
+
+- Uses the **latest** baseline and optimized trace JSONs in `Tool_Creation/mcts/records/` for that level.
+- Output: `Tool_Creation/visualization/output/trajectory/sokoban_trajectory_compare_level3.gif` (and `.png`).
+
+---
+
 ## How to run trajectory visualization (`plot_game_trajectory.py`)
 
 From the project root:
