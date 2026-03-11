@@ -200,10 +200,48 @@ class Optimizer:
 
             validation = self.manager.validate(parsed, phase=self.target_phase)
             if not validation["valid"]:
-                out["error"] = (
-                    f"Validation failed: {validation['errors']}"
-                )
-                return out
+                # Attempt validation repair (signature, parse errors, etc.)
+                for v_attempt in range(self.max_repair_attempts):
+                    self._log(
+                        f"  Validation failed: {validation['errors']}. "
+                        f"Attempting repair ({v_attempt + 1}/{self.max_repair_attempts})…"
+                    )
+                    repair_result = self._repair_validation(
+                        parsed, validation["errors"], attempt=v_attempt
+                    )
+                    if repair_result is None:
+                        continue
+                    repair_parsed = repair_result.get("parsed")
+                    if repair_parsed is None:
+                        repair_parsed = self.manager.parse_response(
+                            repair_result["response"]
+                        )
+                    if not repair_parsed.get("code"):
+                        continue
+                    if not repair_parsed.get("action"):
+                        repair_parsed["action"] = parsed.get("action", "modify")
+                    if not repair_parsed.get("file_name"):
+                        repair_parsed["file_name"] = parsed.get(
+                            "file_name", f"{self.target_phase}.py"
+                        )
+                    if not repair_parsed.get("function_name"):
+                        repair_parsed["function_name"] = parsed.get(
+                            "function_name", f"default_{self.target_phase}"
+                        )
+                    parsed.update(repair_parsed)
+                    out["parsed"] = parsed
+                    validation = self.manager.validate(
+                        parsed, phase=self.target_phase
+                    )
+                    if validation["valid"]:
+                        self._log("  Validation repair succeeded ✓")
+                        break
+                if not validation["valid"]:
+                    out["error"] = (
+                        f"Validation failed after {self.max_repair_attempts} "
+                        f"repair attempts: {validation['errors']}"
+                    )
+                    return out
             self._log("  Validation passed ✓")
 
             # 3. Install
@@ -541,6 +579,57 @@ class Optimizer:
                 return fn, True
 
         return None, False
+
+    def _repair_validation(
+        self,
+        parsed: dict[str, Any],
+        validation_errors: list[str],
+        attempt: int = 0,
+    ) -> dict[str, Any] | None:
+        """Send a targeted repair prompt for validation failures (signature, etc.)."""
+        broken_code = parsed.get("code", "")
+        func_name = parsed.get("function_name", f"default_{self.target_phase}")
+
+        expected = EXPECTED_SIGNATURES.get(self.target_phase)
+        expected_str = (
+            f"Expected params: {expected}" if expected else "(no signature check)"
+        )
+
+        sig_note = ""
+        if self.target_phase == "selection":
+            sig_note = (
+                "For selection, the first param MUST be named `root` (not `node`). "
+            )
+        elif self.target_phase in ("expansion", "backpropagation"):
+            sig_note = (
+                "For expansion/backpropagation, the first param MUST be named `node`. "
+            )
+
+        repair_prompt = (
+            f"You previously generated the following {self.game} MCTS "
+            f"{self.target_phase} function, but it failed validation.\n\n"
+            f"== BROKEN CODE ==\n```python\n{broken_code}\n```\n\n"
+            f"== VALIDATION ERRORS ==\n"
+            + "\n".join(f"  • {e}" for e in validation_errors)
+            + f"\n\n== REQUIRED ==\n"
+            f"{expected_str}\n"
+            f"{sig_note}"
+            f"Fix the function signature and any other validation issues. "
+            f"Return using the SAME structured format.\n\n"
+            f"ACTION: modify\n"
+            f"FILE_NAME: {parsed.get('file_name', self.target_phase + '.py')}\n"
+            f"FUNCTION_NAME: {func_name}\n"
+            f"DESCRIPTION: <one-line description of what you fixed>\n"
+            f"```python\n<complete corrected function here>\n```"
+        )
+        result = self.querier.query(
+            repair_prompt,
+            required_func_name=func_name,
+            step_name=f"validation_repair_{attempt + 1}",
+        )
+        if result["status"] == "error":
+            return None
+        return result
 
     def _repair(
         self,
