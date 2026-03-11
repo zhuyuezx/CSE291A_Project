@@ -601,6 +601,117 @@ class TestAllToolSources:
 
 
 # =====================================================================
+# Phase-specific prompts
+# =====================================================================
+
+
+class TestPhaseSpecificPrompts:
+    """Phase-specific system and task content varies by target_phase."""
+
+    def test_selection_system_contains_selection_guidance(self):
+        pb = PromptBuilder(game="sokoban", target_phase="selection")
+        prompt = pb.build()
+        assert "PHASE: selection" in prompt
+        assert "RANK existing nodes" in prompt
+        assert "node scores used by UCB1" in prompt
+        assert "Rank nodes, don't simulate" in prompt
+
+    def test_selection_task_contains_selection_mechanics(self):
+        pb = PromptBuilder(game="sokoban", target_phase="selection")
+        prompt = pb.build()
+        assert "chosen child index" in prompt
+        assert "root" in prompt or "exploration_weight" in prompt
+
+    def test_expansion_system_contains_expansion_guidance(self):
+        pb = PromptBuilder(game="sokoban", target_phase="expansion")
+        prompt = pb.build()
+        assert "PHASE: expansion" in prompt
+        assert "PRUNE bad actions" in prompt
+        assert "Filter deadlocks before they enter the tree" in prompt
+
+    def test_expansion_task_contains_expansion_mechanics(self):
+        pb = PromptBuilder(game="sokoban", target_phase="expansion")
+        prompt = pb.build()
+        assert "action to expand" in prompt
+        assert "node" in prompt
+
+    def test_simulation_system_contains_simulation_guidance(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build()
+        assert "PHASE: simulation" in prompt
+        assert "Produce REWARDS" in prompt
+        assert "Must return a FLOAT" in prompt
+        assert "flat rewards" in prompt
+
+    def test_simulation_task_contains_simulation_mechanics(self):
+        pb = PromptBuilder(game="sokoban", target_phase="simulation")
+        prompt = pb.build()
+        assert "FLOAT reward" in prompt
+        assert "state, perspective_player, max_depth" in prompt
+
+    def test_backpropagation_system_contains_backpropagation_guidance(self):
+        pb = PromptBuilder(game="sokoban", target_phase="backpropagation")
+        prompt = pb.build()
+        assert "PHASE: backpropagation" in prompt
+        assert "depth discount" in prompt
+        assert "weight solved outcomes above partial progress" in prompt
+
+    def test_backpropagation_task_contains_backpropagation_mechanics(self):
+        pb = PromptBuilder(game="sokoban", target_phase="backpropagation")
+        prompt = pb.build()
+        assert "node.value" in prompt or "node.visits" in prompt
+        assert "node, reward" in prompt
+
+    def test_hyperparams_has_no_phase_description(self):
+        """Hyperparams phase should not include PHASE: selection/expansion/etc."""
+        pb = PromptBuilder(game="sokoban", target_phase="hyperparams")
+        prompt = pb.build()
+        assert "PHASE: selection" not in prompt
+        assert "PHASE: expansion" not in prompt
+        assert "PHASE: simulation" not in prompt
+        assert "PHASE: backpropagation" not in prompt
+
+    def test_selection_prompt_excludes_simulation_specific_text(self):
+        """Selection prompt should not contain simulation-only phrases."""
+        pb = PromptBuilder(game="sokoban", target_phase="selection")
+        prompt = pb.build()
+        assert "flat rewards" not in prompt
+        assert "Produce REWARDS" not in prompt
+
+    def test_expansion_prompt_excludes_backpropagation_specific_text(self):
+        """Expansion prompt should not contain backpropagation-only phrases."""
+        pb = PromptBuilder(game="sokoban", target_phase="expansion")
+        prompt = pb.build()
+        assert "weight solved outcomes above partial progress" not in prompt
+
+    def test_phase_specific_content_in_analysis_prompt(self):
+        """build_analysis_prompt includes phase-specific system content."""
+        for phase in ("selection", "expansion", "simulation", "backpropagation"):
+            pb = PromptBuilder(game="sokoban", target_phase=phase)
+            prompt = pb.build_analysis_prompt()
+            assert f"PHASE: {phase}" in prompt
+
+    def test_phase_specific_content_in_generation_prompt(self):
+        """build_generation_prompt includes phase-specific task mechanics."""
+        pb = PromptBuilder(game="sokoban", target_phase="expansion")
+        prompt = pb.build_generation_prompt(
+            analysis="Add deadlock pruning.",
+            tool_source="def default_expansion(node): pass",
+        )
+        assert "PHASE: expansion" in prompt
+        assert "action to expand" in prompt
+
+    def test_phase_specific_content_in_critique_prompt(self):
+        """build_critique_prompt includes phase-specific system content."""
+        pb = PromptBuilder(game="sokoban", target_phase="backpropagation")
+        prompt = pb.build_critique_prompt(
+            analysis="Add depth discount.",
+            draft_code="def default_backpropagation(node, reward): pass",
+        )
+        assert "PHASE: backpropagation" in prompt
+
+
+# =====================================================================
 # Critique prompt (3-step pipeline)
 # =====================================================================
 

@@ -183,30 +183,34 @@ def _check_cross_level_regression(
     sample_size: int = 3,
     n_per_level: int = 2,
     regression_threshold: float = 0.5,
-) -> None:
+) -> bool:
     """
-    After adopting a new tool, run a quick check on other levels.
-    Warn if we see significant regression (baseline >= 50% → new < 50%).
+    Run a quick check on other levels with the candidate tools.
+    Returns True if any significant regression (baseline >= 50% → new < 50%).
     """
-    if not all_tools or not verbose:
-        return
+    if not all_tools:
+        return False
     other_levels = [
         lv for lv in ev.level_baselines
         if lv != cur_level and ev.level_baselines[lv].get("solve_rate", 0) >= regression_threshold
     ]
     sample = other_levels[:sample_size]
     if not sample:
-        return
+        return False
+    has_regression = False
     for sl in sample:
         bl_sr = ev.level_baselines[sl]["solve_rate"]
         _, sr, _, _, _ = ev.multi_eval(
             None, sl, n=n_per_level, logging=False, extra_tools=all_tools
         )
         if sr < regression_threshold and bl_sr >= regression_threshold:
-            print(
-                f"  ⚠️ Cross-level regression on {sl}: "
-                f"baseline {bl_sr:.0%} → {sr:.0%} (n={n_per_level})"
-            )
+            has_regression = True
+            if verbose:
+                print(
+                    f"  ⚠️ Cross-level regression on {sl}: "
+                    f"baseline {bl_sr:.0%} → {sr:.0%} (n={n_per_level})"
+                )
+    return has_regression
 
 
 def _load_installed_tools(
@@ -773,38 +777,49 @@ class OptimizationRunner:
                         prev_level_best = ev.level_best_scores.get(
                             cur_level, bl["composite"]
                         )
-                        if comp > prev_level_best:
-                            if self.verbose:
-                                print(f"  ★ NEW BEST for {cur_level} "
-                                      f"(prev={prev_level_best:.4f}) — adopting")
-                            ev.level_best_scores[cur_level] = comp
-                            self.best_fns[opt_phase] = fn
-                            self.current_fns[opt_phase] = fn
-                            iter_record["adopted"] = True
-                            iter_record["is_best"] = True
-                            all_tools = {
-                                p: f for p, f in self.current_fns.items()
+                        if comp > prev_level_best or comp >= reject_floor:
+                            all_tools_candidate = {
+                                p: (fn if p == opt_phase else self.current_fns.get(p))
+                                for p in self.phases_to_optimize
+                            }
+                            all_tools_candidate = {
+                                p: f for p, f in all_tools_candidate.items()
                                 if f is not None
                             }
-                            _check_cross_level_regression(
-                                ev, cur_level, all_tools, self.verbose
+                            has_regression = _check_cross_level_regression(
+                                ev, cur_level, all_tools_candidate, self.verbose
                             )
-                        elif comp >= reject_floor:
-                            if self.verbose:
-                                print(
-                                    f"  → Accepted on {cur_level} "
-                                    f"(comp={comp:.4f} ≥ floor={reject_floor:.4f})"
-                                )
-                            self.current_fns[opt_phase] = fn
-                            self.best_fns[opt_phase] = fn
-                            iter_record["adopted"] = True
-                            all_tools = {
-                                p: f for p, f in self.current_fns.items()
-                                if f is not None
-                            }
-                            _check_cross_level_regression(
-                                ev, cur_level, all_tools, self.verbose
-                            )
+                            if has_regression:
+                                if self.verbose:
+                                    print(
+                                        "  ✗ Rejected due to cross-level regression"
+                                    )
+                                self.current_fns[opt_phase] = self.best_fns[
+                                    opt_phase
+                                ]
+                                iter_record["adopted"] = False
+                                if newly_mastered and cur_level not in self.active_levels:
+                                    self.active_levels.append(cur_level)
+                            else:
+                                if comp > prev_level_best:
+                                    if self.verbose:
+                                        print(
+                                            f"  ★ NEW BEST for {cur_level} "
+                                            f"(prev={prev_level_best:.4f}) — adopting"
+                                        )
+                                    ev.level_best_scores[cur_level] = comp
+                                    self.best_fns[opt_phase] = fn
+                                    iter_record["is_best"] = True
+                                else:
+                                    if self.verbose:
+                                        print(
+                                            f"  → Accepted on {cur_level} "
+                                            f"(comp={comp:.4f} ≥ floor="
+                                            f"{reject_floor:.4f})"
+                                        )
+                                    self.best_fns[opt_phase] = fn
+                                self.current_fns[opt_phase] = fn
+                                iter_record["adopted"] = True
                         else:
                             if self.verbose:
                                 print(

@@ -23,6 +23,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .phase_prompts import PHASE_DESCRIPTIONS, PHASE_MECHANICS
+
 
 # ── Default directories ──────────────────────────────────────────────
 _LLM_DIR = Path(__file__).resolve().parent
@@ -311,13 +313,17 @@ class PromptBuilder:
                 f"  • Consider the game's complexity and the simulation\n"
                 f"    heuristic quality when tuning."
             )
-        return (
-            f"{sep}\n"
-            f"SYSTEM: MCTS Heuristic Improvement\n"
-            f"{sep}\n"
-            f"You are an expert game-playing AI researcher.\n"
-            f"Your task is to improve a specific MCTS heuristic function\n"
-            f"for the game '{self.game}' (phase: {self.target_phase}).\n\n"
+        parts = [
+            f"{sep}\n",
+            f"SYSTEM: MCTS Heuristic Improvement\n",
+            f"{sep}\n",
+            f"You are an expert game-playing AI researcher.\n",
+            f"Your task is to improve a specific MCTS heuristic function\n",
+            f"for the game '{self.game}' (phase: {self.target_phase}).\n\n",
+        ]
+        if self.target_phase in self.VALID_PHASES:
+            parts.append(PHASE_DESCRIPTIONS.get(self.target_phase, "") + "\n\n")
+        parts.append(
             f"APPROACH — 70 / 30 RULE:\n"
             f"  ~70% of iterations: INCREMENTAL OPTIMIZATION\n"
             f"    • Start from the CURRENT code.\n"
@@ -336,6 +342,7 @@ class PromptBuilder:
             f"  • Complex heuristics with multiple factors are encouraged\n"
             f"    when they improve play quality."
         )
+        return "".join(parts)
 
     def _build_game_rules_section(self) -> str:
         rules = self._load_game_info()
@@ -406,11 +413,7 @@ class PromptBuilder:
             f"  a different strategy. Keep any components that work well.\n"
             f"  State clearly in DESCRIPTION why a restructure is needed.\n\n"
             f"How the '{self.target_phase}' phase works in MCTS:\n"
-            f"  - Called from a LEAF node, receives a game state.\n"
-            f"  - Must return a FLOAT reward backpropagated up the tree.\n"
-            f"  - Reward MUST vary across states so MCTS can distinguish\n"
-            f"    good from bad actions. Flat rewards ≈ random play.\n"
-            f"  - Called thousands of times per move — keep it FAST.\n\n"
+            f"{PHASE_MECHANICS.get(self.target_phase, '')}\n\n"
             f"CONSTRAINTS:\n"
             f"  • Same function signature as the current code.\n"
             f"  • Standalone function, standard library only.\n"
