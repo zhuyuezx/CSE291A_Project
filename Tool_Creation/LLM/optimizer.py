@@ -563,13 +563,36 @@ class Optimizer:
             ]
             attr_lines = "\n".join(f"  {n}: {t}" for n, t in state_attrs)
 
+        # For node-based phases: MCTSNode uses __slots__, no arbitrary attributes
+        node_api_section = ""
+        if self.target_phase in ("selection", "expansion", "backpropagation"):
+            node_api_section = (
+                "\n== MCTSNode API (node parameter) ==\n"
+                "MCTSNode uses __slots__. You CANNOT add new attributes.\n"
+                "Use ONLY these: node.state, node.parent, node.parent_action,\n"
+                "node.children, node._untried_actions, node.visits, node.value.\n"
+                "  - node.state = GameState (use for legal_actions, clone, etc.)\n"
+                "  - node._untried_actions = list of actions to expand\n"
+                "  - node.children = dict[action, child_node]\n"
+                "  - node.visits, node.value = backpropagated stats\n"
+                "Do NOT assign node._mcts_root_key or any attribute not listed above.\n"
+            )
+
+        constraints = (
+            "CRITICAL: The function must be SELF-CONTAINED. Define ALL helper "
+            "functions inline. Do NOT use undefined names (e.g. _ag, _bfs_distance). "
+            "Fix ONLY the broken parts. Keep the heuristic strategy the same.\n"
+        )
+
         repair_prompt = (
             f"You previously generated the following {self.game} MCTS "
             f"{self.target_phase} function, but it raised a runtime error.\n\n"
             f"== BROKEN CODE ==\n```python\n{broken_code}\n```\n\n"
             f"== RUNTIME ERROR ==\n{tb_text}\n\n"
-            f"== ACTUAL GameState PUBLIC API ==\n{attr_lines}\n\n"
-            f"Fix ONLY the broken parts. Keep the heuristic strategy the same.\n"
+            f"== ACTUAL GameState PUBLIC API (for node.state or state param) ==\n"
+            f"{attr_lines}\n"
+            f"{node_api_section}\n"
+            f"{constraints}"
             f"Return using the SAME structured format.\n\n"
             f"ACTION: modify\n"
             f"FILE_NAME: {parsed.get('file_name', self.target_phase + '.py')}\n"

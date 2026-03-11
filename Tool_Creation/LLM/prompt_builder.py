@@ -417,7 +417,16 @@ class PromptBuilder:
             f"CONSTRAINTS:\n"
             f"  • Same function signature as the current code.\n"
             f"  • Standalone function, standard library only.\n"
-            f"  • Code can be as long as the heuristic requires — no\n"
+            f"  • SELF-CONTAINED: define ALL helper functions inline.\n"
+            f"    Do NOT use undefined names (e.g. _ag, _bfs_distance).\n"
+            + (
+                f"  • node is MCTSNode (uses __slots__). Use ONLY node.state,\n"
+                f"    node.parent, node.children, node._untried_actions,\n"
+                f"    node.visits, node.value. Do NOT assign new attributes.\n"
+                if self.target_phase in ("selection", "expansion", "backpropagation")
+                else ""
+            )
+            + f"  • Code can be as long as the heuristic requires — no\n"
             f"    artificial line limit. Prioritize quality over brevity.\n\n"
             f"You MUST format your response EXACTLY as follows:\n\n"
             f"ACTION: modify\n"
