@@ -1,5 +1,6 @@
 from .connect_four import ConnectFour, ConnectFourState
 from .rush_hour import RushHour, RushHourState
+from .scienceworld import ScienceWorldGame, ScienceWorldState
 from .sliding_puzzle import SlidingPuzzle, SlidingPuzzleState
 from .textworld_benchmark import TextWorldBenchmark, TextWorldBenchmarkState
 from .sokoban import Sokoban, SokobanState

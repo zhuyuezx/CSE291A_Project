@@ -1,0 +1,75 @@
+Game: ScienceWorld (text-based science experiment environment)
+
+== Overview ==
+ScienceWorld is a text-based virtual environment centered around
+accomplishing tasks from the standardized elementary science curriculum.
+Tasks range from boiling water to Mendelian genetics, spanning 30 task
+types across 10 topic areas.
+
+The Python environment wraps a JVM-based simulator via py4j.
+Actions and observations are natural-language strings.
+
+== Topics and Task Families ==
+Matter (1-x):     boil, melt, freeze, change-the-state-of-matter-of
+Measurement (2-x): use-thermometer, measure-melting-point (known/unknown)
+Electricity (3-x): power-component, renewable-vs-nonrenewable, test-conductivity
+Classification (4-x): find-living-thing, find-non-living-thing, find-plant, find-animal
+Biology (5-x):    grow-plant, grow-fruit
+Chemistry (6-x):  chemistry-mix, mix-paint (secondary/tertiary colours)
+Lifespan (7-x):   identify longest/shortest lived animal
+Life Stages (8-x): identify life stages (plant/animal)
+Forces (9-x):     inclined planes, friction (known/unknown surfaces)
+Genetics (10-x):  Mendelian genetics (known/unknown plants)
+
+== State ==
+At each step the agent observes:
+  - A text observation describing the current location and visible objects
+  - A list of valid actions (natural-language strings)
+  - Current score and maximum possible score
+  - Task description text
+
+Public attributes on the GameState:
+  config, observation, task_description, score, max_score,
+  valid_actions, history, steps, done
+
+Public helper methods:
+  observation_text()  -- current observation string
+  normalized_score()  -- score / max_score in [0, 1]
+
+Public GameState methods:
+  clone(), legal_actions(), apply_action(action),
+  is_terminal(), returns(), current_player(), state_key()
+
+== Rewards ==
+returns() yields [score / max_score]:
+  [1.0]   full success (all objectives completed)
+  (0, 1)  partial progress
+  [0.0]   no progress
+
+== Action Space ==
+Actions are natural-language strings returned by getValidActionObjectCombinations().
+The action space is dynamic and can include 10-100+ actions per step,
+covering movement, object interaction, and task-specific operations.
+
+Common action patterns:
+  "go north", "go south", "open door to kitchen"
+  "pick up thermometer", "put thermometer in inventory"
+  "focus on substance X", "pour X into Y"
+  "activate Y", "connect X to Y"
+
+== Simplifications ==
+The "easy" preset applies:
+  teleportAction     -- instant movement to any location
+  openDoors          -- all doors start open
+  selfWateringFlowerPots -- auto-water for plant tasks
+  noElectricalAction -- remove electrical actions (non-electricity tasks)
+
+== Planning Hints ==
+  - The action space is large; rank valid actions by relevance to the task.
+  - Many tasks have multi-step solutions (10-50+ steps).
+  - Use the task description to understand the goal.
+  - Track score changes to identify progress.
+  - Teleport simplification greatly reduces navigation complexity.
+  - Prefer actions that directly interact with task-relevant objects.
+  - Avoid pure observation actions (look, inventory) during search;
+    they waste steps without advancing the task.

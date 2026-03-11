@@ -1,0 +1,61 @@
+{
+    "tasks": [
+      {"id":"1-1","topic":"Matter","task":"Changes of State (Boiling)","Random-Valid":0.00,"DRRN":0.03,"KG-A2C":0.00,"CALM":0.00,"BC":0.00,"TDT":0.00},
+      {"id":"1-2","topic":"Matter","task":"Changes of State (Melting)","Random-Valid":0.00,"DRRN":0.04,"KG-A2C":0.00,"CALM":0.00,"BC":0.00,"TDT":0.01},
+      {"id":"1-3","topic":"Matter","task":"Changes of State (Freezing)","Random-Valid":0.00,"DRRN":0.01,"KG-A2C":0.04,"CALM":0.00,"BC":0.01,"TDT":0.00},
+      {"id":"1-4","topic":"Matter","task":"Changes of State (Any)","Random-Valid":0.00,"DRRN":0.03,"KG-A2C":0.00,"CALM":0.00,"BC":0.00,"TDT":0.00},
+  
+      {"id":"2-1","topic":"Measurement","task":"Use Thermometer","Random-Valid":0.00,"DRRN":0.10,"KG-A2C":0.06,"CALM":0.01,"BC":0.04,"TDT":0.04},
+      {"id":"2-2","topic":"Measurement","task":"Measuring Boiling Point (known)","Random-Valid":0.00,"DRRN":0.08,"KG-A2C":0.11,"CALM":0.01,"BC":0.01,"TDT":0.02},
+      {"id":"2-3","topic":"Measurement","task":"Measuring Boiling Point (unknown)","Random-Valid":0.00,"DRRN":0.06,"KG-A2C":0.04,"CALM":0.01,"BC":0.01,"TDT":0.02},
+  
+      {"id":"3-1","topic":"Electricity","task":"Create a circuit","Random-Valid":0.01,"DRRN":0.13,"KG-A2C":0.07,"CALM":0.05,"BC":0.03,"TDT":0.07},
+      {"id":"3-2","topic":"Electricity","task":"Renewable vs Non-renewable Energy","Random-Valid":0.01,"DRRN":0.10,"KG-A2C":0.04,"CALM":0.07,"BC":0.02,"TDT":0.05},
+      {"id":"3-3","topic":"Electricity","task":"Test Conductivity (known)","Random-Valid":0.01,"DRRN":0.07,"KG-A2C":0.04,"CALM":0.02,"BC":0.05,"TDT":0.05},
+      {"id":"3-4","topic":"Electricity","task":"Test Conductivity (unknown)","Random-Valid":0.00,"DRRN":0.20,"KG-A2C":0.04,"CALM":0.02,"BC":0.04,"TDT":0.05},
+  
+      {"id":"4-1","topic":"Classification","task":"Find a living thing","Random-Valid":0.03,"DRRN":0.26,"KG-A2C":0.18,"CALM":0.10,"BC":0.29,"TDT":0.16},
+      {"id":"4-2","topic":"Classification","task":"Find a non-living thing","Random-Valid":0.63,"DRRN":0.56,"KG-A2C":0.44,"CALM":0.54,"BC":0.19,"TDT":0.17},
+      {"id":"4-3","topic":"Classification","task":"Find a plant","Random-Valid":0.01,"DRRN":0.19,"KG-A2C":0.16,"CALM":0.10,"BC":0.17,"TDT":0.19},
+      {"id":"4-4","topic":"Classification","task":"Find an animal","Random-Valid":0.01,"DRRN":0.19,"KG-A2C":0.15,"CALM":0.08,"BC":0.21,"TDT":0.19},
+  
+      {"id":"5-1","topic":"Biology","task":"Grow a plant","Random-Valid":0.07,"DRRN":0.09,"KG-A2C":0.06,"CALM":0.02,"BC":0.08,"TDT":0.03},
+      {"id":"5-2","topic":"Biology","task":"Grow a fruit","Random-Valid":0.02,"DRRN":0.16,"KG-A2C":0.11,"CALM":0.04,"BC":0.03,"TDT":0.05},
+  
+      {"id":"6-1","topic":"Chemistry","task":"Mixing (generic)","Random-Valid":0.01,"DRRN":0.20,"KG-A2C":0.17,"CALM":0.03,"BC":0.06,"TDT":0.10},
+      {"id":"6-2","topic":"Chemistry","task":"Mixing paints (secondary colours)","Random-Valid":0.01,"DRRN":0.29,"KG-A2C":0.19,"CALM":0.06,"BC":0.16,"TDT":0.20},
+      {"id":"6-3","topic":"Chemistry","task":"Mixing paints (tertiary colours)","Random-Valid":0.00,"DRRN":0.11,"KG-A2C":0.04,"CALM":0.03,"BC":0.05,"TDT":0.07},
+  
+      {"id":"7-1","topic":"Biology","task":"Identify longest-lived animal","Random-Valid":0.02,"DRRN":0.48,"KG-A2C":0.43,"CALM":0.06,"BC":0.26,"TDT":0.20},
+      {"id":"7-2","topic":"Biology","task":"Identify shortest-lived animal","Random-Valid":0.03,"DRRN":0.47,"KG-A2C":0.32,"CALM":0.10,"BC":0.14,"TDT":0.16},
+      {"id":"7-3","topic":"Biology","task":"Identify longest-shortest-lived animal","Random-Valid":0.01,"DRRN":0.31,"KG-A2C":0.23,"CALM":0.04,"BC":0.02,"TDT":0.20},
+  
+      {"id":"8-1","topic":"Biology","task":"Identify life stages (plant)","Random-Valid":0.00,"DRRN":0.09,"KG-A2C":0.05,"CALM":0.04,"BC":0.04,"TDT":0.02},
+      {"id":"8-2","topic":"Biology","task":"Identify life stages (animal)","Random-Valid":0.00,"DRRN":0.10,"KG-A2C":0.10,"CALM":0.00,"BC":0.02,"TDT":0.07},
+  
+      {"id":"9-1","topic":"Forces","task":"Inclined Planes (determine angle)","Random-Valid":0.01,"DRRN":0.13,"KG-A2C":0.04,"CALM":0.00,"BC":0.05,"TDT":0.04},
+      {"id":"9-2","topic":"Forces","task":"Friction (known surfaces)","Random-Valid":0.00,"DRRN":0.13,"KG-A2C":0.04,"CALM":0.03,"BC":0.05,"TDT":0.04},
+      {"id":"9-3","topic":"Forces","task":"Friction (unknown surfaces)","Random-Valid":0.00,"DRRN":0.13,"KG-A2C":0.04,"CALM":0.02,"BC":0.04,"TDT":0.04},
+  
+      {"id":"10-1","topic":"Biology","task":"Mendelian Genetics (known plants)","Random-Valid":0.01,"DRRN":0.19,"KG-A2C":0.11,"CALM":0.02,"BC":0.06,"TDT":0.06},
+      {"id":"10-2","topic":"Biology","task":"Mendelian Genetics (unknown plants)","Random-Valid":0.01,"DRRN":0.17,"KG-A2C":0.11,"CALM":0.02,"BC":0.13,"TDT":0.05}
+    ],
+  
+    "average": {
+      "Random-Valid":0.03,
+      "DRRN":0.17,
+      "KG-A2C":0.11,
+      "CALM":0.05,
+      "BC":0.08,
+      "TDT":0.08
+    },
+  
+    "param_count_millions": {
+      "Random-Valid": null,
+      "DRRN": 1.5,
+      "KG-A2C": 5.5,
+      "CALM": 131,
+      "BC": 11000,
+      "TDT": 11000
+    }
+  }
