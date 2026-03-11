@@ -1,4 +1,5 @@
 from .connect_four import ConnectFour, ConnectFourState
+from .quoridor import Quoridor, QuoridorState
 from .rush_hour import RushHour, RushHourState
 from .sliding_puzzle import SlidingPuzzle, SlidingPuzzleState
 from .textworld_benchmark import TextWorldBenchmark, TextWorldBenchmarkState

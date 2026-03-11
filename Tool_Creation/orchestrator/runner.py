@@ -102,8 +102,14 @@ def _make_game_factory(
     (e.g. TicTacToe), the level is ignored.
     """
     sig = inspect.signature(game_class.__init__)
-    params = list(sig.parameters.keys())
-    has_level_param = len(params) > 1  # first is 'self'
+    # Only count regular positional/keyword params (ignore *args, **kwargs
+    # inherited from object.__init__ when the class has no own __init__).
+    real_params = [
+        p for p in sig.parameters.values()
+        if p.name != "self"
+        and p.kind not in (p.VAR_POSITIONAL, p.VAR_KEYWORD)
+    ]
+    has_level_param = len(real_params) > 0
 
     if has_level_param:
         def factory(level: Any) -> Game:
@@ -377,7 +383,7 @@ class OptimizationRunner:
             mastery_max_steps=getattr(training, "MASTERY_MAX_STEPS", None),
         )
 
-        return cls(
+        runner = cls(
             game_name=game_name,
             game_factory=game_factory,
             training=training,
@@ -396,6 +402,25 @@ class OptimizationRunner:
             cluster_merge_interval=getattr(hp_mod, "CLUSTER_MERGE_INTERVAL", 5),
             registry_history_len=getattr(hp_mod, "REGISTRY_HISTORY_LEN", 10),
         )
+
+        # Load game-specific default tool files (e.g. generic_simulation for
+        # non-Sokoban games).  These OVERRIDE previously installed tools
+        # because installed tools in MCTS_tools/ are not game-scoped and
+        # a tool generated for one game (e.g. Sokoban) could be loaded
+        # for a different game (e.g. Quoridor).
+        default_tool_files = getattr(hp_mod, "DEFAULT_TOOL_FILES", {})
+        if default_tool_files:
+            from mcts.mcts_engine import _load_function_from_file
+            for phase, filepath in default_tool_files.items():
+                resolved = (_MCTS_DIR.parent / filepath).resolve()
+                if resolved.exists():
+                    fn = _load_function_from_file(str(resolved))
+                    runner.current_fns[phase] = fn
+                    runner.best_fns[phase] = fn
+                    if verbose:
+                        print(f"  Loaded default {phase} tool: {filepath}")
+
+        return runner
 
     @classmethod
     def from_dict(

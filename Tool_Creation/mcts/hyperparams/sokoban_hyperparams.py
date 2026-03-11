@@ -33,6 +33,13 @@ HISTORY_WINDOW = 3
 PHASES = ["simulation", "expansion"]  # tool-creation phases only
 LOGGING = True
 
+# ── Default tool overrides ───────────────────────────────────────────
+# The default_simulation.py is now game-agnostic.  Sokoban uses its own
+# Sokoban-tuned rollout as the starting point for LLM optimization.
+DEFAULT_TOOL_FILES = {
+    "simulation": "MCTS_tools/simulation/sokoban_default_simulation.py",
+}
+
 # ── Tool evolution configuration ─────────────────────────────────────
 ENABLE_TOOL_REGISTRY = False
 ENABLE_AGGREGATOR = False

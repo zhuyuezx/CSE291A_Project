@@ -17,10 +17,6 @@ Returned dict keys:
 """
 
 # ── Game configuration ───────────────────────────────────────────────
-# NOTE: Quoridor requires a Python game class in mcts/games/ (mcts.games.Quoridor).
-# The C++ implementation lives in quoridor/; a Python wrapper must be added to
-# mcts/games/quoridor.py and exported from mcts/games/__init__.py before this
-# config can be used with OptimizationRunner.from_config().
 GAME_NAME = "quoridor"
 GAME_CLASS = "Quoridor"
 GAME_MODULE = "mcts.games"
@@ -28,14 +24,24 @@ CONSTRUCTOR_KWARGS = {}
 TRAINING_LOGIC = "quoridor_training"
 
 # ── Optimization configuration ───────────────────────────────────────
-# PHASES: only phases that create MCTS tool Python files under MCTS_tools/<phase>/
-# (selection, expansion, simulation, backpropagation). Omit "hyperparams" to avoid
-# tuning get_hyperparams(); include it to also optimize engine parameters via LLM.
+# Key insight from the hand-tuned C++ Quoridor MCTS:
+#   Selection     — standard UCT, no changes needed
+#   Expansion     — heavily heuristic (probable wall pruning, path-disturbing walls)
+#   Simulation    — heavily heuristic (70% shortest-path, 20% wall, 10% explore)
+#   Backprop      — standard alternating-player, no changes needed
+# Therefore we optimize ONLY expansion and simulation.
 NUM_ITERS = 5
 THREE_STEP = True
 HISTORY_WINDOW = 3
-PHASES = ["simulation", "expansion"]  # tool-creation phases only
+PHASES = ["simulation", "expansion"]
 LOGGING = True
+
+# ── Default tool overrides ───────────────────────────────────────────
+# The MCTS_tools/ defaults are Sokoban-tuned.  For Quoridor we start
+# from a game-agnostic random-rollout simulation.
+DEFAULT_TOOL_FILES = {
+    "simulation": "MCTS_tools/simulation/generic_simulation.py",
+}
 
 # ── Tool evolution configuration ─────────────────────────────────────
 ENABLE_TOOL_REGISTRY = False
@@ -64,7 +70,7 @@ def get_hyperparams():
         Default sqrt(2) ≈ 1.41.  Lower → more exploitation, higher → more exploration.
     """
     return {
-        "iterations": 300,
-        "max_rollout_depth": 300,
+        "iterations": 200,
+        "max_rollout_depth": 200,
         "exploration_weight": 1.41,
     }

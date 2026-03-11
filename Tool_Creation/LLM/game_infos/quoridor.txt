@@ -1,0 +1,129 @@
+Game: Quoridor
+
+== Overview ==
+Quoridor is a two-player strategy board game on a 9×9 grid. Each player
+controls a pawn that starts on opposite sides of the board. Players
+alternate turns either moving their pawn one cell or placing a wall to
+obstruct the opponent. The first player to reach the opponent's starting
+row wins. Each player begins with 10 walls.
+
+== Board Layout ==
+  - 9×9 grid of cells indexed (row, col) with (0,0) at top-left.
+  - Player 0 starts at row 0 (top), goal row = 8 (bottom).
+  - Player 1 starts at row 8 (bottom), goal row = 0 (top).
+  - Both start at column 4 (center).
+  - Walls are placed on the borders BETWEEN cells and span exactly
+    2 cells in length (they sit on a 8×8 grid of possible slots).
+
+== Rules ==
+1. On each turn a player must do ONE of:
+   a) Move their pawn to an adjacent cell (up/down/left/right) if the
+      passage is not blocked by a wall.
+   b) Place a wall (horizontal or vertical) if they have walls remaining
+      and the placement is legal.
+2. Pawn Jumping: If the opponent is directly adjacent and the far side
+   is open, the pawn JUMPS over the opponent (moves 2 cells). If the
+   far side is blocked by a wall, diagonal jumps are allowed instead.
+3. Wall rules:
+   - A wall spans 2 cells along its orientation.
+   - Horizontal wall at (r, c) blocks the passage between rows r and
+     r+1 for columns c and c+1.
+   - Vertical wall at (r, c) blocks the passage between columns c and
+     c+1 for rows r and r+1.
+   - Walls cannot overlap or cross each other.
+   - CRITICAL: A wall placement is ILLEGAL if it would completely block
+     EITHER player from reaching their goal row (path must always exist).
+4. The game ends when a pawn reaches its goal row.
+
+== Actions ==
+Each action is one of three types:
+  - PawnMove(row, col): move pawn to the target cell
+  - HorizontalWall(row, col): place a horizontal wall at slot (row, col)
+  - VerticalWall(row, col): place a vertical wall at slot (row, col)
+
+Action IDs are integers. Use action_mapping() to see the full mapping.
+
+== State Representation ==
+Each state tracks:
+  - pawn_positions: list of (row, col) for each player
+  - walls_remaining: list of int — walls left per player
+  - horizontal_walls: set of (row, col) — placed horizontal walls
+  - vertical_walls: set of (row, col) — placed vertical walls
+  - current_player: int (0 or 1)
+  - move_count: total moves played
+
+== Reward ==
+  - Winner: returns [1.0, -1.0] (from winner's and loser's perspective)
+  - Loser:  returns [-1.0, 1.0]
+  - Draw (max moves exceeded): [0.0, 0.0]
+
+== Key Strategic Concepts ==
+
+=== Shortest Path is King ===
+  - At every point, compute the shortest-path distance (BFS) from each
+    pawn to its goal row. The player with the shorter path has the
+    advantage.
+  - Moving the pawn along its shortest path is almost always correct.
+    70% of rollout moves should follow the shortest path.
+
+=== Wall Placement Strategy ===
+  - Place walls that INCREASE the opponent's shortest-path distance.
+  - The best walls are those that intersect the opponent's current
+    shortest path and force a detour.
+  - Use "disturbing walls": trace back ALL shortest paths from the
+    opponent's pawn to their goal row, then find walls that block edges
+    on those paths.
+  - Not all 128 wall placements are worth considering. Focus on walls
+    that are NEAR existing walls or NEAR the pawns (probable walls).
+
+=== Probable Wall Pruning (Critical for MCTS performance) ===
+  - Instead of expanding all ~100+ legal wall placements, only consider
+    walls that are "probable" — those near (within 2-3 cells of):
+    * Existing walls on the board
+    * The opponent's pawn (block their path)
+    * Your own pawn (after turn 6+)
+  - This reduces the branching factor from ~100+ to ~15-30, making
+    MCTS tractable with a reasonable iteration budget.
+
+=== Endgame: Opponent Has No Walls ===
+  - When the opponent has used all their walls, they can only move their
+    pawn. Your path is now fixed (no more walls can appear).
+  - In this case: only expand pawn moves along YOUR shortest path, and
+    only expand walls that "disturb" the opponent's shortest path.
+  - This dramatically reduces the tree width in endgame positions.
+
+=== Simulation / Rollout Policy ===
+  - Do NOT use uniform random rollouts — Quoridor's branching factor
+    makes random play uninformative.
+  - Use biased rollouts:
+    * 70% of moves: follow the shortest path toward the goal
+    * 20% of moves: place a probable wall (near pawns or existing walls)
+    * 10% of moves: move in a non-optimal direction (adds diversity)
+  - Cache BFS shortest-path results and invalidate only when a wall is
+    placed (paths don't change on pawn moves unless walls change).
+  - Cap rollouts at ~200 moves. If the game hasn't ended, the player
+    closer to their goal (by BFS distance) wins.
+
+=== Opening Strategy ===
+  - First 2 moves: just move toward the goal (skip MCTS overhead for
+    trivial decisions).
+  - Turns 2-5: if the opponent is on the center column (col 4), place
+    walls directly in front of them to block their path early.
+  - Good early walls: horizontal walls 2 rows in front of the opponent,
+    centered at columns 3-4.
+
+=== Move Ordering ===
+  - Pawn moves along the shortest path should be considered first.
+  - Wall placements that disturb the opponent's shortest path should
+    be prioritized over random walls.
+  - A move that both advances you AND doesn't let the opponent gain
+    ground is preferable.
+
+== Performance Notes ==
+  - BFS for shortest path is the key subroutine — cache it aggressively.
+  - Wall legality checking (path existence after placement) is expensive.
+    Optimize by checking wall "connectivity": if a wall doesn't connect
+    to the board edge or other walls on both sides, it cannot create a
+    full blockade, so skip the DFS check.
+  - With probable wall pruning, 300-1000 MCTS iterations are enough for
+    decent play. Without pruning, even 5000 iterations can be weak.
