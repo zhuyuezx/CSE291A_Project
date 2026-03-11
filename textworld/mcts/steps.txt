@@ -1,0 +1,18 @@
+1. MCTS node -> MCTS engine
+
+2. design 10 sokoban levels that are from easy to difficult. Test that MCTS engine is working in default (need a pytest file)
+
+3. test different heuristics (no need for a heuristic folder but they are considered as "tools" and should be stored in tools folder)
+
+4. trace logger -> should record all details and store in a json / txt format.
+
+5. prompt builder -> should be parametrized and able to build different prompts for different games. For now, we can just hardcode a prompt for the first game and then later we can make it more flexible. The prompt should include:
+   - Game rules
+   - Current heuristic code (if any)
+   - Gameplay traces (especially unsolved/lost games)
+
+6. LLM querying (not to connect with MCTS first), but just feed game trace into it and see if it can generate a better, valid heuristic function.
+
+7. encapsulate LLM optimization + MCTS engine into a workable architecure, and test it on full sokoban optimization loops.
+
+8. if it is working, test on multiple loops

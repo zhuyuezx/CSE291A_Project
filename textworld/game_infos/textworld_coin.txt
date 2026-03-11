@@ -1,0 +1,84 @@
+Game: TextWorld Coin (symbolic MCTS model)
+
+== Overview ==
+This is a single-player symbolic planning game inspired by the
+TextWorld-Express coin task from hw2_part2.ipynb.
+
+The world is a corridor of rooms from west to east. The player starts in
+room 0. The coin is in the last room. The goal is to navigate to the
+coin and take it.
+
+== Parameters ==
+The game accepts a game_params string such as:
+  numLocations=5,includeDoors=1,numDistractorItems=0
+
+Supported meanings:
+  - numLocations: number of rooms in the corridor
+  - includeDoors: whether each corridor edge starts with a closed door
+  - numDistractorItems: parsed for compatibility but currently ignored
+
+== Actions ==
+Actions are strings.
+
+Possible actions include:
+  move west
+  move east
+  open door to west
+  open door to east
+  close door to west
+  close door to east
+  take coin
+  look around
+  inventory
+
+Validity depends on state:
+  - You can only move through an existing open door/path.
+  - You can only open/close a door that exists adjacent to the current room.
+  - You can only take coin in the final room when the coin is still there.
+
+== State Representation ==
+Each state tracks:
+  - room: current room index
+  - coin_room: final room index
+  - coin_taken: bool
+  - doors_open: list[bool] for corridor edges
+  - inventory_items: tuple[str, ...]
+  - steps / max_steps
+
+Public helpers:
+  look_text() -> str
+  inventory_text() -> str
+  observation_text() -> str
+  distance_to_coin() -> int
+
+== Reward ==
+The state.returns() method returns:
+  - [1.0] if the coin has been taken
+  - otherwise a shaped reward in [0, 0.9]:
+      75% progress toward the final room
+      + small bonus if the next eastward door is already open
+
+== GameState API ==
+Public methods:
+  clone() -> independent copy
+  legal_actions() -> list[str]
+  apply_action(action: str) -> None
+  is_terminal() -> bool
+  returns() -> list[float]
+  current_player() -> int   (always 0)
+  state_key() -> str
+
+Public attributes:
+  room
+  coin_room
+  coin_taken
+  doors_open
+  inventory_items
+  steps
+  config
+
+== Strategic Concepts ==
+  - Progress eastward toward the coin.
+  - Open useful doors before moving.
+  - Avoid wasting steps on closing doors or repeated look/inventory actions.
+  - Once in the final room, taking the coin should dominate all other moves.

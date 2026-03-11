@@ -486,6 +486,8 @@ class Optimizer:
             # Fill missing headers from original
             if repair_parsed["code"] and not repair_parsed.get("action"):
                 repair_parsed["action"] = parsed.get("action", "modify")
+            elif repair_parsed["code"] and repair_parsed.get("action") not in {"create", "modify"}:
+                repair_parsed["action"] = parsed.get("action", "modify")
             if repair_parsed["code"] and not repair_parsed.get("file_name"):
                 repair_parsed["file_name"] = parsed.get(
                     "file_name", f"{self.target_phase}.py"
@@ -559,7 +561,21 @@ class Optimizer:
             f"{mcts_node_note}"
             f"== ACTUAL GameState PUBLIC API ==\n{attr_lines}\n\n"
             f"Fix ONLY the broken parts. Keep the heuristic strategy the same.\n"
+            f"The corrected code must be SELF-CONTAINED.\n"
+            f"Include every import it uses and define every helper function,\n"
+            f"constant, or utility referenced by the main function.\n"
+            f"Do NOT assume helpers exist in another generated file.\n"
+            f"Do NOT assume mutable containers are sets unless the code or API\n"
+            f"proves it. If a value may be a list, do not call set-only methods\n"
+            f"like discard/add; use list-safe logic instead.\n"
+            f"Pay special attention to runtime NameError issues such as missing\n"
+            f"imports, missing helper functions, or missing constants.\n"
+            f"Pay special attention to runtime AttributeError issues such as\n"
+            f"wrong container methods or wrong node/state attributes.\n"
             f"Return using the SAME structured format.\n\n"
+            f"The very first non-empty line of your response MUST be exactly:\n"
+            f"ACTION: modify\n"
+            f"Do not add any explanation before the header.\n\n"
             f"ACTION: modify\n"
             f"FILE_NAME: {parsed.get('file_name', self.target_phase + '.py')}\n"
             f"FUNCTION_NAME: {func_name}\n"

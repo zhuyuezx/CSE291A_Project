@@ -289,6 +289,13 @@ class LLMQuerier:
         self.model = model or _get_model()
         self.results_dir = Path(results_dir) if results_dir else _RESULTS_DIR
 
+        if AsyncOpenAI is None:
+            raise ImportError(
+                "The 'openai' package is not installed in the current Python "
+                "environment. Install it with 'pip install openai' before "
+                "running the LLM optimization pipeline."
+            )
+
         if not self.api_keys:
             _env_path = Path(__file__).resolve().parent.parent / ".env"
             raise ValueError(
