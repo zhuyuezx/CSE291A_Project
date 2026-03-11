@@ -560,9 +560,9 @@ class OptimizationRunner:
             self.active_levels = [
                 lv for lv in self.levels if lv not in ev.mastered_levels
             ]
-            opt_phase = self._pick_optimization_phase(iteration)
 
             if cur_level in ev.mastered_levels:
+                opt_phase = self._pick_optimization_phase(iteration)
                 if cur_level in self.active_levels:
                     self.active_levels.remove(cur_level)
                 if self.verbose:
@@ -595,7 +595,7 @@ class OptimizationRunner:
             if self.verbose:
                 print(f"\n{'#'*60}")
                 print(f"  ITERATION {iteration}/{self.num_iters}, "
-                      f"LEVEL={cur_level}, PHASE={opt_phase}")
+                      f"LEVEL={cur_level} (optimizing all {len(self.tool_phases)} phases)")
                 print(f"  Baseline composite={bl['composite']:.4f}, "
                       f"reject_floor={reject_floor:.4f}")
                 print(f"  Active levels: {len(self.active_levels)}/"
@@ -603,251 +603,256 @@ class OptimizationRunner:
                       f"mastered: {sorted(ev.mastered_levels)}")
                 print(f"{'#'*60}")
 
-            # Capture level by value via default arg
-            state_factory = (
-                lambda _lv=cur_level: self.game_factory(_lv).new_initial_state()
-            )
+            # Optimize all tool phases for this non-mastered level
+            for opt_phase in self.tool_phases:
+                if self.verbose:
+                    print(f"\n  --- Phase: {opt_phase} ---")
 
-            # --- 1. Play with current tool + hyperparams ---
-            t_play_start = time.time()
-            eng = self._make_engine(cur_level)
-            play_result = eng.play_game()
-            t_play = time.time() - t_play_start
-            play_trace = play_result.get("log_file", "")
-            tl = eng.get_tool_source()
-
-            # Include hyperparams source in tool_list for LLM context
-            if "hyperparams" in self.phases:
-                tl["hyperparams"] = _get_hyperparams_source()
-
-            p_ret = play_result["returns"]
-            p_ret_val = p_ret[0] if isinstance(p_ret, list) else p_ret
-            ptag = "SOLVED" if play_result.get("solved") else "UNSOLVED"
-            if self.verbose:
-                print(f"  Play: {ptag} in {play_result.get('steps', '?')} "
-                      f"steps  returns={p_ret_val:.4f}  ({t_play:.1f}s)")
-
-            # --- 2. Build history context ---
-            history = (
-                self._build_history(
-                    self.all_results[-self.history_window:], cur_level
+                # Capture level by value via default arg
+                state_factory = (
+                    lambda _lv=cur_level: self.game_factory(_lv).new_initial_state()
                 )
-                if self.all_results else None
-            )
 
-            # --- 3. Optimize (analysis → draft → critique) ---
-            t_opt_start = time.time()
-            opt = optimizers[opt_phase]
-            result = opt.run(
-                record_files=[play_trace] if play_trace else [],
-                tool_list=tl,
-                state_factory=state_factory,
-                additional_context=history,
-                session_tag=f"iter{iteration}_{cur_level}_{opt_phase}",
-            )
-            t_opt = time.time() - t_opt_start
-            if self.verbose:
-                print(f"  Optimize ({opt_phase}): {t_opt:.1f}s")
+                # --- 1. Play with current tool + hyperparams ---
+                t_play_start = time.time()
+                eng = self._make_engine(cur_level)
+                play_result = eng.play_game()
+                t_play = time.time() - t_play_start
+                play_trace = play_result.get("log_file", "")
+                tl = eng.get_tool_source()
 
-            # --- 4. Multi-run evaluation ---
-            iter_record = {
-                "iteration": iteration,
-                "level": cur_level,
-                "opt_phase": opt_phase,
-                "smoke_test": result["smoke_test"],
-                "avg_returns": bl["avg_returns"],
-                "solve_rate": 0.0,
-                "composite": 0.0,
-                "avg_steps": 0,
-                "description": (
-                    (result.get("parsed") or {}).get("description", "")
-                ),
-                "error": result.get("error"),
-                "adopted": False,
-                "is_best": False,
-                "play_time": t_play,
-                "opt_time": t_opt,
-                "eval_time": None,
-            }
+                # Include hyperparams source in tool_list for LLM context
+                if "hyperparams" in self.phases:
+                    tl["hyperparams"] = _get_hyperparams_source()
 
-            fn = result.get("function")
-            if fn is not None:
-                # Build extra_tools: all current tool fns except the phase being evaluated
-                extra_tools = {
-                    p: f for p, f in self.current_fns.items()
-                    if f is not None and p != opt_phase
-                } or None
+                p_ret = play_result["returns"]
+                p_ret_val = p_ret[0] if isinstance(p_ret, list) else p_ret
+                ptag = "SOLVED" if play_result.get("solved") else "UNSOLVED"
+                if self.verbose:
+                    print(f"  Play: {ptag} in {play_result.get('steps', '?')} "
+                          f"steps  returns={p_ret_val:.4f}  ({t_play:.1f}s)")
 
-                try:
-                    if opt_phase == "hyperparams":
-                        # fn is a get_hyperparams callable — evaluate new params
-                        new_hp = fn()
-                        old_hp = self.current_hyperparams.copy()
-                        ev.update_hyperparams(new_hp)
+                # --- 2. Build history context ---
+                history = (
+                    self._build_history(
+                        self.all_results[-self.history_window:], cur_level
+                    )
+                    if self.all_results else None
+                )
 
-                        # Eval with all current tool fns
-                        all_tools = {
-                            p: f for p, f in self.current_fns.items()
-                            if f is not None
-                        } or None
-                        avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
-                            None, cur_level, extra_tools=all_tools,
-                        )
-                        comp = ev.composite_score(solve_rate, avg_ret)
-                        iter_record.update({
-                            "avg_returns": avg_ret,
-                            "solve_rate": solve_rate,
-                            "composite": comp,
-                            "avg_steps": avg_steps,
-                            "eval_time": eval_time,
-                        })
-                        if self.verbose:
-                            print(
-                                f"  Eval ({ev.eval_runs} runs, {cur_level}): "
-                                f"avg_returns={avg_ret:.4f}, "
-                                f"solve_rate={solve_rate:.0%}, "
-                                f"composite={comp:.4f}  ({eval_time:.1f}s)"
-                            )
+                # --- 3. Optimize (analysis → draft → critique) ---
+                t_opt_start = time.time()
+                opt = optimizers[opt_phase]
+                result = opt.run(
+                    record_files=[play_trace] if play_trace else [],
+                    tool_list=tl,
+                    state_factory=state_factory,
+                    additional_context=history,
+                    session_tag=f"iter{iteration}_{cur_level}_{opt_phase}",
+                )
+                t_opt = time.time() - t_opt_start
+                if self.verbose:
+                    print(f"  Optimize ({opt_phase}): {t_opt:.1f}s")
 
-                        prev_level_best = ev.level_best_scores.get(
-                            cur_level, bl["composite"]
-                        )
-                        if comp > prev_level_best:
-                            if self.verbose:
-                                print(f"  ★ NEW BEST (hyperparams) for {cur_level}")
-                            ev.level_best_scores[cur_level] = comp
-                            self.current_hyperparams = new_hp
-                            self.hyperparams_fn = fn
-                            self.best_hyperparams_fn = fn
-                            iter_record["adopted"] = True
-                            iter_record["is_best"] = True
-                        elif comp >= reject_floor:
-                            if self.verbose:
-                                print(f"  → Accepted hyperparams "
-                                      f"(comp={comp:.4f} ≥ floor={reject_floor:.4f})")
-                            self.current_hyperparams = new_hp
-                            self.hyperparams_fn = fn
-                            iter_record["adopted"] = True
-                        else:
-                            if self.verbose:
-                                print(f"  ✗ Rejected hyperparams "
-                                      f"(comp={comp:.4f} < floor={reject_floor:.4f})")
-                            ev.update_hyperparams(old_hp)
+                # --- 4. Multi-run evaluation ---
+                iter_record = {
+                    "iteration": iteration,
+                    "level": cur_level,
+                    "opt_phase": opt_phase,
+                    "smoke_test": result["smoke_test"],
+                    "avg_returns": bl["avg_returns"],
+                    "solve_rate": 0.0,
+                    "composite": 0.0,
+                    "avg_steps": 0,
+                    "description": (
+                        (result.get("parsed") or {}).get("description", "")
+                    ),
+                    "error": result.get("error"),
+                    "adopted": False,
+                    "is_best": False,
+                    "play_time": t_play,
+                    "opt_time": t_opt,
+                    "eval_time": None,
+                }
 
-                        # Check mastery
-                        newly_mastered = ev.check_mastery(
-                            cur_level, solve_rate, avg_steps, None,
-                            extra_tools=all_tools,
-                        )
-                        if newly_mastered and cur_level in self.active_levels:
-                            self.active_levels.remove(cur_level)
-                    else:
-                        # Normal tool phase optimization
-                        avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
-                            fn, cur_level,
-                            phase=opt_phase, extra_tools=extra_tools,
-                        )
-                        comp = ev.composite_score(solve_rate, avg_ret)
-                        iter_record.update({
-                            "avg_returns": avg_ret,
-                            "solve_rate": solve_rate,
-                            "composite": comp,
-                            "avg_steps": avg_steps,
-                            "eval_time": eval_time,
-                        })
+                fn = result.get("function")
+                if fn is not None:
+                    # Build extra_tools: all current tool fns except the phase being evaluated
+                    extra_tools = {
+                        p: f for p, f in self.current_fns.items()
+                        if f is not None and p != opt_phase
+                    } or None
 
-                        if self.verbose:
-                            print(
-                                f"  Eval ({ev.eval_runs} runs, {cur_level}): "
-                                f"avg_returns={avg_ret:.4f}, "
-                                f"solve_rate={solve_rate:.0%}, "
-                                f"composite={comp:.4f}, "
-                                f"avg_steps={avg_steps:.0f}  ({eval_time:.1f}s)"
-                            )
+                    try:
+                        if opt_phase == "hyperparams":
+                            # fn is a get_hyperparams callable — evaluate new params
+                            new_hp = fn()
+                            old_hp = self.current_hyperparams.copy()
+                            ev.update_hyperparams(new_hp)
 
-                        newly_mastered = ev.check_mastery(
-                            cur_level, solve_rate, avg_steps, fn,
-                            phase=opt_phase, extra_tools=extra_tools,
-                        )
-                        if newly_mastered and cur_level in self.active_levels:
-                            self.active_levels.remove(cur_level)
-                            if self.verbose:
-                                print(f"    {len(self.active_levels)} levels remain.")
-
-                        prev_level_best = ev.level_best_scores.get(
-                            cur_level, bl["composite"]
-                        )
-                        if comp > prev_level_best or comp >= reject_floor:
-                            all_tools_candidate = {
-                                p: (fn if p == opt_phase else self.current_fns.get(p))
-                                for p in self.phases_to_optimize
-                            }
-                            all_tools_candidate = {
-                                p: f for p, f in all_tools_candidate.items()
+                            # Eval with all current tool fns
+                            all_tools = {
+                                p: f for p, f in self.current_fns.items()
                                 if f is not None
-                            }
-                            has_regression = _check_cross_level_regression(
-                                ev, cur_level, all_tools_candidate, self.verbose
+                            } or None
+                            avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
+                                None, cur_level, extra_tools=all_tools,
                             )
-                            if has_regression:
-                                if self.verbose:
-                                    print(
-                                        "  ✗ Rejected due to cross-level regression"
-                                    )
-                                self.current_fns[opt_phase] = self.best_fns[
-                                    opt_phase
-                                ]
-                                iter_record["adopted"] = False
-                                if newly_mastered and cur_level not in self.active_levels:
-                                    self.active_levels.append(cur_level)
-                            else:
-                                if comp > prev_level_best:
-                                    if self.verbose:
-                                        print(
-                                            f"  ★ NEW BEST for {cur_level} "
-                                            f"(prev={prev_level_best:.4f}) — adopting"
-                                        )
-                                    ev.level_best_scores[cur_level] = comp
-                                    self.best_fns[opt_phase] = fn
-                                    iter_record["is_best"] = True
-                                else:
-                                    if self.verbose:
-                                        print(
-                                            f"  → Accepted on {cur_level} "
-                                            f"(comp={comp:.4f} ≥ floor="
-                                            f"{reject_floor:.4f})"
-                                        )
-                                    self.best_fns[opt_phase] = fn
-                                self.current_fns[opt_phase] = fn
-                                iter_record["adopted"] = True
-                        else:
+                            comp = ev.composite_score(solve_rate, avg_ret)
+                            iter_record.update({
+                                "avg_returns": avg_ret,
+                                "solve_rate": solve_rate,
+                                "composite": comp,
+                                "avg_steps": avg_steps,
+                                "eval_time": eval_time,
+                            })
                             if self.verbose:
                                 print(
-                                    f"  ✗ Rejected on {cur_level} "
-                                    f"(comp={comp:.4f} < floor={reject_floor:.4f}) "
-                                    f"— reverting to best"
+                                    f"  Eval ({ev.eval_runs} runs, {cur_level}): "
+                                    f"avg_returns={avg_ret:.4f}, "
+                                    f"solve_rate={solve_rate:.0%}, "
+                                    f"composite={comp:.4f}  ({eval_time:.1f}s)"
                                 )
-                            self.current_fns[opt_phase] = self.best_fns[opt_phase]
-                except Exception as exc:
+
+                            prev_level_best = ev.level_best_scores.get(
+                                cur_level, bl["composite"]
+                            )
+                            if comp > prev_level_best:
+                                if self.verbose:
+                                    print(f"  ★ NEW BEST (hyperparams) for {cur_level}")
+                                ev.level_best_scores[cur_level] = comp
+                                self.current_hyperparams = new_hp
+                                self.hyperparams_fn = fn
+                                self.best_hyperparams_fn = fn
+                                iter_record["adopted"] = True
+                                iter_record["is_best"] = True
+                            elif comp >= reject_floor:
+                                if self.verbose:
+                                    print(f"  → Accepted hyperparams "
+                                          f"(comp={comp:.4f} ≥ floor={reject_floor:.4f})")
+                                self.current_hyperparams = new_hp
+                                self.hyperparams_fn = fn
+                                iter_record["adopted"] = True
+                            else:
+                                if self.verbose:
+                                    print(f"  ✗ Rejected hyperparams "
+                                          f"(comp={comp:.4f} < floor={reject_floor:.4f})")
+                                ev.update_hyperparams(old_hp)
+
+                            # Check mastery
+                            newly_mastered = ev.check_mastery(
+                                cur_level, solve_rate, avg_steps, None,
+                                extra_tools=all_tools,
+                            )
+                            if newly_mastered and cur_level in self.active_levels:
+                                self.active_levels.remove(cur_level)
+                        else:
+                            # Normal tool phase optimization
+                            avg_ret, solve_rate, avg_steps, _, eval_time = ev.multi_eval(
+                                fn, cur_level,
+                                phase=opt_phase, extra_tools=extra_tools,
+                            )
+                            comp = ev.composite_score(solve_rate, avg_ret)
+                            iter_record.update({
+                                "avg_returns": avg_ret,
+                                "solve_rate": solve_rate,
+                                "composite": comp,
+                                "avg_steps": avg_steps,
+                                "eval_time": eval_time,
+                            })
+
+                            if self.verbose:
+                                print(
+                                    f"  Eval ({ev.eval_runs} runs, {cur_level}): "
+                                    f"avg_returns={avg_ret:.4f}, "
+                                    f"solve_rate={solve_rate:.0%}, "
+                                    f"composite={comp:.4f}, "
+                                    f"avg_steps={avg_steps:.0f}  ({eval_time:.1f}s)"
+                                )
+
+                            newly_mastered = ev.check_mastery(
+                                cur_level, solve_rate, avg_steps, fn,
+                                phase=opt_phase, extra_tools=extra_tools,
+                            )
+                            if newly_mastered and cur_level in self.active_levels:
+                                self.active_levels.remove(cur_level)
+                                if self.verbose:
+                                    print(f"    {len(self.active_levels)} levels remain.")
+
+                            prev_level_best = ev.level_best_scores.get(
+                                cur_level, bl["composite"]
+                            )
+                            if comp > prev_level_best or comp >= reject_floor:
+                                all_tools_candidate = {
+                                    p: (fn if p == opt_phase else self.current_fns.get(p))
+                                    for p in self.tool_phases
+                                }
+                                all_tools_candidate = {
+                                    p: f for p, f in all_tools_candidate.items()
+                                    if f is not None
+                                }
+                                has_regression = _check_cross_level_regression(
+                                    ev, cur_level, all_tools_candidate, self.verbose
+                                )
+                                if has_regression:
+                                    if self.verbose:
+                                        print(
+                                            "  ✗ Rejected due to cross-level regression"
+                                        )
+                                    self.current_fns[opt_phase] = self.best_fns[
+                                        opt_phase
+                                    ]
+                                    iter_record["adopted"] = False
+                                    if newly_mastered and cur_level not in self.active_levels:
+                                        self.active_levels.append(cur_level)
+                                else:
+                                    if comp > prev_level_best:
+                                        if self.verbose:
+                                            print(
+                                                f"  ★ NEW BEST for {cur_level} "
+                                                f"(prev={prev_level_best:.4f}) — adopting"
+                                            )
+                                        ev.level_best_scores[cur_level] = comp
+                                        self.best_fns[opt_phase] = fn
+                                        iter_record["is_best"] = True
+                                    else:
+                                        if self.verbose:
+                                            print(
+                                                f"  → Accepted on {cur_level} "
+                                                f"(comp={comp:.4f} ≥ floor="
+                                                f"{reject_floor:.4f})"
+                                            )
+                                        self.best_fns[opt_phase] = fn
+                                    self.current_fns[opt_phase] = fn
+                                    iter_record["adopted"] = True
+                            else:
+                                if self.verbose:
+                                    print(
+                                        f"  ✗ Rejected on {cur_level} "
+                                        f"(comp={comp:.4f} < floor={reject_floor:.4f}) "
+                                        f"— reverting to best"
+                                    )
+                                self.current_fns[opt_phase] = self.best_fns[opt_phase]
+                    except Exception as exc:
+                        if self.verbose:
+                            print(f"  ✗ Eval crashed: {exc!r}")
+                            print(f"    Rejecting {opt_phase} candidate")
+                        iter_record["error"] = str(exc)
+                        # Revert hyperparams if we changed them
+                        if opt_phase == "hyperparams":
+                            ev.update_hyperparams(old_hp)
+                else:
                     if self.verbose:
-                        print(f"  ✗ Eval crashed: {exc!r}")
-                        print(f"    Rejecting {opt_phase} candidate")
-                    iter_record["error"] = str(exc)
-                    # Revert hyperparams if we changed them
-                    if opt_phase == "hyperparams":
-                        ev.update_hyperparams(old_hp)
-            else:
+                        print("  Eval:  SKIPPED (smoke test failed or error)")
+                        if result.get("error"):
+                            print(f"         {result['error'][:120]}")
+
+                total_time = t_play + t_opt + (iter_record["eval_time"] or 0)
                 if self.verbose:
-                    print("  Eval:  SKIPPED (smoke test failed or error)")
-                    if result.get("error"):
-                        print(f"         {result['error'][:120]}")
+                    print(f"  Phase {opt_phase} total: {total_time:.1f}s")
+                self.all_results.append(iter_record)
 
-            total_time = t_play + t_opt + (iter_record["eval_time"] or 0)
-            if self.verbose:
-                print(f"  Iteration total: {total_time:.1f}s")
-            self.all_results.append(iter_record)
-
-            # Pick next level via training logic
+            # Pick next level via training logic (after all phases for this level)
             if self.active_levels:
                 current_level = self.training.pick_next_level(
                     self.active_levels, self.levels, self.all_results
