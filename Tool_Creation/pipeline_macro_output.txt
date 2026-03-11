@@ -1,95 +1,130 @@
 Traceback (most recent call last):
+  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 567, in _query_async
+    response = await client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/openai/_base_client.py", line 1884, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/openai/_base_client.py", line 1604, in request
+    response = await self._client.send(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        pool_request.request
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
+    raise exc
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.READ_NUM_BYTES, timeout=timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/httpcore/_backends/anyio.py", line 35, in read
+    return await self._stream.receive(max_bytes=max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/anyio/streams/tls.py", line 244, in receive
+    data = await self._call_sslobject_method(self._ssl_object.read, max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/anyio/streams/tls.py", line 187, in _call_sslobject_method
+    data = await self.transport_stream.receive()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 1269, in receive
+    await self._protocol.read_event.wait()
+  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/locks.py", line 213, in wait
+    await fut
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
   File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/./scripts/test_llm_pipeline_macro.py", line 136, in <module>
     summary = runner.run()
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/orchestrator/runner.py", line 531, in run
-    play_result = eng.play_game()
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/mcts/mcts_engine.py", line 317, in play_game
-    root, action = self._search_internal(state)
-                   ~~~~~~~~~~~~~~~~~~~~~^^^^^^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/mcts/mcts_engine.py", line 279, in _search_internal
-    best_action = root.most_visited_child().parent_action
-                  ~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/mcts/node.py", line 62, in most_visited_child
-    return max(self.children.values(), key=lambda c: c.visits)
-ValueError: max() iterable argument is empty
-tion']
-  Computing baseline for level5…
-    level5: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (1.4s)
-  ⏳ level5 hit 100% on 3 runs — confirming with 7 more games…
-  🎓 level5 MASTERED — 10/10 solved (4.6s)
-  Reject floor for level5: 0.5000
-  Active levels: ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10']
-
-############################################################
-  ITERATION 1/10, LEVEL=level5, PHASE=backpropagation
-  Baseline composite=1.0000, reject_floor=0.5000
-  Active levels: 10/10, mastered: ['level5']
-############################################################
-  Play: SOLVED in 7 steps  returns=1.0000  (0.1s)
-Step 1/6: Building analysis prompt…
-Step 2/6: Querying LLM (step 2 — draft code)…
-Step 3/6: Querying LLM (step 3 — critique & finalize)…
-  LLM query: status=success  elapsed=33.37s
-  Step-1 analysis length: 5011 chars
-Step 5/6: Parsing & validating response…
-  Validation passed ✓
-  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/backpropagation/backpropagation.py
-Step 6/6: Smoke testing…
-  Smoke test failed: from __future__ imports must occur at the beginning of the file (backpropagation.py, line 18). Attempting repair (1/1)…
-  Optimize (backpropagation): 43.0s
-  Eval:  SKIPPED (smoke test failed or error)
-         Smoke test failed after repair attempts.
-  Iteration total: 43.1s
-  Computing baseline for level6…
-    level6: composite=0.0000, solve_rate=0%, avg_returns=0.0000 (0.1s)
-
-############################################################
-  ITERATION 2/10, LEVEL=level6, PHASE=selection
-  Baseline composite=0.0000, reject_floor=0.0000
-  Active levels: 10/10, mastered: ['level5']
-############################################################
-  Play: UNSOLVED in 12 steps  returns=0.0000  (0.1s)
-Step 1/6: Building analysis prompt…
-Step 2/6: Querying LLM (step 2 — draft code)…
-Step 3/6: Querying LLM (step 3 — critique & finalize)…
-  LLM query: status=success  elapsed=32.06s
-  Step-1 analysis length: 4336 chars
-Step 5/6: Parsing & validating response…
-  Optimize (selection): 32.1s
-  Eval:  SKIPPED (smoke test failed or error)
-         Validation failed: ["Function 'default_selection' param 0 is 'node', expected 'root'. Full expected: ['root', 'explorati
-  Iteration total: 32.2s
-  Computing baseline for level7…
-    level7: composite=0.0000, solve_rate=0%, avg_returns=0.0000 (2.1s)
-
-############################################################
-  ITERATION 3/10, LEVEL=level7, PHASE=expansion
-  Baseline composite=0.0000, reject_floor=0.0000
-  Active levels: 10/10, mastered: ['level5']
-############################################################
-  Play: UNSOLVED in 4 steps  returns=0.0000  (0.0s)
-Step 1/6: Building analysis prompt…
-Step 2/6: Querying LLM (step 2 — draft code)…
-Step 3/6: Querying LLM (step 3 — critique & finalize)…
-  LLM query: status=success  elapsed=51.17s
-  Step-1 analysis length: 5052 chars
-Step 5/6: Parsing & validating response…
-  Validation passed ✓
-  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/expansion/expansion.py
-Step 6/6: Smoke testing…
-  Smoke test failed: name '_ag' is not defined. Attempting repair (1/1)…
-  Smoke test passed ✓
-  Optimize (expansion): 71.9s
-  Eval (3 runs, level7): avg_returns=0.0000, solve_rate=0%, composite=0.0000, avg_steps=4  (0.1s)
-  → Accepted on level7 (comp=0.0000 ≥ floor=0.0000)
-  Iteration total: 72.0s
-  Computing baseline for level3…
-    level3: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (0.2s)
-  ⏳ level3 hit 100% on 3 runs — confirming with 7 more games…
-  🎓 level3 MASTERED — 10/10 solved (0.4s)
-
-############################################################
-  ITERATION 4/10, LEVEL=level3, PHASE=expansion
-  Baseline composite=1.0000, reject_floor=0.5000
-  Active levels: 10/10, mastered: ['level3', 'level5']
-############################################################
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/orchestrator/runner.py", line 558, in run
+    result = opt.run(
+        record_files=[play_trace] if play_trace else [],
+    ...<3 lines>...
+        session_tag=f"iter{iteration}_{cur_level}_{opt_phase}",
+    )
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/optimizer.py", line 159, in run
+    llm_result = self._query_three_step(
+        record_files, tool_source, tool_list, additional_context
+    )
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/optimizer.py", line 345, in _query_three_step
+    return self.querier.query_three_step(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        analysis_prompt=analysis_prompt,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        required_func_name=func_name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 462, in query_three_step
+    step1_result = self.query(analysis_prompt, step_name="step1_analysis")
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 346, in query
+    return self._run_async(self._query_async(prompt, required_func_name, step_name))
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/LLM/llm_querier.py", line 542, in _run_async
+    return asyncio.run(coro)
+           ~~~~~~~~~~~^^^^^^
+  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Users/hrzhang/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 132, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt

@@ -492,6 +492,13 @@ class OptimizationRunner:
                   f"C={hp.get('exploration_weight', 1.41):.3f}")
             print(f"Phases to optimize: {self.phases}")
         init_bl = ev.get_baseline(current_level)
+        self.active_levels = [
+            lv for lv in self.levels if lv not in ev.mastered_levels
+        ]
+        if current_level in ev.mastered_levels and self.active_levels:
+            current_level = self.training.pick_next_level(
+                self.active_levels, self.levels, []
+            )
         if self.verbose:
             print(f"  Reject floor for {current_level}: "
                   f"{init_bl['composite'] * self.reject_threshold:.4f}")
@@ -506,8 +513,40 @@ class OptimizationRunner:
 
             cur_level = current_level
             bl = ev.get_baseline(cur_level)
-            reject_floor = bl["composite"] * self.reject_threshold
+            self.active_levels = [
+                lv for lv in self.levels if lv not in ev.mastered_levels
+            ]
             opt_phase = self._pick_optimization_phase(iteration)
+
+            if cur_level in ev.mastered_levels:
+                if cur_level in self.active_levels:
+                    self.active_levels.remove(cur_level)
+                if self.verbose:
+                    print(f"\n{'#'*60}")
+                    print(f"  ITERATION {iteration}/{self.num_iters}, "
+                          f"LEVEL={cur_level}, PHASE={opt_phase}")
+                    print(f"  ⏭️ {cur_level} already mastered — skipping optimize")
+                    print(f"{'#'*60}")
+                self.all_results.append({
+                    "iteration": iteration,
+                    "level": cur_level,
+                    "opt_phase": opt_phase,
+                    "skipped": True,
+                    "reason": "level already mastered",
+                    "composite": bl["composite"],
+                    "avg_returns": bl["avg_returns"],
+                    "solve_rate": bl["solve_rate"],
+                    "avg_steps": bl["avg_steps"],
+                })
+                if self.active_levels:
+                    current_level = self.training.pick_next_level(
+                        self.active_levels, self.levels, self.all_results
+                    )
+                else:
+                    current_level = random.choice(self.levels)
+                continue
+
+            reject_floor = bl["composite"] * self.reject_threshold
 
             if self.verbose:
                 print(f"\n{'#'*60}")
