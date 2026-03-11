@@ -309,6 +309,7 @@ class MCTSEngine:
                 "iterations": self.iterations,
                 "max_rollout_depth": self.max_rollout_depth,
                 "exploration_weight": self.exploration_weight,
+                "action_mapping": self.game.action_mapping(),
                 "tools": {
                     phase: self._tool_paths.get(phase, "unknown")
                     for phase in self.PHASES
@@ -320,14 +321,7 @@ class MCTSEngine:
             
             # Record move trace if logging
             if self.logging and self._logger is not None:
-                children_stats = {}
-                for a, child in root.children.items():
-                    children_stats[str(a)] = {
-                        "visits": child.visits,
-                        "value": round(child.value, 4),
-                        "avg_value": round(child.value / child.visits, 4)
-                            if child.visits > 0 else 0.0,
-                    }
+                _action_map = self.game.action_mapping()
                 self._logger.record_move({
                     "move_number": len(moves) + 1,
                     "player": state.current_player(),
@@ -335,8 +329,8 @@ class MCTSEngine:
                     "state_key": state.state_key(),
                     "legal_actions": [str(a) for a in state.legal_actions()],
                     "action_chosen": str(action),
+                    "action": _action_map.get(str(action), str(action)),
                     "root_visits": root.visits,
-                    "children_stats": children_stats,
                 })
 
             state.apply_action(action)

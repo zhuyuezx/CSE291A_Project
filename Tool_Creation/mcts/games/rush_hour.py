@@ -477,3 +477,9 @@ class RushHour(Game):
 
     def name(self) -> str:
         return f"RushHour ({self._puzzle_name})"
+
+    def action_mapping(self) -> dict[str, str]:
+        # Rush Hour actions are self-descriptive tuples: (vehicle_id, steps)
+        # Positive steps = right/down, negative = left/up.
+        # No static enum possible; return a format description instead.
+        return {"_format": "(vehicle_id, steps)  [+steps=right/down, -steps=left/up]"}

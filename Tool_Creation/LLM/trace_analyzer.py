@@ -180,11 +180,20 @@ class TraceAnalyzer:
         outcome = trace.get("outcome", {})
         solved = outcome.get("solved", False)
         steps = outcome.get("steps", "?")
-        final_state = outcome.get("final_state", "")
+
+        action_mapping: dict[str, str] = meta.get("action_mapping", {})
+        mapping_section = ""
+        if action_mapping:
+            mapping_lines = "\n".join(
+                f"  {k}: {v}" for k, v in action_mapping.items()
+            )
+            mapping_section = (
+                f"{sep}\nACTION MAPPING\n{sep}\n{mapping_lines}\n\n"
+            )
 
         sections = [
             f"{sep}\nGAME RULES\n{sep}\n{game_rules}",
-            f"{sep}\nGAMEPLAY TRACE #{index}\n{sep}\n"
+            mapping_section + f"{sep}\nGAMEPLAY TRACE #{index}\n{sep}\n"
             + self._format_trace(trace),
             (
                 f"{sep}\n"
@@ -216,13 +225,22 @@ class TraceAnalyzer:
         outcome = trace.get("outcome", {})
         moves: list[dict[str, Any]] = trace.get("moves", [])
 
+        action_mapping: dict[str, str] = meta.get("action_mapping", {})
+
         lines: list[str] = [
             f"Game     : {meta.get('game', '?')}",
             f"Solved   : {outcome.get('solved', '?')}",
             f"Steps    : {outcome.get('steps', '?')}",
             f"Returns  : {outcome.get('returns', '?')}",
-            "",
         ]
+
+        if action_mapping:
+            mapping_str = ", ".join(
+                f"{k}={v}" for k, v in action_mapping.items()
+            )
+            lines.append(f"Actions  : {mapping_str}")
+
+        lines.append("")
 
         display_moves = moves
         if self.max_moves_per_trace and len(moves) > self.max_moves_per_trace:
@@ -245,44 +263,20 @@ class TraceAnalyzer:
     @staticmethod
     def _format_move(move: dict[str, Any]) -> str:
         move_num = move.get("move_number", "?")
-        action = move.get("action_chosen", "?")
+        action_id = move.get("action_chosen", "?")
+        action_name = move.get("action", action_id)
         visits = move.get("root_visits", "?")
         state = move.get("state_before", "")
-        children = move.get("children_stats", {})
 
-        parts = [f"  Move {move_num}: action={action}  root_visits={visits}"]
+        label = (
+            f"{action_name} (id={action_id})"
+            if action_name != action_id
+            else action_id
+        )
+        parts = [f"  Move {move_num}: action={label}  root_visits={visits}"]
 
         if state:
             for line in str(state).split("\n")[:6]:
                 parts.append(f"    {line}")
-
-        if children:
-            # children_stats is {action_key: {visits, value, avg_value}}
-            if isinstance(children, dict):
-                child_list = [
-                    {
-                        "action": k,
-                        "visits": v.get("visits", 0),
-                        "q": v.get("avg_value", v.get("value", 0.0)),
-                    }
-                    for k, v in children.items()
-                ]
-            else:
-                child_list = [
-                    {
-                        "action": c.get("action", "?"),
-                        "visits": c.get("visits", 0),
-                        "q": c.get("q_value", c.get("avg_value", 0.0)),
-                    }
-                    for c in children
-                ]
-            top = sorted(child_list, key=lambda c: c["visits"], reverse=True)[:5]
-            child_strs = [
-                f"a={c['action']} v={c['visits']} "
-                f"q={c['q']:.3f}" if isinstance(c["q"], (int, float))
-                else f"a={c['action']} v={c['visits']}"
-                for c in top
-            ]
-            parts.append(f"    top children: [{', '.join(child_strs)}]")
 
         return "\n".join(parts)

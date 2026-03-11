@@ -328,3 +328,6 @@ class Sokoban(Game):
 
     def name(self) -> str:
         return f"Sokoban ({self.level_name})"
+
+    def action_mapping(self) -> dict[str, str]:
+        return {str(k): v for k, v in ACTION_NAMES.items()}

@@ -157,3 +157,6 @@ class ConnectFour(Game):
 
     def name(self) -> str:
         return "Connect Four"
+
+    def action_mapping(self) -> dict[str, str]:
+        return {str(c): f"drop-col{c}" for c in range(7)}

@@ -104,3 +104,6 @@ class TicTacToe(Game):
 
     def name(self) -> str:
         return "TicTacToe"
+
+    def action_mapping(self) -> dict[str, str]:
+        return {str(i): f"cell({i // 3},{i % 3})" for i in range(9)}

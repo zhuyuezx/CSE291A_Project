@@ -82,3 +82,13 @@ class Game(ABC):
     def name(self) -> str:
         """Human-readable game name."""
         ...
+
+    def action_mapping(self) -> dict[str, str]:
+        """
+        Return a dict mapping str(action) → human-readable label.
+
+        Override in concrete Game subclasses to provide meaningful action names.
+        The default implementation returns an empty dict, meaning the raw
+        str(action) will be used as the label in trace records.
+        """
+        return {}

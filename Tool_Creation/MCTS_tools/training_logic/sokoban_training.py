@@ -21,8 +21,8 @@ import random
 
 
 # ── Level configuration ──────────────────────────────────────────────
-LEVELS = ["level4", "level5", "level6", "level7", "level8"]
-START_LEVEL = "level4"
+LEVELS = ["level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10"]
+START_LEVEL = "level6"
 
 # ── Evaluation parameters ────────────────────────────────────────────
 EVAL_RUNS = 3
