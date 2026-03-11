@@ -56,6 +56,7 @@ def _parse_state(state_str: str) -> Dict[str, Any]:
     room = _to_int(parts.get("room", 0))
     goal = _to_int(parts.get("goal", -1), default=-1)
     done = bool(_to_int(parts.get("done", 0)))
+    coin = _to_int(parts.get("coin", -1), default=-1)  # TextWorld Coin: 0/1
 
     inv_raw = str(parts.get("inv", "") or "")
     inventory = [s for s in inv_raw.split(",") if s] if inv_raw else []
@@ -65,6 +66,7 @@ def _parse_state(state_str: str) -> Dict[str, Any]:
         "room": room,
         "goal": goal,
         "done": done,
+        "coin": coin,
         "inventory": inventory,
         "doors_raw": str(parts.get("doors", "") or ""),
     }
@@ -72,6 +74,10 @@ def _parse_state(state_str: str) -> Dict[str, Any]:
 
 def _infer_num_locations_from_state(state: Dict[str, Any]) -> int:
     doors_raw = state.get("doors_raw", "") or ""
+    # TextWorld Coin: doors is a string of 0/1 like "0000" (length = num_locations - 1)
+    if doors_raw and "," not in doors_raw and all(c in "01" for c in doors_raw):
+        return len(doors_raw) + 1
+    # TextWorldBenchmark: doors like "0:east=0,1:east=0,..."
     idxs: List[int] = []
     for token in doors_raw.split(","):
         token = token.strip()
@@ -90,18 +96,26 @@ def _infer_num_locations_from_state(state: Dict[str, Any]) -> int:
     return 1
 
 
+def _build_linear_corridor_graph(num_locations: int) -> Dict[int, List[int]]:
+    """
+    Build a 1-D corridor: room i is connected to i-1 and i+1 (when they exist).
+    This matches TextWorld Coin's actual topology (initially connected neighbors).
+    """
+    g: Dict[int, List[int]] = {}
+    for i in range(num_locations):
+        neighbors = []
+        if i > 0:
+            neighbors.append(i - 1)
+        if i < num_locations - 1:
+            neighbors.append(i + 1)
+        g[i] = neighbors
+    return g
+
+
 def _build_branching_world_graph(num_locations: int) -> Dict[int, List[int]]:
     """
-    Build the same branching corridor shape used by the live coin visualizer.
-
-    First 6 rooms match `mock_runner`:
-        0: 1,4
-        1: 0,2
-        2: 1,3
-        3: 2
-        4: 0,5
-        5: 4
-    Additional rooms (if any) are attached as a tail from room 5.
+    Build a branching corridor shape (for games that use this topology).
+    Not used for TextWorld Coin, which uses a linear corridor.
     """
     base = {
         0: [1, 4],
@@ -124,16 +138,36 @@ def _build_branching_world_graph(num_locations: int) -> Dict[int, List[int]]:
     return g
 
 
+def _state_str_for_move(move: Dict[str, Any]) -> str:
+    """Prefer parseable state_key (TextWorld Coin) over state_before (human text or Benchmark key=value)."""
+    sk = (move.get("state_key") or "")
+    if sk and "room=" in sk:
+        return sk
+    return move.get("state_before") or ""
+
+
 def _record_to_trajectory(record: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     moves = record.get("moves", []) or []
     if not moves:
         raise ValueError("Record has no moves.")
 
-    first_state = _parse_state(moves[0].get("state_before", ""))
+    outcome = record.get("outcome", {}) or {}
+    first_state_str = _state_str_for_move(moves[0])
+    first_state = _parse_state(first_state_str)
     num_locations = _infer_num_locations_from_state(first_state)
+    goal_room = first_state.get("goal")
+    if goal_room is None or goal_room < 0:
+        goal_room = num_locations - 1
+
+    # Use initially-connected graph: TextWorld Coin is a 1-D corridor (i ↔ i±1); others may use branching
+    game_name = (record.get("metadata") or {}).get("game", "") or ""
+    if "TextWorldCoin" in game_name:
+        world_graph = _build_linear_corridor_graph(num_locations)
+    else:
+        world_graph = _build_branching_world_graph(num_locations)
 
     game_state = {
-        "world_graph": _build_branching_world_graph(num_locations),
+        "world_graph": world_graph,
         "room_descriptions": {i: f"Room {i}" for i in range(num_locations)},
     }
 
@@ -143,11 +177,11 @@ def _record_to_trajectory(record: Dict[str, Any]) -> Tuple[List[Dict[str, Any]],
         {
             "observation": {
                 "room": first_state["room"],
-                "description": f"Room {first_state['room']} (goal {first_state.get('goal', '?')})",
+                "description": f"Room {first_state['room']} (goal {goal_room})",
                 "inventory": first_state["inventory"],
                 "quest_progress": {
-                    "goal_room": first_state.get("goal", None),
-                    "coin_taken": "coin" in set(first_state["inventory"]),
+                    "goal_room": goal_room,
+                    "coin_taken": (first_state.get("coin") == 1) or ("coin" in set(first_state["inventory"])),
                 },
             },
             "action": None,
@@ -161,23 +195,26 @@ def _record_to_trajectory(record: Dict[str, Any]) -> Tuple[List[Dict[str, Any]],
         action = mv.get("action_chosen")
         legal_actions = mv.get("legal_actions", [])
 
+        # State after this move: from next move's state, or final_state for last move
         if i + 1 < len(moves):
-            next_state_str = moves[i + 1].get("state_before")
+            next_state_str = _state_str_for_move(moves[i + 1])
         else:
-            next_state_str = record.get("outcome", {}).get("final_state") or mv.get("state_before")
+            next_state_str = outcome.get("final_state") or _state_str_for_move(mv)
+        st = _parse_state(next_state_str)
 
-        st = _parse_state(next_state_str or "")
-        done = bool(record.get("outcome", {}).get("solved", False)) and (i == len(moves) - 1)
+        done = bool(outcome.get("solved", False)) and (i == len(moves) - 1)
+        coin_taken = (st.get("coin") == 1) or ("coin" in set(st["inventory"]))
+        obs_goal = st.get("goal") if isinstance(st.get("goal"), int) and st.get("goal") >= 0 else goal_room
 
         trajectory.append(
             {
                 "observation": {
                     "room": st["room"],
-                    "description": f"Room {st['room']} (goal {st.get('goal', '?')})",
+                    "description": f"Room {st['room']} (goal {obs_goal})",
                     "inventory": st["inventory"],
                     "quest_progress": {
-                        "goal_room": st.get("goal", None),
-                        "coin_taken": "coin" in set(st["inventory"]),
+                        "goal_room": obs_goal,
+                        "coin_taken": coin_taken,
                     },
                 },
                 "action": action,
