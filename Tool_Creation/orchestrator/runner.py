@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from mcts import MCTSEngine, Game
-from LLM import Optimizer
+from LLM import Optimizer, TraceAnalyzer
 from LLM.tool_registry import ToolRegistry
 from LLM.tool_aggregator import ToolAggregator
 from LLM.tool_cluster import cluster_tools
@@ -243,6 +243,7 @@ class OptimizationRunner:
         history_window: int = 3,
         logging: bool = True,
         verbose: bool = True,
+        use_trace_analyzer: bool = True,
         enable_registry: bool = False,
         enable_aggregator: bool = False,
         enable_cluster_merge: bool = False,
@@ -259,6 +260,13 @@ class OptimizationRunner:
         self.history_window = history_window
         self.logging = logging
         self.verbose = verbose
+        self.use_trace_analyzer = use_trace_analyzer
+
+        # Trace analyzer — generates LLM commentary on each game trace and
+        # injects it as additional_context into the optimisation step.
+        self._trace_analyzer: TraceAnalyzer | None = (
+            TraceAnalyzer(game=game_name) if use_trace_analyzer else None
+        )
 
         # Tool-evolution features (all optional)
         self.enable_registry = enable_registry
@@ -371,11 +379,113 @@ class OptimizationRunner:
             history_window=getattr(hp_mod, "HISTORY_WINDOW", 3),
             logging=getattr(hp_mod, "LOGGING", True),
             verbose=verbose,
+            use_trace_analyzer=getattr(hp_mod, "USE_TRACE_ANALYZER", True),
             enable_registry=getattr(hp_mod, "ENABLE_TOOL_REGISTRY", False),
             enable_aggregator=getattr(hp_mod, "ENABLE_AGGREGATOR", False),
             enable_cluster_merge=getattr(hp_mod, "ENABLE_CLUSTER_MERGE", False),
             cluster_merge_interval=getattr(hp_mod, "CLUSTER_MERGE_INTERVAL", 5),
             registry_history_len=getattr(hp_mod, "REGISTRY_HISTORY_LEN", 10),
+        )
+
+    @classmethod
+    def from_dict(
+        cls,
+        config: dict[str, Any],
+        verbose: bool = True,
+    ) -> "OptimizationRunner":
+        """Create an OptimizationRunner from an inline config dict.
+
+        Lets notebooks define game config inline without touching
+        ``default_hyperparams.py``.
+
+        Required keys
+        -------------
+        game_name : str
+        game_class : str
+        training_logic : str
+
+        Optional keys (with defaults)
+        ------------------------------
+        game_module : str  (``"mcts.games"``)
+        constructor_kwargs : dict  (``{}``)
+        phases : list[str]  (``["simulation"]``)
+        num_iters : int  (``5``)
+        three_step : bool  (``True``)
+        history_window : int  (``3``)
+        logging : bool  (``True``)
+        use_trace_analyzer : bool  (``True``)
+        hyperparams : dict  (``{"iterations": 200, ...}``)
+        """
+        game_name = config["game_name"]
+        game_module = importlib.import_module(
+            config.get("game_module", "mcts.games")
+        )
+        game_class = getattr(game_module, config["game_class"])
+        ctor_kwargs = config.get("constructor_kwargs", {})
+
+        training = _load_training_logic(config["training_logic"])
+
+        hp = config.get("hyperparams", {
+            "iterations": 200,
+            "max_rollout_depth": 500,
+            "exploration_weight": 1.41,
+        })
+        hyperparams_fn = lambda: dict(hp)
+
+        phases = config.get("phases", ["simulation"])
+        primary_phase = next(
+            (p for p in phases if p != "hyperparams"), "simulation"
+        )
+
+        # Fix _make_game_factory: skip VAR_POSITIONAL / VAR_KEYWORD so
+        # games with no explicit __init__ args (e.g. Quoridor) aren't
+        # accidentally passed a level.
+        sig = inspect.signature(game_class.__init__)
+        _skip = (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+        real_params = [
+            p for p in sig.parameters.values()
+            if p.name != "self" and p.kind not in _skip
+        ]
+        if real_params:
+            def _gf(level: Any, _cls=game_class, _kw=ctor_kwargs) -> Game:
+                return _cls(level, **_kw)
+        else:
+            def _gf(level: Any, _cls=game_class, _kw=ctor_kwargs) -> Game:
+                return _cls(**_kw)
+        game_factory = _gf
+
+        evaluator = Evaluator(
+            game_factory=game_factory,
+            phase=primary_phase,
+            iterations=hp["iterations"],
+            max_rollout_depth=hp["max_rollout_depth"],
+            exploration_weight=hp.get("exploration_weight", 1.41),
+            eval_runs=training.EVAL_RUNS,
+            solve_weight=training.SOLVE_WEIGHT,
+            return_weight=training.RETURN_WEIGHT,
+            mastery_solve_rate=training.MASTERY_SOLVE_RATE,
+            mastery_confirm_runs=training.MASTERY_CONFIRM_RUNS,
+            mastery_max_steps=getattr(training, "MASTERY_MAX_STEPS", None),
+        )
+
+        return cls(
+            game_name=game_name,
+            game_factory=game_factory,
+            training=training,
+            phases=phases,
+            evaluator=evaluator,
+            hyperparams_fn=hyperparams_fn,
+            num_iters=config.get("num_iters", 5),
+            three_step=config.get("three_step", True),
+            history_window=config.get("history_window", 3),
+            logging=config.get("logging", True),
+            verbose=verbose,
+            use_trace_analyzer=config.get("use_trace_analyzer", True),
+            enable_registry=config.get("enable_registry", False),
+            enable_aggregator=config.get("enable_aggregator", False),
+            enable_cluster_merge=config.get("enable_cluster_merge", False),
+            cluster_merge_interval=config.get("cluster_merge_interval", 5),
+            registry_history_len=config.get("registry_history_len", 10),
         )
 
     # ------------------------------------------------------------------
@@ -674,7 +784,23 @@ class OptimizationRunner:
                 if self.all_results else None
             )
 
-            # --- 2b. Aggregator summary (optional) ---
+            # --- 2b. Trace analysis (optional) ---
+            if self._trace_analyzer is not None and play_trace:
+                if self.verbose:
+                    print("  TraceAnalyzer: analyzing play trace…")
+                try:
+                    trace_analysis = self._trace_analyzer.analyze_single(play_trace)
+                    if self.verbose:
+                        print(f"  TraceAnalyzer: {trace_analysis}")
+                    history = (
+                        (history + "\n\n" + trace_analysis)
+                        if history else trace_analysis
+                    )
+                except Exception as _ta_err:
+                    if self.verbose:
+                        print(f"  TraceAnalyzer: skipped ({_ta_err!r})")
+
+            # --- 2c. Aggregator summary (optional) ---
             if self.aggregator is not None:
                 try:
                     agg_summary = self.aggregator.summarize(
