@@ -47,7 +47,11 @@ class MCTSNode:
 
     @property
     def is_terminal(self) -> bool:
-        return self.state.is_terminal()
+        # A node is terminal if the game says so OR if there are no
+        # legal actions (e.g. macro-push deadlock with no pushable moves).
+        return self.state.is_terminal() or (
+            self.is_fully_expanded and len(self.children) == 0
+        )
 
     @property
     def untried_actions(self) -> list[Any]:

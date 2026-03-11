@@ -20,7 +20,9 @@ Returned dict keys:
 GAME_NAME = "sokoban"
 GAME_CLASS = "Sokoban"
 GAME_MODULE = "mcts.games"
-CONSTRUCTOR_KWARGS = {}
+# Sokoban: max_steps = game step limit (unsolved games stop here). Must be >=
+# longest solution you want to allow; otherwise eval reports 200 for all unsolved.
+CONSTRUCTOR_KWARGS = {"max_steps": 1000}
 TRAINING_LOGIC = "sokoban_training"
 
 # ── Optimization configuration ───────────────────────────────────────
@@ -30,7 +32,7 @@ TRAINING_LOGIC = "sokoban_training"
 NUM_ITERS = 5
 THREE_STEP = True
 HISTORY_WINDOW = 3
-PHASES = ["simulation", "expansion"]  # tool-creation phases only
+PHASES = ["selection", "expansion", "simulation", "backpropagation"] # tool-creation phases only
 LOGGING = True
 
 
@@ -53,7 +55,7 @@ def get_hyperparams():
         Default sqrt(2) ≈ 1.41.  Lower → more exploitation, higher → more exploration.
     """
     return {
-        "iterations": 200,
-        "max_rollout_depth": 500,
+        "iterations": 500,
+        "max_rollout_depth": 1000,
         "exploration_weight": 1.41,
     }

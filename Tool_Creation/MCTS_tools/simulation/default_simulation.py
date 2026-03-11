@@ -23,7 +23,10 @@ def default_simulation(state, perspective_player: int, max_depth: int = 1000) ->
     sim_state = state.clone()
     depth = 0
     while not sim_state.is_terminal() and depth < max_depth:
-        action = random.choice(sim_state.legal_actions())
+        actions = sim_state.legal_actions()
+        if not actions:
+            break
+        action = random.choice(actions)
         sim_state.apply_action(action)
         depth += 1
     return sim_state.returns()[perspective_player]

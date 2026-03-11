@@ -1,0 +1,27 @@
+Output also saved to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/pipeline_output.txt
+Working dir: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation
+Tool_Creation root: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation
+All imports OK ✓
+Baseline (level5): SOLVED in 151 steps  returns=[1.0]
+Hyperparams: iterations=500, max_depth=1000, C=1.41
+Optimize phases: ['selection', 'expansion', 'simulation', 'backpropagation']
+Trace: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/mcts/records/Sokoban (level5)_20260310_234736_237872.json
+  Resuming selection from previously installed tool.
+  Resuming expansion from previously installed tool.
+  Resuming simulation from previously installed tool.
+  Resuming backpropagation from previously installed tool.
+Starting level: level5
+Hyperparams: iterations=500, max_depth=1000, C=1.410
+Phases to optimize: ['selection', 'expansion', 'simulation', 'backpropagation']
+  Computing baseline for level5…
+    level5: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (11.1s)
+  ⏳ level5 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level5 MASTERED — 10/10 solved (33.4s)
+  Reject floor for level5: 0.5000
+  Active levels: ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10']
+
+############################################################
+  ITERATION 1/5, LEVEL=level5, PHASE=backpropagation
+  Baseline composite=1.0000, reject_floor=0.5000
+  Active levels: 10/10, mastered: ['level5']
+############################################################

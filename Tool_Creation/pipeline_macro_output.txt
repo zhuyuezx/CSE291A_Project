@@ -1,0 +1,74 @@
+Output also saved to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/pipeline_macro_output.txt
+Working dir: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation
+Tool_Creation root: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation
+Hyperparams file: sokoban_macro_hyperparams.py
+All imports OK ✓
+Baseline (level5): SOLVED in 7 steps  returns=[1.0]
+Hyperparams: iterations=500, max_depth=1000, C=1.41
+Optimize phases: ['selection', 'expansion', 'simulation', 'backpropagation']
+Trace: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/mcts/records/Sokoban_Macro (level5)_20260311_000628_132649.json
+  Resuming selection from previously installed tool.
+  Resuming expansion from previously installed tool.
+  Resuming simulation from previously installed tool.
+  Resuming backpropagation from previously installed tool.
+Starting level: level5
+Hyperparams: iterations=500, max_depth=1000, C=1.410
+Phases to optimize: ['selection', 'expansion', 'simulation', 'backpropagation']
+  Computing baseline for level5…
+    level5: composite=1.0000, solve_rate=100%, avg_returns=1.0000 (1.4s)
+  ⏳ level5 hit 100% on 3 runs — confirming with 7 more games…
+  🎓 level5 MASTERED — 10/10 solved (4.6s)
+  Reject floor for level5: 0.5000
+  Active levels: ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10']
+
+############################################################
+  ITERATION 1/10, LEVEL=level5, PHASE=backpropagation
+  Baseline composite=1.0000, reject_floor=0.5000
+  Active levels: 10/10, mastered: ['level5']
+############################################################
+  Play: SOLVED in 7 steps  returns=1.0000  (0.1s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=33.37s
+  Step-1 analysis length: 5011 chars
+Step 5/6: Parsing & validating response…
+  Validation passed ✓
+  Installed to: /Users/hrzhang/Desktop/WI26/CSE291A/Project/code/CSE291A_Project/Tool_Creation/MCTS_tools/backpropagation/backpropagation.py
+Step 6/6: Smoke testing…
+  Smoke test failed: from __future__ imports must occur at the beginning of the file (backpropagation.py, line 18). Attempting repair (1/1)…
+  Optimize (backpropagation): 43.0s
+  Eval:  SKIPPED (smoke test failed or error)
+         Smoke test failed after repair attempts.
+  Iteration total: 43.1s
+  Computing baseline for level6…
+    level6: composite=0.0000, solve_rate=0%, avg_returns=0.0000 (0.1s)
+
+############################################################
+  ITERATION 2/10, LEVEL=level6, PHASE=selection
+  Baseline composite=0.0000, reject_floor=0.0000
+  Active levels: 10/10, mastered: ['level5']
+############################################################
+  Play: UNSOLVED in 12 steps  returns=0.0000  (0.1s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…
+  LLM query: status=success  elapsed=32.06s
+  Step-1 analysis length: 4336 chars
+Step 5/6: Parsing & validating response…
+  Optimize (selection): 32.1s
+  Eval:  SKIPPED (smoke test failed or error)
+         Validation failed: ["Function 'default_selection' param 0 is 'node', expected 'root'. Full expected: ['root', 'explorati
+  Iteration total: 32.2s
+  Computing baseline for level7…
+    level7: composite=0.0000, solve_rate=0%, avg_returns=0.0000 (2.1s)
+
+############################################################
+  ITERATION 3/10, LEVEL=level7, PHASE=expansion
+  Baseline composite=0.0000, reject_floor=0.0000
+  Active levels: 10/10, mastered: ['level5']
+############################################################
+  Play: UNSOLVED in 4 steps  returns=0.0000  (0.0s)
+Step 1/6: Building analysis prompt…
+Step 2/6: Querying LLM (step 2 — draft code)…
+Step 3/6: Querying LLM (step 3 — critique & finalize)…

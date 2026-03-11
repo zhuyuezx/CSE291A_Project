@@ -312,6 +312,8 @@ class MCTSEngine:
             })
 
         while not state.is_terminal():
+            if not state.legal_actions():
+                break
             root, action = self._search_internal(state)
             
             # Record move trace if logging
