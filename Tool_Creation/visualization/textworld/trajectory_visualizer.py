@@ -74,6 +74,42 @@ class TrajectoryVisualizer:
                     return room
         return None
 
+    def _path_layout(
+        self,
+        G: nx.Graph,
+        all_nodes: Set[Any],
+        all_edges: Set[Tuple[Any, Any]],
+    ) -> Optional[Dict[Any, Tuple[float, float]]]:
+        """
+        If the graph is a simple path (linear chain), return positions in a line with even spacing
+        so nodes like 0 and 4 do not overlap. Otherwise return None.
+        """
+        if not all_nodes or len(all_edges) != len(all_nodes) - 1:
+            return None
+        degrees = dict(G.degree())
+        if not all(d <= 2 for d in degrees.values()):
+            return None
+        if not nx.is_connected(G):
+            return None
+        # Order nodes along the path: start from a degree-1 node and walk the chain.
+        start = min((n for n in all_nodes if degrees.get(n, 0) == 1), default=min(all_nodes))
+        order: List[Any] = []
+        seen: Set[Any] = set()
+        u = start
+        while u is not None:
+            order.append(u)
+            seen.add(u)
+            next_u = None
+            for v in G.neighbors(u):
+                if v not in seen:
+                    next_u = v
+                    break
+            u = next_u
+        if len(order) != len(all_nodes):
+            return None
+        spacing = 1.0
+        return {node: (i * spacing, 0.0) for i, node in enumerate(order)}
+
     def _extract_adjacency(self) -> Tuple[Dict[Any, Any], Dict[Any, Tuple[float, float]]]:
         """
         Extract adjacency + optional coordinates from game_state.
@@ -143,14 +179,18 @@ class TrajectoryVisualizer:
         if coords:
             positions.update(coords)
         else:
-            # Use a force-directed layout so branching structures look natural.
             G = nx.Graph()
             G.add_nodes_from(all_nodes)
             G.add_edges_from(all_edges)
-            # k controls spacing; tweak for readability on typical TextWorld graphs.
-            layout = nx.spring_layout(G, k=1.2, iterations=50, seed=42)
-            for node, (x, y) in layout.items():
-                positions[node] = (float(x), float(y))
+            # Use linear layout for path graphs (e.g. TextWorld Coin corridor) so nodes stay well spaced.
+            linear_pos = self._path_layout(G, all_nodes, all_edges)
+            if linear_pos:
+                positions = linear_pos
+            else:
+                # Force-directed layout for branching structures.
+                layout = nx.spring_layout(G, k=1.2, iterations=50, seed=42)
+                for node, (x, y) in layout.items():
+                    positions[node] = (float(x), float(y))
 
         path_edges: List[Tuple[Any, Any]] = []
         for i in range(step_idx):
@@ -295,7 +335,9 @@ class TrajectoryVisualizer:
         else:
             lines.append(str(quest_progress))
 
-        lines += ["", f"REWARD: {reward:+.3f}"]
+        # Only show reward when it is recorded (non-zero); records often have no reward data.
+        if reward != 0.0:
+            lines += ["", f"REWARD: {reward:+.3f}"]
 
         ax.text(
             0.05,

@@ -6,6 +6,10 @@ You can generate **baseline vs optimized** comparison GIFs **from existing trace
 
 ### TextWorld Coin (from `textworld/mcts/records/`)
 
+Example output:
+
+![TextWorld Coin baseline vs optimized](show/textworld_coin_baseline_vs_opt.gif)
+
 From the **project root**:
 
 ```bash
@@ -33,6 +37,10 @@ python Tool_Creation/visualization/textworld/records_compare.py \
 ```
 
 ### Sokoban (from `Tool_Creation/mcts/records/`)
+
+Example output:
+
+![Sokoban trajectory compare level4](show/sokoban_trajectory_compare_level4.gif)
 
 From the **project root**:
 
