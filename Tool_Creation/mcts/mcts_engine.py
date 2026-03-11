@@ -276,7 +276,12 @@ class MCTSEngine:
             # 4. Backpropagation -- update stats from leaf to root
             backprop_fn(node, reward)
 
-        best_action = root.most_visited_child().parent_action
+        if not root.children:
+            # Fallback: expansion never added children (e.g. tool pruned all).
+            actions = root_state.legal_actions()
+            best_action = actions[0] if actions else None
+        else:
+            best_action = root.most_visited_child().parent_action
         return root, best_action
 
     # ------------------------------------------------------------------
