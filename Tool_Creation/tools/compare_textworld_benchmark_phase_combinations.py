@@ -41,15 +41,15 @@ TRAIN_GAMES = {
 }
 TEST_GAMES = {
     "coin": [
-        "numLocations=5,includeDoors=1,numDistractorItems=0",
-        "numLocations=7,includeDoors=1,numDistractorItems=0",
+        # "numLocations=5,includeDoors=1,numDistractorItems=0",
+        # "numLocations=7,includeDoors=1,numDistractorItems=0",
         "numLocations=9,includeDoors=1,numDistractorItems=0",
         "numLocations=11,includeDoors=1,numDistractorItems=0",
         "numLocations=13,includeDoors=1,numDistractorItems=0",
     ],
     "mapreader": [
-        "numLocations=5,maxDistanceApart=3,includeDoors=0,maxDistractorItemsPerLocation=0",
-        "numLocations=7,maxDistanceApart=4,includeDoors=0,maxDistractorItemsPerLocation=0",
+        # "numLocations=5,maxDistanceApart=3,includeDoors=0,maxDistractorItemsPerLocation=0",
+        # "numLocations=7,maxDistanceApart=4,includeDoors=0,maxDistractorItemsPerLocation=0",
         "numLocations=9,maxDistanceApart=5,includeDoors=0,maxDistractorItemsPerLocation=0",
         "numLocations=11,maxDistanceApart=6,includeDoors=0,maxDistractorItemsPerLocation=0",
         "numLocations=13,maxDistanceApart=7,includeDoors=0,maxDistractorItemsPerLocation=0",
