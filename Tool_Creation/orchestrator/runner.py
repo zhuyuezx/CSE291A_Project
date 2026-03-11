@@ -791,7 +791,7 @@ class OptimizationRunner:
                 try:
                     trace_analysis = self._trace_analyzer.analyze_single(play_trace)
                     if self.verbose:
-                        print(f"  TraceAnalyzer: {trace_analysis}")
+                        print(f"  TraceAnalyzer: {len(trace_analysis)} chars")
                     history = (
                         (history + "\n\n" + trace_analysis)
                         if history else trace_analysis
