@@ -41,15 +41,15 @@ TRAIN_GAMES = {
 }
 TEST_GAMES = {
     "coin": [
-        # "numLocations=5,includeDoors=1,numDistractorItems=0",
-        # "numLocations=7,includeDoors=1,numDistractorItems=0",
+        "numLocations=5,includeDoors=1,numDistractorItems=0",
+        "numLocations=7,includeDoors=1,numDistractorItems=0",
         "numLocations=9,includeDoors=1,numDistractorItems=0",
         "numLocations=11,includeDoors=1,numDistractorItems=0",
         "numLocations=13,includeDoors=1,numDistractorItems=0",
     ],
     "mapreader": [
-        # "numLocations=5,maxDistanceApart=3,includeDoors=0,maxDistractorItemsPerLocation=0",
-        # "numLocations=7,maxDistanceApart=4,includeDoors=0,maxDistractorItemsPerLocation=0",
+        "numLocations=5,maxDistanceApart=3,includeDoors=0,maxDistractorItemsPerLocation=0",
+        "numLocations=7,maxDistanceApart=4,includeDoors=0,maxDistractorItemsPerLocation=0",
         "numLocations=9,maxDistanceApart=5,includeDoors=0,maxDistractorItemsPerLocation=0",
         "numLocations=11,maxDistanceApart=6,includeDoors=0,maxDistractorItemsPerLocation=0",
         "numLocations=13,maxDistanceApart=7,includeDoors=0,maxDistractorItemsPerLocation=0",
@@ -120,6 +120,8 @@ def run_case(
     max_depth: int,
     max_steps: int,
     runs: int,
+    logging: bool = False,
+    records_dir: Path | None = None,
 ) -> tuple[int, float, float, int]:
     correct = 0
     total_ret = 0.0
@@ -133,7 +135,13 @@ def run_case(
             variant=case["variant"],
             max_steps=max_steps,
         )
-        engine = MCTSEngine(game, iterations=iterations, max_rollout_depth=max_depth, logging=False)
+        engine = MCTSEngine(
+            game,
+            iterations=iterations,
+            max_rollout_depth=max_depth,
+            logging=logging,
+            records_dir=records_dir,
+        )
         for phase, fn in phase_fns.items():
             engine.set_tool(phase, fn)
         result = engine.play_game(verbose=False)
@@ -153,6 +161,8 @@ def evaluate_suite(
     max_depth: int,
     max_steps: int,
     runs: int,
+    logging: bool = False,
+    records_dir: Path | None = None,
 ) -> tuple[int, float, float | None]:
     total_correct = 0
     ret_sum = 0.0
@@ -160,7 +170,7 @@ def evaluate_suite(
     total_correct_count = 0
     for case in cases:
         correct, avg_ret, correct_steps_sum, correct_count = run_case(
-            case, phase_fns, iterations, max_depth, max_steps, runs
+            case, phase_fns, iterations, max_depth, max_steps, runs, logging=logging, records_dir=records_dir
         )
         total_correct += correct
         ret_sum += avg_ret
@@ -185,6 +195,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-depth", type=int, default=50)
     parser.add_argument("--max-steps", type=int, default=50)
     parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--logging", action="store_true", help="Enable per-game JSON trace logging.")
+    parser.add_argument(
+        "--records-root",
+        default=None,
+        help="Root folder for trace JSONs when --logging is enabled.",
+    )
     parser.add_argument("--selection-path", default=None)
     parser.add_argument("--expansion-path", default=None)
     parser.add_argument("--simulation-path", default=None)
@@ -221,6 +237,19 @@ def resolve_tool_paths(args: argparse.Namespace, requested_phases: list[str]) ->
     return paths
 
 
+def resolve_records_dir(
+    args: argparse.Namespace,
+    configuration: str,
+    split: str,
+) -> Path | None:
+    if not args.logging:
+        return None
+    root = Path(args.records_root) if args.records_root else (_ROOT / "mcts" / "records" / "benchmark_phase_combos")
+    out = root / configuration / split
+    out.mkdir(parents=True, exist_ok=True)
+    return out
+
+
 def main() -> None:
     args = parse_args()
     requested_phases = resolve_requested_phases(args.phases)
@@ -233,6 +262,9 @@ def main() -> None:
     print("Loaded heuristics:")
     for phase in requested_phases:
         print(f"  {phase}: {tool_paths[phase]}")
+    if args.logging:
+        root = Path(args.records_root) if args.records_root else (_ROOT / "mcts" / "records" / "benchmark_phase_combos")
+        print(f"Trace logging enabled. Root: {root}")
     print()
 
     train_cases = build_case_list(TRAIN_GAMES, TRAIN_SEEDS)
@@ -241,16 +273,30 @@ def main() -> None:
     test_slots = len(test_cases) * args.runs
 
     baseline_train_total, baseline_train_ret, baseline_train_steps = evaluate_suite(
-        train_cases, {}, args.iterations, args.max_depth, args.max_steps, args.runs
+        train_cases,
+        {},
+        args.iterations,
+        args.max_depth,
+        args.max_steps,
+        args.runs,
+        logging=args.logging,
+        records_dir=resolve_records_dir(args, "baseline", "train"),
     )
     baseline_test_total, baseline_test_ret, baseline_test_steps = evaluate_suite(
-        test_cases, {}, args.iterations, args.max_depth, args.max_steps, args.runs
+        test_cases,
+        {},
+        args.iterations,
+        args.max_depth,
+        args.max_steps,
+        args.runs,
+        logging=args.logging,
+        records_dir=resolve_records_dir(args, "baseline", "test"),
     )
 
     print(
         f"{'Configuration':<30} "
-        f"{'Train Correct':>16} {'Train 螖':>9} {'Train Ret':>11} {'Train Steps':>12} "
-        f"{'Test Correct':>16} {'Test 螖':>9} {'Test Ret':>10} {'Test Steps':>11}"
+        f"{'Train Correct':>16} {'Train Delta':>11} {'Train Ret':>11} {'Train Steps':>12} "
+        f"{'Test Correct':>16} {'Test Delta':>10} {'Test Ret':>10} {'Test Steps':>11}"
     )
     print("-" * 136)
     print(
@@ -263,14 +309,29 @@ def main() -> None:
         if not combo:
             continue
         phase_fns = {phase: loaded_fns[phase] for phase in combo}
+        name = combo_name(combo)
         train_total, train_ret, train_steps = evaluate_suite(
-            train_cases, phase_fns, args.iterations, args.max_depth, args.max_steps, args.runs
+            train_cases,
+            phase_fns,
+            args.iterations,
+            args.max_depth,
+            args.max_steps,
+            args.runs,
+            logging=args.logging,
+            records_dir=resolve_records_dir(args, name, "train"),
         )
         test_total, test_ret, test_steps = evaluate_suite(
-            test_cases, phase_fns, args.iterations, args.max_depth, args.max_steps, args.runs
+            test_cases,
+            phase_fns,
+            args.iterations,
+            args.max_depth,
+            args.max_steps,
+            args.runs,
+            logging=args.logging,
+            records_dir=resolve_records_dir(args, name, "test"),
         )
         print(
-            f"{combo_name(combo):<30} "
+            f"{name:<30} "
             f"{train_total:>7}/{train_slots:<8} {(train_total - baseline_train_total):>9} {train_ret:>11.3f} {format_steps(train_steps):>12} "
             f"{test_total:>7}/{test_slots:<8} {(test_total - baseline_test_total):>9} {test_ret:>10.3f} {format_steps(test_steps):>11}"
         )
@@ -278,6 +339,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
 
 

@@ -14,6 +14,7 @@ import random
 import shutil
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
@@ -74,6 +75,26 @@ def best_heuristic_path(phase: str) -> Path:
 def persist_best_heuristic(installed_path: str | Path, phase: str) -> Path:
     src = Path(installed_path)
     dst = best_heuristic_path(phase)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, dst)
+    return dst
+
+
+def run_snapshot_dir(run_stamp: str) -> Path:
+    return _ROOT / "heuristics" / run_stamp
+
+
+def persist_iteration_heuristic(installed_path: str | Path, phase: str, iteration: int, run_stamp: str) -> Path:
+    src = Path(installed_path)
+    dst = run_snapshot_dir(run_stamp) / f"{GAME_NAME}_opt_{phase}_heuristic_step_{iteration:03d}.py"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, dst)
+    return dst
+
+
+def persist_best_iteration_heuristic(installed_path: str | Path, phase: str, iteration: int, run_stamp: str) -> Path:
+    src = Path(installed_path)
+    dst = run_snapshot_dir(run_stamp) / f"{GAME_NAME}_opt_{phase}_heuristic_best_step_{iteration:03d}.py"
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
     return dst
@@ -318,10 +339,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--anchor-game-params", default=TRAIN_GAMES["coin"][2])
     p.add_argument("--anchor-seed", type=int, default=3)
     p.add_argument("--anchor-variant", default="deterministic")
+    p.add_argument("--run-stamp", default=None)
     return p.parse_args()
 
 
-def run_phase(args: argparse.Namespace, phase: str) -> None:
+def run_phase(args: argparse.Namespace, phase: str, run_stamp: str) -> None:
     optimizer = Optimizer(
         game="textworld_benchmark",
         target_phase=phase,
@@ -453,6 +475,11 @@ def run_phase(args: argparse.Namespace, phase: str) -> None:
         }
 
         fn = result.get("function")
+        installed_path = result.get("installed_path")
+        if installed_path:
+            snapshot_path = persist_iteration_heuristic(installed_path, phase, iteration, run_stamp)
+            print(f"Saved iteration snapshot: {snapshot_path}")
+
         if fn is not None:
             eval_summary = eval_case_set(
                 validation_cases,
@@ -490,10 +517,11 @@ def run_phase(args: argparse.Namespace, phase: str) -> None:
                 current_fn = fn
                 rec["adopted"] = True
                 rec["is_best"] = True
-                installed_path = result.get("installed_path")
                 if installed_path:
                     saved_path = persist_best_heuristic(installed_path, phase)
+                    best_snapshot = persist_best_iteration_heuristic(installed_path, phase, iteration, run_stamp)
                     print(f"Saved best heuristic to: {saved_path}")
+                    print(f"Saved best snapshot: {best_snapshot}")
             elif comp >= reject_floor:
                 print(f"Accepted ({comp:.4f} >= {reject_floor:.4f})")
                 current_fn = fn
@@ -537,17 +565,18 @@ def resolve_phases(args: argparse.Namespace) -> list[str]:
 
 def main() -> None:
     args = parse_args()
+    run_stamp = args.run_stamp or datetime.now().strftime("%Y%m%d_%H%M%S")
+    print(f"Run snapshot directory: {run_snapshot_dir(run_stamp)}")
     phases = resolve_phases(args)
     for idx, phase in enumerate(phases, start=1):
         random.seed(3)
         print("\n" + "=" * 72)
         print(f"PHASE RUN {idx}/{len(phases)}: {phase}")
         print("=" * 72)
-        run_phase(args, phase)
+        run_phase(args, phase, run_stamp)
 
 
 if __name__ == "__main__":
     main()
-
 
 

@@ -71,12 +71,19 @@ def best_heuristic_path(phase: str) -> Path:
     return _ROOT / "MCTS_tools" / phase / f"{GAME_NAME}_opt_{phase}_heuristic.py"
 
 
-def persist_best_heuristic(installed_path: str | Path, phase: str) -> Path:
+def versioned_best_heuristic_path(phase: str, iteration: int, suffix: str) -> Path:
+    safe_suffix = suffix.strip().replace(" ", "_")
+    return _ROOT / "MCTS_tools" / phase / f"{GAME_NAME}_opt_{phase}_{safe_suffix}_step_{iteration:03d}.py"
+
+
+def persist_best_heuristic(installed_path: str | Path, phase: str, iteration: int, suffix: str) -> tuple[Path, Path]:
     src = Path(installed_path)
-    dst = best_heuristic_path(phase)
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(src, dst)
-    return dst
+    latest_dst = best_heuristic_path(phase)
+    versioned_dst = versioned_best_heuristic_path(phase, iteration, suffix)
+    latest_dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, latest_dst)
+    shutil.copyfile(src, versioned_dst)
+    return latest_dst, versioned_dst
 
 
 def make_engine(case: dict[str, Any], iterations: int, max_depth: int, max_steps: int, logging: bool) -> MCTSEngine:
@@ -318,6 +325,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--anchor-game-params", default=TRAIN_GAMES["coin"][2])
     p.add_argument("--anchor-seed", type=int, default=3)
     p.add_argument("--anchor-variant", default="deterministic")
+    p.add_argument("--adaptive-suffix", default="adaptive")
     return p.parse_args()
 
 
@@ -492,8 +500,11 @@ def run_phase(args: argparse.Namespace, phase: str) -> None:
                 rec["is_best"] = True
                 installed_path = result.get("installed_path")
                 if installed_path:
-                    saved_path = persist_best_heuristic(installed_path, phase)
-                    print(f"Saved best heuristic to: {saved_path}")
+                    latest_path, versioned_path = persist_best_heuristic(
+                        installed_path, phase, iteration, args.adaptive_suffix
+                    )
+                    print(f"Saved best heuristic (latest): {latest_path}")
+                    print(f"Saved best heuristic (versioned): {versioned_path}")
             elif comp >= reject_floor:
                 print(f"Accepted ({comp:.4f} >= {reject_floor:.4f})")
                 current_fn = fn
