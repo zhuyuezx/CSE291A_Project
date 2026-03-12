@@ -248,9 +248,16 @@ class MCTSEngine:
         """
         Run MCTS and return (root_node, best_action).
 
-        The root node is needed when logging is enabled so we can
-        capture per-child statistics without duplicating the search loop.
+        Includes a per-call timeout for custom (LLM-generated) tool
+        functions to protect against infinite loops, while keeping
+        default tools running at full speed with no overhead.
         """
+        import time as _time
+        import concurrent.futures
+        _search_start = _time.time()
+        _SEARCH_TIMEOUT = 30.0   # total wall-clock for all iterations
+        _CALL_TIMEOUT   = 5.0    # max seconds for a single custom tool call
+
         root = MCTSNode(root_state.clone())
 
         select_fn = self._tools["selection"]
@@ -258,23 +265,52 @@ class MCTSEngine:
         simulate_fn = self._tools["simulation"]
         backprop_fn = self._tools["backpropagation"]
 
-        for _ in range(self.iterations):
-            # 1. Selection -- walk tree via UCB1
-            node = select_fn(root, self.exploration_weight)
+        # Only use timeout wrappers when a custom tool is installed
+        has_custom_tool = any(
+            v == "(set programmatically)" for v in self._tool_paths.values()
+        )
 
-            # 2. Expansion -- add a child if node has untried actions
-            if not node.is_terminal:
-                node = expand_fn(node)
+        if has_custom_tool:
+            # Use a single shared executor for the whole search
+            pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+            def _safe_call(fn, *args):
+                return pool.submit(fn, *args).result(timeout=_CALL_TIMEOUT)
+        else:
+            pool = None
+            _safe_call = None  # won't be used
 
-            # 3. Simulation -- random rollout from the node
-            reward = simulate_fn(
-                node.state,
-                root_state.current_player(),
-                self.max_rollout_depth,
-            )
+        try:
+            for _ in range(self.iterations):
+                if _time.time() - _search_start > _SEARCH_TIMEOUT:
+                    break
 
-            # 4. Backpropagation -- update stats from leaf to root
-            backprop_fn(node, reward)
+                if has_custom_tool:
+                    try:
+                        node = _safe_call(select_fn, root, self.exploration_weight)
+                        if not node.is_terminal:
+                            node = _safe_call(expand_fn, node)
+                        reward = _safe_call(
+                            simulate_fn, node.state,
+                            root_state.current_player(), self.max_rollout_depth,
+                        )
+                        _safe_call(backprop_fn, node, reward)
+                    except concurrent.futures.TimeoutError:
+                        break  # tool is stuck — stop
+                    except Exception:
+                        break
+                else:
+                    # Default tools: run directly, no overhead
+                    node = select_fn(root, self.exploration_weight)
+                    if not node.is_terminal:
+                        node = expand_fn(node)
+                    reward = simulate_fn(
+                        node.state, root_state.current_player(),
+                        self.max_rollout_depth,
+                    )
+                    backprop_fn(node, reward)
+        finally:
+            if pool is not None:
+                pool.shutdown(wait=False)
 
         best_action = root.most_visited_child().parent_action
         return root, best_action
@@ -283,17 +319,24 @@ class MCTSEngine:
     # High-level play helpers
     # ------------------------------------------------------------------
 
-    def play_game(self, verbose: bool = False) -> dict:
+    def play_game(self, verbose: bool = False, max_game_time: float = 60.0) -> dict:
         """
         Play one full game from initial state using MCTS for every move.
 
         When self.logging is True, a detailed trace JSON file is written
         to the records directory automatically.
 
+        Args:
+            verbose: Print each move.
+            max_game_time: Wall-clock timeout in seconds for the entire game.
+                If exceeded, returns an unsolved result immediately.
+
         Returns:
             Dict with keys: solved, steps, returns, moves.
             When logging: also includes 'log_file' and 'trace'.
         """
+        import time as _time
+        _game_start = _time.time()
         state = self.game.new_initial_state()
         moves: list[Any] = []
 
@@ -312,6 +355,11 @@ class MCTSEngine:
             })
 
         while not state.is_terminal():
+            # Check wall-clock timeout before each MCTS search step
+            if _time.time() - _game_start > max_game_time:
+                if verbose:
+                    print(f"play_game: TIMEOUT after {max_game_time}s and {len(moves)} moves")
+                break
             root, action = self._search_internal(state)
             
             # Record move trace if logging

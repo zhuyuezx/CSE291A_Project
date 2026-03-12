@@ -1,0 +1,202 @@
+Game: Zork I (symbolic pure-Python benchmark)
+
+== IMPORTANT: Code constraints ==
+Do NOT use `from typing import List, Dict, ...` or any `typing` imports.
+Use built-in types instead: `list[str]`, `dict[str, int]`, etc.
+The tool loader picks the first public callable in the file; a `typing`
+import like `List` is callable and will shadow your actual function.
+
+All helper functions MUST start with underscore `_` (e.g., `_score_action`)
+so they are not picked as the entry point by the loader.
+
+== Overview ==
+A simplified but faithful recreation of Zork I, the classic text adventure.
+The player explores rooms (surface + underground), collects 6 treasures,
+and deposits them in a trophy case in the living room to score points.
+Key challenges: dark-room navigation (lantern required), defeating a troll,
+and managing limited lantern fuel.
+
+== Map Structure ==
+The map has 22 rooms total, ordered by depth:
+  Surface (rooms 1-10): west_of_house (START), north_of_house,
+    south_of_house, behind_house, kitchen, living_room (TROPHY CASE,
+    lantern, sword), attic, forest_west, forest_east, clearing
+  Underground L1 (rooms 11-14): cellar (DARK), troll_room (DARK, troll
+    blocks west), ew_passage (DARK), canyon_view
+  Underground L2 (rooms 15-18): rocky_crawl (DARK), round_room (DARK),
+    dome_room (DARK), torch_room (DARK, has ivory torch)
+  Deep underground (rooms 19-22): temple (DARK), altar (DARK, has
+    silver chalice), loud_room (DARK, has sceptre),
+    treasure_room (DARK, has gold coffin + platinum bar)
+
+The `num_rooms` parameter slices this list (e.g., num_rooms=8 means only
+rooms 1-8 are active). Treasures from inactive rooms are redistributed
+to random active rooms.
+
+The game starts at west_of_house. The living_room is room 6 (always active).
+
+== Critical Paths ==
+To reach underground: living_room -> (down) -> cellar [needs lantern ON]
+To reach deeper areas: cellar -> troll_room -> [defeat troll] -> round_room
+Surface path to canyon: forest_east -> canyon_view -> rocky_crawl -> cellar
+
+KEY INSIGHT: The player MUST visit living_room early to get the lantern
+and sword, then navigate underground to find treasures, then RETURN to
+living_room to deposit them. This loop is the core gameplay pattern:
+  1. Go to living_room, take lantern + sword
+  2. Turn on lantern, go underground
+  3. Defeat troll (if alive) to access deeper rooms
+  4. Collect treasures
+  5. Return to living_room, deposit in trophy case
+  6. Repeat for remaining treasures
+
+== Difficulty Scaling ==
+Games vary by `num_rooms` (8, 10, 12, 14, etc.):
+  - Fewer rooms: treasures are closer, less exploration needed
+  - More rooms: treasures spread across deeper underground areas
+  - Lantern fuel = max(60, num_rooms * 10), so fuel is tighter on big maps
+
+== Variants ==
+deterministic: Actions execute as chosen.
+stochastic: 25% chance a random meaningful action replaces yours.
+punishment: -1.0 reward if the action doesn't change the room description
+  (e.g., look, inventory, repeated go into wall).
+
+== Actions ==
+Navigation:  go north, go south, go east, go west, go up, go down
+Items:       take <item>, drop <item>
+Lantern:     turn on lantern, turn off lantern
+Combat:      attack troll with sword  (80% success per attempt)
+Trophy case: put <treasure> in trophy case  (only in living room)
+Info:        look, inventory
+Special:     move rug  (in living room)
+
+== State API (attributes you can read) ==
+  state.room             - current room ID (string)
+  state.inventory        - list of item names currently held
+  state.room_items       - dict[room_id, list[item_name]] items on ground
+  state.trophy_case      - list of treasures deposited (scoring!)
+  state.troll_alive      - bool, must be False to go west from troll_room
+  state.lantern_on       - bool
+  state.lantern_fuel     - int (steps of fuel remaining)
+  state.rug_moved        - bool
+  state.dead             - bool
+  state.steps            - int (current step count)
+  state.graph            - dict[room_id, dict[direction, room_id]]
+  state.active_rooms     - list of room IDs in this game
+  state.config.max_steps - int, max steps before game ends
+
+== Helper Methods ==
+  state.look_text()              - text description of current room
+  state.inventory_text()         - text description of inventory
+  state.observation_text()       - look_text() + inventory_text()
+  state.score()                  - current points (int, 0-100)
+  state.treasures_remaining()    - list of treasures NOT in trophy case
+  state.distance_to_room(target) - BFS shortest-path distance (int)
+  state.legal_actions()          - list of valid actions
+  state.clone()                  - deep copy of state
+  state.is_terminal()            - bool
+  state.returns()                - [float] reward
+
+== Treasures & Points ==
+  jeweled egg     15 pts  (default: behind_house — surface)
+  gold coffin     20 pts  (default: treasure_room — deep underground)
+  silver chalice  15 pts  (default: altar — deep underground)
+  platinum bar    20 pts  (default: treasure_room — deep underground)
+  ivory torch     15 pts  (default: torch_room — underground L2)
+  sceptre         15 pts  (default: loud_room — deep underground)
+  Total:         100 pts
+NOTE: With small num_rooms, treasures from inactive rooms get
+redistributed to random active rooms, so locations vary by seed.
+
+== Rewards ==
+returns() yields:
+  [1.0]     all 6 treasures in trophy case (perfect win)
+  [0.0-1.0] normalized score (points / 100)
+  [-1.0]    death (eaten by grue, etc.)
+
+Intermediate rewards per step:
+  +0.1               for picking up any treasure (take <treasure>)
+  +points/100        for depositing treasure in trophy case
+  -1.0               per step in punishment mode if no observable change
+
+== Key Mechanics ==
+Dark rooms:
+  ALL underground rooms are dark. Entering without lantern ON = instant death.
+  If lantern runs out of fuel while in a dark room = instant death.
+  CRITICAL: Always turn on lantern BEFORE going underground.
+
+Troll:
+  Blocks the passage WEST from troll_room (to round_room and deeper areas).
+  Must have "elvish sword" in inventory and use "attack troll with sword".
+  80% success per attempt. Once dead, passage opens permanently.
+
+Lantern fuel:
+  Each step with lantern ON costs 1 fuel (regardless of action).
+  Strategy: turn OFF lantern in surface (lit) rooms to save fuel.
+  When fuel = 0, lantern turns off. If in dark room → death.
+
+Trophy case:
+  ONLY in living_room. Use "put <treasure> in trophy case" to score.
+  Win condition: all 6 treasures deposited.
+
+== Strategy Guide for Simulation Heuristics ==
+
+The simulation function runs thousands of rollouts from MCTS leaf nodes.
+Each rollout plays random/weighted actions until terminal. The returned
+reward tells MCTS how promising a state is. Here's what makes a GOOD
+simulation heuristic for Zork:
+
+1. GOAL-DIRECTED ACTION WEIGHTING (most impactful):
+   Instead of uniform random actions, weight actions by strategic value:
+   - "put X in trophy case" → HIGHEST weight (5-10x). This is the only
+     way to score points. Always prioritize depositing when possible.
+   - "take <treasure>" → HIGH weight (3-5x). Picking up treasures is
+     prerequisite to depositing.
+   - "attack troll with sword" → HIGH weight when troll_alive and sword
+     in inventory. Opens access to deeper treasure rooms.
+   - "go <direction>" toward treasures or living_room → MEDIUM weight.
+     Use state.distance_to_room() to bias navigation toward targets.
+   - "turn on lantern" → MEDIUM weight when entering underground.
+   - "turn off lantern" → MEDIUM weight when in surface rooms (save fuel).
+   - "look", "inventory" → VERY LOW weight (0.1x). No state change,
+     wastes steps, causes punishment in punishment mode.
+   - "drop <item>" → LOW weight (0.1x). Rarely useful.
+
+2. NAVIGATION BIAS (second most impactful):
+   Use state.distance_to_room() to compute where the agent should go:
+   - If holding treasure → bias toward living_room (to deposit)
+   - If not holding treasure → bias toward rooms containing treasures
+     (check state.room_items for each room)
+   - The graph is available as state.graph for BFS/planning
+
+3. SAFETY CHECKS:
+   - NEVER go into a dark room without lantern ON → weight = 0
+   - If lantern_fuel is low (<15), bias toward surface rooms
+   - After entering troll_room, immediately attack if possible
+
+4. PHASE-AWARE BEHAVIOR:
+   Based on game progress, shift priorities:
+   - Early game (no lantern/sword): move toward living_room
+   - Mid game (have equipment, troll alive): go underground, kill troll
+   - Mid game (troll dead): explore deep rooms for treasures
+   - Late game (holding treasures): return to living_room to deposit
+
+5. AVOID LOOPS:
+   Track last 2-3 actions; if the chosen action = last action, penalize.
+   Avoid "go north" then "go south" ping-pong patterns.
+
+6. PERFORMANCE:
+   - Called thousands of times per MCTS search step.
+   - state.clone() is cheap but state.distance_to_room() does BFS.
+   - Pre-compute distances once per rollout start, not per action.
+   - Keep rollout depth reasonable (100-200 steps max).
+   - Avoid nested loops over all rooms × all actions.
+
+7. REWARD SHAPING (for the return value):
+   The returned float MUST discriminate between states:
+   - Dead state → return -1.0
+   - State with treasures in trophy_case → return normalized score
+   - Holding treasures close to living_room → higher than holding far
+   - Having lantern + sword → slightly higher than not having them
+   A flat return (same value for all states) makes MCTS = random search.

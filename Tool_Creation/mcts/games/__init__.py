@@ -6,3 +6,4 @@ from .sokoban import Sokoban, SokobanState
 from .textworld_coin import TextWorldCoin, TextWorldCoinState
 from .textworld_express import TextWorldExpressGame, TextWorldExpressState
 from .tic_tac_toe import TicTacToe, TicTacToeState
+from .zork import Zork, ZorkState

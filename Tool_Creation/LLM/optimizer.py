@@ -228,6 +228,64 @@ class Optimizer:
 
         return out
 
+    def run_parallel(
+        self,
+        record_files: list[str],
+        tool_list: dict[str, str],
+        state_factory: Callable[[], Any] | None = None,
+        additional_context: str | None = None,
+        session_tag: str | None = None,
+        num_candidates: int = 3,
+        max_workers: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Run N independent optimization pipelines in parallel using threads.
+
+        Each candidate gets its own Optimizer instance and LLM session.
+        Returns a list of results (same format as run()), one per candidate.
+        Callers should pick the best result by validation score.
+
+        Parameters
+        ----------
+        num_candidates : int
+            Number of parallel candidates to generate.
+        max_workers : int, optional
+            Thread pool size. Defaults to num_candidates.
+        (other params: same as run())
+        """
+        import concurrent.futures
+
+        workers = max_workers or num_candidates
+
+        def _run_one(idx: int) -> dict[str, Any]:
+            # Each thread gets its own Optimizer with a fresh querier
+            opt = Optimizer(
+                game=self.game,
+                target_phase=self.target_phase,
+                max_moves_per_trace=self.max_moves_per_trace,
+                two_step=self.two_step,
+                three_step=self.three_step,
+                max_repair_attempts=self.max_repair_attempts,
+                verbose=self.verbose,
+            )
+            tag = f"{session_tag or f'{self.game}_{self.target_phase}'}_cand{idx}"
+            return opt.run(
+                record_files=record_files,
+                tool_list=tool_list,
+                state_factory=state_factory,
+                additional_context=additional_context,
+                session_tag=tag,
+            )
+
+        self._log(f"Launching {num_candidates} parallel candidates ({workers} workers)…")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(_run_one, i) for i in range(num_candidates)]
+            results = [f.result() for f in futures]
+
+        ok_count = sum(1 for r in results if r.get("function") is not None)
+        self._log(f"Parallel run complete: {ok_count}/{num_candidates} candidates produced valid functions")
+        return results
+
     # ------------------------------------------------------------------
     # Properties for lazy initialization
     # ------------------------------------------------------------------
