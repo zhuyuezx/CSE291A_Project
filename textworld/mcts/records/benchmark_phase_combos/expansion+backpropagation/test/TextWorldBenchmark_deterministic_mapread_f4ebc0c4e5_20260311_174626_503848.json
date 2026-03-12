@@ -1,0 +1,361 @@
+{
+  "metadata": {
+    "game": "TextWorldBenchmark(deterministic, mapreader, numLocations=7,maxDistanceApart=4,includeDoors=0,maxDistractorItemsPerLocation=0, seed=0)",
+    "timestamp": "2026-03-11T17:46:25.965521",
+    "iterations": 100,
+    "max_rollout_depth": 50,
+    "exploration_weight": 1.41,
+    "tools": {
+      "selection": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\textworld\\MCTS_tools\\selection\\default_selection.py",
+      "expansion": "(set programmatically)",
+      "simulation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\textworld\\MCTS_tools\\simulation\\default_simulation.py",
+      "backpropagation": "(set programmatically)"
+    }
+  },
+  "moves": [
+    {
+      "move_number": 1,
+      "player": 0,
+      "state_before": "type=mapreader|variant=deterministic|room=0|goal=5|map_read=0|done=0|inv=|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=0|rng=0",
+      "state_key": "type=mapreader|variant=deterministic|room=0|goal=5|map_read=0|done=0|inv=|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=0|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move south",
+        "close door to south",
+        "take map"
+      ],
+      "action_chosen": "take map",
+      "root_visits": 100,
+      "children_stats": {
+        "take map": {
+          "visits": 50,
+          "value": 56.3202,
+          "avg_value": 1.1264
+        },
+        "move south": {
+          "visits": 12,
+          "value": 8.1551,
+          "avg_value": 0.6796
+        },
+        "look around": {
+          "visits": 9,
+          "value": 3.9551,
+          "avg_value": 0.4395
+        },
+        "inventory": {
+          "visits": 8,
+          "value": 3.465,
+          "avg_value": 0.4331
+        },
+        "task": {
+          "visits": 10,
+          "value": 5.9352,
+          "avg_value": 0.5935
+        },
+        "close door to south": {
+          "visits": 11,
+          "value": 6.7403,
+          "avg_value": 0.6128
+        }
+      }
+    },
+    {
+      "move_number": 2,
+      "player": 0,
+      "state_before": "type=mapreader|variant=deterministic|room=0|goal=5|map_read=0|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=1|rng=0",
+      "state_key": "type=mapreader|variant=deterministic|room=0|goal=5|map_read=0|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=1|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move south",
+        "close door to south",
+        "read map"
+      ],
+      "action_chosen": "read map",
+      "root_visits": 100,
+      "children_stats": {
+        "read map": {
+          "visits": 65,
+          "value": 102.161,
+          "avg_value": 1.5717
+        },
+        "move south": {
+          "visits": 11,
+          "value": 11.28,
+          "avg_value": 1.0255
+        },
+        "task": {
+          "visits": 5,
+          "value": 2.98,
+          "avg_value": 0.596
+        },
+        "inventory": {
+          "visits": 6,
+          "value": 3.965,
+          "avg_value": 0.6608
+        },
+        "look around": {
+          "visits": 7,
+          "value": 5.455,
+          "avg_value": 0.7793
+        },
+        "close door to south": {
+          "visits": 6,
+          "value": 4.145,
+          "avg_value": 0.6908
+        }
+      }
+    },
+    {
+      "move_number": 3,
+      "player": 0,
+      "state_before": "type=mapreader|variant=deterministic|room=0|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=2|rng=0",
+      "state_key": "type=mapreader|variant=deterministic|room=0|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=2|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move south",
+        "close door to south",
+        "read map"
+      ],
+      "action_chosen": "move south",
+      "root_visits": 100,
+      "children_stats": {
+        "move south": {
+          "visits": 36,
+          "value": 34.7216,
+          "avg_value": 0.9645
+        },
+        "read map": {
+          "visits": 12,
+          "value": 6.9153,
+          "avg_value": 0.5763
+        },
+        "look around": {
+          "visits": 14,
+          "value": 9.3655,
+          "avg_value": 0.669
+        },
+        "task": {
+          "visits": 14,
+          "value": 8.8704,
+          "avg_value": 0.6336
+        },
+        "inventory": {
+          "visits": 11,
+          "value": 5.9252,
+          "avg_value": 0.5387
+        },
+        "close door to south": {
+          "visits": 13,
+          "value": 7.7755,
+          "avg_value": 0.5981
+        }
+      }
+    },
+    {
+      "move_number": 4,
+      "player": 0,
+      "state_before": "type=mapreader|variant=deterministic|room=1|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=3|rng=0",
+      "state_key": "type=mapreader|variant=deterministic|room=1|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=3|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move north",
+        "close door to north",
+        "move west",
+        "close door to west",
+        "move south",
+        "close door to south",
+        "read map"
+      ],
+      "action_chosen": "move west",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 25,
+          "value": 27.4413,
+          "avg_value": 1.0977
+        },
+        "move north": {
+          "visits": 8,
+          "value": 4.8551,
+          "avg_value": 0.6069
+        },
+        "move south": {
+          "visits": 7,
+          "value": 3.82,
+          "avg_value": 0.5457
+        },
+        "read map": {
+          "visits": 9,
+          "value": 5.95,
+          "avg_value": 0.6611
+        },
+        "look around": {
+          "visits": 8,
+          "value": 4.96,
+          "avg_value": 0.62
+        },
+        "task": {
+          "visits": 8,
+          "value": 4.465,
+          "avg_value": 0.5581
+        },
+        "inventory": {
+          "visits": 8,
+          "value": 4.465,
+          "avg_value": 0.5581
+        },
+        "close door to north": {
+          "visits": 9,
+          "value": 5.72,
+          "avg_value": 0.6356
+        },
+        "close door to south": {
+          "visits": 9,
+          "value": 6.22,
+          "avg_value": 0.6911
+        },
+        "close door to west": {
+          "visits": 9,
+          "value": 6.22,
+          "avg_value": 0.6911
+        }
+      }
+    },
+    {
+      "move_number": 5,
+      "player": 0,
+      "state_before": "type=mapreader|variant=deterministic|room=2|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=4|rng=0",
+      "state_key": "type=mapreader|variant=deterministic|room=2|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=4|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "move south",
+        "close door to south",
+        "read map"
+      ],
+      "action_chosen": "move south",
+      "root_visits": 100,
+      "children_stats": {
+        "move south": {
+          "visits": 34,
+          "value": 41.4318,
+          "avg_value": 1.2186
+        },
+        "move east": {
+          "visits": 9,
+          "value": 6.395,
+          "avg_value": 0.7106
+        },
+        "read map": {
+          "visits": 9,
+          "value": 6.44,
+          "avg_value": 0.7156
+        },
+        "task": {
+          "visits": 10,
+          "value": 7.9151,
+          "avg_value": 0.7915
+        },
+        "inventory": {
+          "visits": 8,
+          "value": 5.45,
+          "avg_value": 0.6813
+        },
+        "look around": {
+          "visits": 9,
+          "value": 5.95,
+          "avg_value": 0.6611
+        },
+        "close door to south": {
+          "visits": 9,
+          "value": 6.2151,
+          "avg_value": 0.6906
+        },
+        "close door to east": {
+          "visits": 12,
+          "value": 10.2353,
+          "avg_value": 0.8529
+        }
+      }
+    },
+    {
+      "move_number": 6,
+      "player": 0,
+      "state_before": "type=mapreader|variant=deterministic|room=4|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=5|rng=0",
+      "state_key": "type=mapreader|variant=deterministic|room=4|goal=5|map_read=1|done=0|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=5|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move north",
+        "close door to north",
+        "move south",
+        "close door to south",
+        "read map"
+      ],
+      "action_chosen": "move south",
+      "root_visits": 100,
+      "children_stats": {
+        "move south": {
+          "visits": 35,
+          "value": 47.25,
+          "avg_value": 1.35
+        },
+        "move north": {
+          "visits": 8,
+          "value": 6.345,
+          "avg_value": 0.7931
+        },
+        "read map": {
+          "visits": 11,
+          "value": 9.9051,
+          "avg_value": 0.9005
+        },
+        "inventory": {
+          "visits": 8,
+          "value": 5.95,
+          "avg_value": 0.7438
+        },
+        "task": {
+          "visits": 9,
+          "value": 7.435,
+          "avg_value": 0.8261
+        },
+        "look around": {
+          "visits": 9,
+          "value": 6.94,
+          "avg_value": 0.7711
+        },
+        "close door to north": {
+          "visits": 10,
+          "value": 8.7151,
+          "avg_value": 0.8715
+        },
+        "close door to south": {
+          "visits": 10,
+          "value": 8.7052,
+          "avg_value": 0.8705
+        }
+      }
+    }
+  ],
+  "outcome": {
+    "solved": true,
+    "steps": 6,
+    "returns": [
+      1.0
+    ],
+    "final_state": "type=mapreader|variant=deterministic|room=5|goal=5|map_read=1|done=1|inv=map|doors=0:south=1,1:north=1,1:south=1,1:west=1,2:east=1,2:south=1,3:north=1,4:north=1,4:south=1,5:east=1,5:north=1,6:west=1|steps=6|rng=0"
+  }
+}

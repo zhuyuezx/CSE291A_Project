@@ -254,8 +254,8 @@ def main() -> None:
 
     print(
         f"{'Configuration':<30} "
-        f"{'Train Correct':>16} {'Train 螖':>9} {'Train Ret':>11} {'Train Steps':>12} "
-        f"{'Test Correct':>16} {'Test 螖':>9} {'Test Ret':>10} {'Test Steps':>11}"
+        f"{'Train Correct':>16} {'Train Delta':>11} {'Train Ret':>11} {'Train Steps':>12} "
+        f"{'Test Correct':>16} {'Test Delta':>10} {'Test Ret':>10} {'Test Steps':>11}"
     )
     print("-" * 136)
     print(

@@ -1,0 +1,919 @@
+{
+  "metadata": {
+    "game": "TextWorldBenchmark(stochastic, mapreader, numLocations=2,maxDistanceApart=1,includeDoors=0,maxDistractorItemsPerLocation=0, seed=5)",
+    "timestamp": "2026-03-11T18:26:40.384465",
+    "iterations": 100,
+    "max_rollout_depth": 50,
+    "exploration_weight": 1.41,
+    "tools": {
+      "selection": "(set programmatically)",
+      "expansion": "(set programmatically)",
+      "simulation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\textworld\\MCTS_tools\\simulation\\default_simulation.py",
+      "backpropagation": "(set programmatically)"
+    }
+  },
+  "moves": [
+    {
+      "move_number": 1,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=0|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=0|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "take map"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "take map": {
+          "visits": 25,
+          "value": 38.0818,
+          "avg_value": 1.5233
+        },
+        "move east": {
+          "visits": 46,
+          "value": 59.137,
+          "avg_value": 1.2856
+        },
+        "inventory": {
+          "visits": 6,
+          "value": 4.96,
+          "avg_value": 0.8267
+        },
+        "task": {
+          "visits": 8,
+          "value": 7.9201,
+          "avg_value": 0.99
+        },
+        "look around": {
+          "visits": 8,
+          "value": 7.9201,
+          "avg_value": 0.99
+        },
+        "close door to east": {
+          "visits": 7,
+          "value": 6.6451,
+          "avg_value": 0.9493
+        }
+      }
+    },
+    {
+      "move_number": 2,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=1|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=1|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "look around",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 8,
+          "value": 7.3301,
+          "avg_value": 0.9163
+        },
+        "inventory": {
+          "visits": 22,
+          "value": 20.6515,
+          "avg_value": 0.9387
+        },
+        "look around": {
+          "visits": 26,
+          "value": 25.552,
+          "avg_value": 0.9828
+        },
+        "task": {
+          "visits": 22,
+          "value": 20.6466,
+          "avg_value": 0.9385
+        },
+        "close door to west": {
+          "visits": 22,
+          "value": 19.8265,
+          "avg_value": 0.9012
+        }
+      }
+    },
+    {
+      "move_number": 3,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=2|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=2|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "move west",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 24,
+          "value": 23.8118,
+          "avg_value": 0.9922
+        },
+        "inventory": {
+          "visits": 21,
+          "value": 20.7313,
+          "avg_value": 0.9872
+        },
+        "task": {
+          "visits": 19,
+          "value": 17.6861,
+          "avg_value": 0.9308
+        },
+        "look around": {
+          "visits": 16,
+          "value": 14.0858,
+          "avg_value": 0.8804
+        },
+        "close door to west": {
+          "visits": 20,
+          "value": 19.2112,
+          "avg_value": 0.9606
+        }
+      }
+    },
+    {
+      "move_number": 4,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=3|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=3|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "take map"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "take map": {
+          "visits": 25,
+          "value": 38.0818,
+          "avg_value": 1.5233
+        },
+        "move east": {
+          "visits": 47,
+          "value": 60.9179,
+          "avg_value": 1.2961
+        },
+        "task": {
+          "visits": 7,
+          "value": 5.95,
+          "avg_value": 0.85
+        },
+        "inventory": {
+          "visits": 6,
+          "value": 4.96,
+          "avg_value": 0.8267
+        },
+        "look around": {
+          "visits": 7,
+          "value": 6.445,
+          "avg_value": 0.9207
+        },
+        "close door to east": {
+          "visits": 8,
+          "value": 8.1502,
+          "avg_value": 1.0188
+        }
+      }
+    },
+    {
+      "move_number": 5,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=4|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=4|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 18,
+          "value": 16.2712,
+          "avg_value": 0.904
+        },
+        "inventory": {
+          "visits": 22,
+          "value": 21.2525,
+          "avg_value": 0.966
+        },
+        "task": {
+          "visits": 19,
+          "value": 17.2813,
+          "avg_value": 0.9095
+        },
+        "look around": {
+          "visits": 19,
+          "value": 17.2912,
+          "avg_value": 0.9101
+        },
+        "close door to west": {
+          "visits": 22,
+          "value": 21.3016,
+          "avg_value": 0.9683
+        }
+      }
+    },
+    {
+      "move_number": 6,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=5|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=5|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "inventory": {
+          "visits": 28,
+          "value": 26.4634,
+          "avg_value": 0.9451
+        },
+        "task": {
+          "visits": 23,
+          "value": 21.0727,
+          "avg_value": 0.9162
+        },
+        "look around": {
+          "visits": 22,
+          "value": 20.1023,
+          "avg_value": 0.9137
+        },
+        "open door to west": {
+          "visits": 27,
+          "value": 26.3522,
+          "avg_value": 0.976
+        }
+      }
+    },
+    {
+      "move_number": 7,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=6|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=6|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "look around": {
+          "visits": 24,
+          "value": 22.0921,
+          "avg_value": 0.9205
+        },
+        "inventory": {
+          "visits": 29,
+          "value": 28.4236,
+          "avg_value": 0.9801
+        },
+        "task": {
+          "visits": 26,
+          "value": 24.5228,
+          "avg_value": 0.9432
+        },
+        "open door to west": {
+          "visits": 21,
+          "value": 18.3412,
+          "avg_value": 0.8734
+        }
+      }
+    },
+    {
+      "move_number": 8,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=7|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=7|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west"
+      ],
+      "action_chosen": "task",
+      "root_visits": 100,
+      "children_stats": {
+        "task": {
+          "visits": 27,
+          "value": 26.8521,
+          "avg_value": 0.9945
+        },
+        "look around": {
+          "visits": 21,
+          "value": 19.3114,
+          "avg_value": 0.9196
+        },
+        "inventory": {
+          "visits": 25,
+          "value": 24.3418,
+          "avg_value": 0.9737
+        },
+        "open door to west": {
+          "visits": 27,
+          "value": 26.8521,
+          "avg_value": 0.9945
+        }
+      }
+    },
+    {
+      "move_number": 9,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=8|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=8|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 20,
+          "value": 20.1913,
+          "avg_value": 1.0096
+        },
+        "inventory": {
+          "visits": 22,
+          "value": 22.7317,
+          "avg_value": 1.0333
+        },
+        "look around": {
+          "visits": 22,
+          "value": 22.7317,
+          "avg_value": 1.0333
+        },
+        "task": {
+          "visits": 17,
+          "value": 16.1109,
+          "avg_value": 0.9477
+        },
+        "close door to west": {
+          "visits": 19,
+          "value": 18.6612,
+          "avg_value": 0.9822
+        }
+      }
+    },
+    {
+      "move_number": 10,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=9|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=9|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "take map"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "take map": {
+          "visits": 26,
+          "value": 39.6019,
+          "avg_value": 1.5231
+        },
+        "move east": {
+          "visits": 42,
+          "value": 52.8315,
+          "avg_value": 1.2579
+        },
+        "inventory": {
+          "visits": 8,
+          "value": 7.9201,
+          "avg_value": 0.99
+        },
+        "look around": {
+          "visits": 8,
+          "value": 7.9201,
+          "avg_value": 0.99
+        },
+        "task": {
+          "visits": 8,
+          "value": 7.9201,
+          "avg_value": 0.99
+        },
+        "close door to east": {
+          "visits": 8,
+          "value": 8.1502,
+          "avg_value": 1.0188
+        }
+      }
+    },
+    {
+      "move_number": 11,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=10|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=10|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "move west",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 25,
+          "value": 23.3322,
+          "avg_value": 0.9333
+        },
+        "inventory": {
+          "visits": 21,
+          "value": 17.3313,
+          "avg_value": 0.8253
+        },
+        "task": {
+          "visits": 23,
+          "value": 20.8118,
+          "avg_value": 0.9049
+        },
+        "look around": {
+          "visits": 15,
+          "value": 11.2709,
+          "avg_value": 0.7514
+        },
+        "close door to west": {
+          "visits": 16,
+          "value": 12.2858,
+          "avg_value": 0.7679
+        }
+      }
+    },
+    {
+      "move_number": 12,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=11|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=11|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "task": {
+          "visits": 24,
+          "value": 19.8914,
+          "avg_value": 0.8288
+        },
+        "inventory": {
+          "visits": 30,
+          "value": 26.8979,
+          "avg_value": 0.8966
+        },
+        "look around": {
+          "visits": 23,
+          "value": 18.3717,
+          "avg_value": 0.7988
+        },
+        "open door to west": {
+          "visits": 23,
+          "value": 18.8667,
+          "avg_value": 0.8203
+        }
+      }
+    },
+    {
+      "move_number": 13,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=12|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=12|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "look around",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 22,
+          "value": 18.8217,
+          "avg_value": 0.8555
+        },
+        "look around": {
+          "visits": 29,
+          "value": 27.8234,
+          "avg_value": 0.9594
+        },
+        "task": {
+          "visits": 22,
+          "value": 19.3316,
+          "avg_value": 0.8787
+        },
+        "inventory": {
+          "visits": 13,
+          "value": 8.2605,
+          "avg_value": 0.6354
+        },
+        "close door to west": {
+          "visits": 14,
+          "value": 9.7606,
+          "avg_value": 0.6972
+        }
+      }
+    },
+    {
+      "move_number": 14,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=13|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=0,1:west=0|steps=13|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west"
+      ],
+      "action_chosen": "task",
+      "root_visits": 100,
+      "children_stats": {
+        "inventory": {
+          "visits": 20,
+          "value": 15.851,
+          "avg_value": 0.7925
+        },
+        "look around": {
+          "visits": 25,
+          "value": 22.8618,
+          "avg_value": 0.9145
+        },
+        "task": {
+          "visits": 33,
+          "value": 32.8538,
+          "avg_value": 0.9956
+        },
+        "open door to west": {
+          "visits": 22,
+          "value": 19.3315,
+          "avg_value": 0.8787
+        }
+      }
+    },
+    {
+      "move_number": 15,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=14|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=14|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 6,
+          "value": 3.275,
+          "avg_value": 0.5458
+        },
+        "inventory": {
+          "visits": 29,
+          "value": 26.5321,
+          "avg_value": 0.9149
+        },
+        "look around": {
+          "visits": 18,
+          "value": 13.771,
+          "avg_value": 0.7651
+        },
+        "task": {
+          "visits": 29,
+          "value": 26.5222,
+          "avg_value": 0.9146
+        },
+        "close door to west": {
+          "visits": 18,
+          "value": 13.3358,
+          "avg_value": 0.7409
+        }
+      }
+    },
+    {
+      "move_number": 16,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=15|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=15|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 19,
+          "value": 16.7109,
+          "avg_value": 0.8795
+        },
+        "look around": {
+          "visits": 21,
+          "value": 20.2166,
+          "avg_value": 0.9627
+        },
+        "task": {
+          "visits": 12,
+          "value": 8.9953,
+          "avg_value": 0.7496
+        },
+        "inventory": {
+          "visits": 25,
+          "value": 25.3319,
+          "avg_value": 1.0133
+        },
+        "close door to west": {
+          "visits": 23,
+          "value": 22.7866,
+          "avg_value": 0.9907
+        }
+      }
+    },
+    {
+      "move_number": 17,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=16|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=16|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "take map"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "take map": {
+          "visits": 28,
+          "value": 42.152,
+          "avg_value": 1.5054
+        },
+        "move east": {
+          "visits": 44,
+          "value": 53.1247,
+          "avg_value": 1.2074
+        },
+        "look around": {
+          "visits": 7,
+          "value": 5.95,
+          "avg_value": 0.85
+        },
+        "task": {
+          "visits": 6,
+          "value": 4.96,
+          "avg_value": 0.8267
+        },
+        "inventory": {
+          "visits": 6,
+          "value": 4.96,
+          "avg_value": 0.8267
+        },
+        "close door to east": {
+          "visits": 9,
+          "value": 9.1603,
+          "avg_value": 1.0178
+        }
+      }
+    },
+    {
+      "move_number": 18,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=17|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=17|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west"
+      ],
+      "action_chosen": "move west",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 22,
+          "value": 21.2714,
+          "avg_value": 0.9669
+        },
+        "inventory": {
+          "visits": 20,
+          "value": 18.7162,
+          "avg_value": 0.9358
+        },
+        "look around": {
+          "visits": 21,
+          "value": 20.2413,
+          "avg_value": 0.9639
+        },
+        "task": {
+          "visits": 18,
+          "value": 16.6311,
+          "avg_value": 0.924
+        },
+        "close door to west": {
+          "visits": 19,
+          "value": 17.6614,
+          "avg_value": 0.9295
+        }
+      }
+    },
+    {
+      "move_number": 19,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=18|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=|doors=0:east=1,1:west=1|steps=18|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "take map"
+      ],
+      "action_chosen": "take map",
+      "root_visits": 100,
+      "children_stats": {
+        "take map": {
+          "visits": 39,
+          "value": 59.3044,
+          "avg_value": 1.5206
+        },
+        "move east": {
+          "visits": 30,
+          "value": 31.5972,
+          "avg_value": 1.0532
+        },
+        "inventory": {
+          "visits": 7,
+          "value": 5.95,
+          "avg_value": 0.85
+        },
+        "task": {
+          "visits": 8,
+          "value": 7.4251,
+          "avg_value": 0.9281
+        },
+        "look around": {
+          "visits": 6,
+          "value": 4.465,
+          "avg_value": 0.7442
+        },
+        "close door to east": {
+          "visits": 10,
+          "value": 10.1704,
+          "avg_value": 1.017
+        }
+      }
+    },
+    {
+      "move_number": 20,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=map|doors=0:east=1,1:west=1|steps=19|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=0|done=0|inv=map|doors=0:east=1,1:west=1|steps=19|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "read map"
+      ],
+      "action_chosen": "read map",
+      "root_visits": 100,
+      "children_stats": {
+        "read map": {
+          "visits": 50,
+          "value": 98.3566,
+          "avg_value": 1.9671
+        },
+        "move east": {
+          "visits": 27,
+          "value": 36.1405,
+          "avg_value": 1.3385
+        },
+        "look around": {
+          "visits": 6,
+          "value": 5.95,
+          "avg_value": 0.9917
+        },
+        "inventory": {
+          "visits": 5,
+          "value": 4.465,
+          "avg_value": 0.893
+        },
+        "task": {
+          "visits": 6,
+          "value": 5.455,
+          "avg_value": 0.9092
+        },
+        "close door to east": {
+          "visits": 6,
+          "value": 6.13,
+          "avg_value": 1.0217
+        }
+      }
+    },
+    {
+      "move_number": 21,
+      "player": 0,
+      "state_before": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=1|done=0|inv=map|doors=0:east=1,1:west=1|steps=20|rng=-4523291699115289298",
+      "state_key": "type=mapreader|variant=stochastic|room=0|goal=1|map_read=1|done=0|inv=map|doors=0:east=1,1:west=1|steps=20|rng=-4523291699115289298",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east",
+        "read map"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 50,
+          "value": 67.5,
+          "avg_value": 1.35
+        },
+        "read map": {
+          "visits": 10,
+          "value": 9.9001,
+          "avg_value": 0.99
+        },
+        "inventory": {
+          "visits": 10,
+          "value": 9.9001,
+          "avg_value": 0.99
+        },
+        "look around": {
+          "visits": 10,
+          "value": 9.9001,
+          "avg_value": 0.99
+        },
+        "task": {
+          "visits": 10,
+          "value": 9.9001,
+          "avg_value": 0.99
+        },
+        "close door to east": {
+          "visits": 10,
+          "value": 10.1704,
+          "avg_value": 1.017
+        }
+      }
+    }
+  ],
+  "outcome": {
+    "solved": true,
+    "steps": 21,
+    "returns": [
+      1.0
+    ],
+    "final_state": "type=mapreader|variant=stochastic|room=1|goal=1|map_read=1|done=1|inv=map|doors=0:east=1,1:west=1|steps=21|rng=-4523291699115289298"
+  }
+}

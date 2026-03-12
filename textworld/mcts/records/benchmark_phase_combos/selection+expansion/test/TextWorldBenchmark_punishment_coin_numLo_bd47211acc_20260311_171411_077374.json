@@ -1,0 +1,907 @@
+{
+  "metadata": {
+    "game": "TextWorldBenchmark(punishment, coin, numLocations=5,includeDoors=1,numDistractorItems=0, seed=1)",
+    "timestamp": "2026-03-11T17:14:09.206207",
+    "iterations": 100,
+    "max_rollout_depth": 50,
+    "exploration_weight": 1.41,
+    "tools": {
+      "selection": "(set programmatically)",
+      "expansion": "(set programmatically)",
+      "simulation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\textworld\\MCTS_tools\\simulation\\default_simulation.py",
+      "backpropagation": "C:\\Users\\28185\\VSCodeProjects\\CSE291A_Project\\textworld\\MCTS_tools\\backpropagation\\default_backpropagation.py"
+    }
+  },
+  "moves": [
+    {
+      "move_number": 1,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=0|rng=0",
+      "state_key": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=0|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to east"
+      ],
+      "action_chosen": "look around",
+      "root_visits": 100,
+      "children_stats": {
+        "look around": {
+          "visits": 50,
+          "value": -32.0,
+          "avg_value": -0.64
+        },
+        "inventory": {
+          "visits": 20,
+          "value": -18.0,
+          "avg_value": -0.9
+        },
+        "task": {
+          "visits": 15,
+          "value": -15.0,
+          "avg_value": -1.0
+        },
+        "open door to east": {
+          "visits": 15,
+          "value": -15.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 2,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=1|rng=0",
+      "state_key": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=1|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to east"
+      ],
+      "action_chosen": "task",
+      "root_visits": 100,
+      "children_stats": {
+        "look around": {
+          "visits": 16,
+          "value": -16.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 21,
+          "value": -19.0,
+          "avg_value": -0.9048
+        },
+        "task": {
+          "visits": 38,
+          "value": -28.0,
+          "avg_value": -0.7368
+        },
+        "open door to east": {
+          "visits": 25,
+          "value": -21.0,
+          "avg_value": -0.84
+        }
+      }
+    },
+    {
+      "move_number": 3,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=2|rng=0",
+      "state_key": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=2|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to east"
+      ],
+      "action_chosen": "task",
+      "root_visits": 100,
+      "children_stats": {
+        "inventory": {
+          "visits": 22,
+          "value": -22.0,
+          "avg_value": -1.0
+        },
+        "task": {
+          "visits": 28,
+          "value": -26.0,
+          "avg_value": -0.9286
+        },
+        "look around": {
+          "visits": 28,
+          "value": -26.0,
+          "avg_value": -0.9286
+        },
+        "open door to east": {
+          "visits": 22,
+          "value": -22.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 4,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=3|rng=0",
+      "state_key": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=0,1:east=0,1:west=0,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=3|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "look around": {
+          "visits": 21,
+          "value": -21.0,
+          "avg_value": -1.0
+        },
+        "task": {
+          "visits": 21,
+          "value": -21.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 21,
+          "value": -21.0,
+          "avg_value": -1.0
+        },
+        "open door to east": {
+          "visits": 37,
+          "value": -31.0,
+          "avg_value": -0.8378
+        }
+      }
+    },
+    {
+      "move_number": 5,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=4|rng=0",
+      "state_key": "type=coin|variant=punishment|room=0|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=4|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move east",
+        "close door to east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 50,
+          "value": -34.0,
+          "avg_value": -0.68
+        },
+        "task": {
+          "visits": 13,
+          "value": -13.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 13,
+          "value": -13.0,
+          "avg_value": -1.0
+        },
+        "look around": {
+          "visits": 12,
+          "value": -12.0,
+          "avg_value": -1.0
+        },
+        "close door to east": {
+          "visits": 12,
+          "value": -12.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 6,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=5|rng=0",
+      "state_key": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=5|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "open door to east"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 6,
+          "value": -6.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 27,
+          "value": -19.0,
+          "avg_value": -0.7037
+        },
+        "task": {
+          "visits": 16,
+          "value": -14.0,
+          "avg_value": -0.875
+        },
+        "look around": {
+          "visits": 12,
+          "value": -12.0,
+          "avg_value": -1.0
+        },
+        "open door to east": {
+          "visits": 16,
+          "value": -14.0,
+          "avg_value": -0.875
+        },
+        "close door to west": {
+          "visits": 23,
+          "value": -17.0,
+          "avg_value": -0.7391
+        }
+      }
+    },
+    {
+      "move_number": 7,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=6|rng=0",
+      "state_key": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=6|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "open door to east"
+      ],
+      "action_chosen": "task",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 8,
+          "value": -6.0,
+          "avg_value": -0.75
+        },
+        "look around": {
+          "visits": 26,
+          "value": -18.0,
+          "avg_value": -0.6923
+        },
+        "inventory": {
+          "visits": 11,
+          "value": -11.0,
+          "avg_value": -1.0
+        },
+        "task": {
+          "visits": 29,
+          "value": -19.0,
+          "avg_value": -0.6552
+        },
+        "open door to east": {
+          "visits": 15,
+          "value": -13.0,
+          "avg_value": -0.8667
+        },
+        "close door to west": {
+          "visits": 11,
+          "value": -11.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 8,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=7|rng=0",
+      "state_key": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=7|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 7,
+          "value": -7.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 15,
+          "value": -15.0,
+          "avg_value": -1.0
+        },
+        "task": {
+          "visits": 19,
+          "value": -17.0,
+          "avg_value": -0.8947
+        },
+        "look around": {
+          "visits": 15,
+          "value": -15.0,
+          "avg_value": -1.0
+        },
+        "open door to east": {
+          "visits": 25,
+          "value": -19.0,
+          "avg_value": -0.76
+        },
+        "close door to west": {
+          "visits": 19,
+          "value": -17.0,
+          "avg_value": -0.8947
+        }
+      }
+    },
+    {
+      "move_number": 9,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=1,1:west=1,2:east=0,2:west=1,3:east=0,3:west=0,4:west=0|steps=8|rng=0",
+      "state_key": "type=coin|variant=punishment|room=1|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=1,1:west=1,2:east=0,2:west=1,3:east=0,3:west=0,4:west=0|steps=8|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "move east",
+        "close door to east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 50,
+          "value": -26.0,
+          "avg_value": -0.52
+        },
+        "move west": {
+          "visits": 4,
+          "value": -4.0,
+          "avg_value": -1.0
+        },
+        "task": {
+          "visits": 7,
+          "value": -5.0,
+          "avg_value": -0.7143
+        },
+        "inventory": {
+          "visits": 9,
+          "value": -7.0,
+          "avg_value": -0.7778
+        },
+        "look around": {
+          "visits": 15,
+          "value": -9.0,
+          "avg_value": -0.6
+        },
+        "close door to west": {
+          "visits": 9,
+          "value": -7.0,
+          "avg_value": -0.7778
+        },
+        "close door to east": {
+          "visits": 6,
+          "value": -6.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 10,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=1,1:west=1,2:east=0,2:west=1,3:east=0,3:west=0,4:west=0|steps=9|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=1,1:west=1,2:east=0,2:west=1,3:east=0,3:west=0,4:west=0|steps=9|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "open door to east"
+      ],
+      "action_chosen": "close door to west",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 5,
+          "value": -5.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 18,
+          "value": -12.0,
+          "avg_value": -0.6667
+        },
+        "look around": {
+          "visits": 15,
+          "value": -11.0,
+          "avg_value": -0.7333
+        },
+        "task": {
+          "visits": 15,
+          "value": -11.0,
+          "avg_value": -0.7333
+        },
+        "close door to west": {
+          "visits": 29,
+          "value": -13.0,
+          "avg_value": -0.4483
+        },
+        "open door to east": {
+          "visits": 18,
+          "value": -12.0,
+          "avg_value": -0.6667
+        }
+      }
+    },
+    {
+      "move_number": 11,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=10|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=10|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "open door to east"
+      ],
+      "action_chosen": "look around",
+      "root_visits": 100,
+      "children_stats": {
+        "inventory": {
+          "visits": 25,
+          "value": -13.0,
+          "avg_value": -0.52
+        },
+        "look around": {
+          "visits": 28,
+          "value": -14.0,
+          "avg_value": -0.5
+        },
+        "task": {
+          "visits": 25,
+          "value": -13.0,
+          "avg_value": -0.52
+        },
+        "open door to east": {
+          "visits": 14,
+          "value": -6.0,
+          "avg_value": -0.4286
+        },
+        "open door to west": {
+          "visits": 8,
+          "value": -8.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 12,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=11|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=11|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "open door to east"
+      ],
+      "action_chosen": "look around",
+      "root_visits": 100,
+      "children_stats": {
+        "task": {
+          "visits": 10,
+          "value": -8.0,
+          "avg_value": -0.8
+        },
+        "look around": {
+          "visits": 27,
+          "value": -11.0,
+          "avg_value": -0.4074
+        },
+        "inventory": {
+          "visits": 16,
+          "value": -10.0,
+          "avg_value": -0.625
+        },
+        "open door to east": {
+          "visits": 27,
+          "value": -11.0,
+          "avg_value": -0.4074
+        },
+        "open door to west": {
+          "visits": 20,
+          "value": -10.0,
+          "avg_value": -0.5
+        }
+      }
+    },
+    {
+      "move_number": 13,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=12|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=12|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "open door to east"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "inventory": {
+          "visits": 35,
+          "value": -19.0,
+          "avg_value": -0.5429
+        },
+        "task": {
+          "visits": 18,
+          "value": -14.0,
+          "avg_value": -0.7778
+        },
+        "look around": {
+          "visits": 10,
+          "value": -10.0,
+          "avg_value": -1.0
+        },
+        "open door to west": {
+          "visits": 10,
+          "value": -10.0,
+          "avg_value": -1.0
+        },
+        "open door to east": {
+          "visits": 27,
+          "value": -17.0,
+          "avg_value": -0.6296
+        }
+      }
+    },
+    {
+      "move_number": 14,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=13|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=13|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "open door to east"
+      ],
+      "action_chosen": "inventory",
+      "root_visits": 100,
+      "children_stats": {
+        "task": {
+          "visits": 25,
+          "value": -15.0,
+          "avg_value": -0.6
+        },
+        "look around": {
+          "visits": 13,
+          "value": -11.0,
+          "avg_value": -0.8462
+        },
+        "inventory": {
+          "visits": 27,
+          "value": -15.0,
+          "avg_value": -0.5556
+        },
+        "open door to east": {
+          "visits": 22,
+          "value": -14.0,
+          "avg_value": -0.6364
+        },
+        "open door to west": {
+          "visits": 13,
+          "value": -11.0,
+          "avg_value": -0.8462
+        }
+      }
+    },
+    {
+      "move_number": 15,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=14|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=14|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "open door to east"
+      ],
+      "action_chosen": "look around",
+      "root_visits": 100,
+      "children_stats": {
+        "task": {
+          "visits": 8,
+          "value": -8.0,
+          "avg_value": -1.0
+        },
+        "inventory": {
+          "visits": 8,
+          "value": -8.0,
+          "avg_value": -1.0
+        },
+        "look around": {
+          "visits": 29,
+          "value": -15.0,
+          "avg_value": -0.5172
+        },
+        "open door to east": {
+          "visits": 29,
+          "value": -15.0,
+          "avg_value": -0.5172
+        },
+        "open door to west": {
+          "visits": 26,
+          "value": -14.0,
+          "avg_value": -0.5385
+        }
+      }
+    },
+    {
+      "move_number": 16,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=15|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=0,2:west=0,3:east=0,3:west=0,4:west=0|steps=15|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "inventory": {
+          "visits": 13,
+          "value": -11.0,
+          "avg_value": -0.8462
+        },
+        "task": {
+          "visits": 10,
+          "value": -10.0,
+          "avg_value": -1.0
+        },
+        "look around": {
+          "visits": 20,
+          "value": -14.0,
+          "avg_value": -0.7
+        },
+        "open door to east": {
+          "visits": 47,
+          "value": -21.0,
+          "avg_value": -0.4468
+        },
+        "open door to west": {
+          "visits": 10,
+          "value": -10.0,
+          "avg_value": -1.0
+        }
+      }
+    },
+    {
+      "move_number": 17,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=0,3:west=1,4:west=0|steps=16|rng=0",
+      "state_key": "type=coin|variant=punishment|room=2|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=0,3:west=1,4:west=0|steps=16|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "open door to west",
+        "move east",
+        "close door to east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 26,
+          "value": -10.0,
+          "avg_value": -0.3846
+        },
+        "inventory": {
+          "visits": 21,
+          "value": -3.0,
+          "avg_value": -0.1429
+        },
+        "look around": {
+          "visits": 10,
+          "value": -4.0,
+          "avg_value": -0.4
+        },
+        "task": {
+          "visits": 25,
+          "value": -1.0,
+          "avg_value": -0.04
+        },
+        "open door to west": {
+          "visits": 4,
+          "value": -4.0,
+          "avg_value": -1.0
+        },
+        "close door to east": {
+          "visits": 14,
+          "value": -4.0,
+          "avg_value": -0.2857
+        }
+      }
+    },
+    {
+      "move_number": 18,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=3|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=0,3:west=1,4:west=0|steps=17|rng=0",
+      "state_key": "type=coin|variant=punishment|room=3|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=0,3:west=1,4:west=0|steps=17|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "open door to east"
+      ],
+      "action_chosen": "open door to east",
+      "root_visits": 100,
+      "children_stats": {
+        "move west": {
+          "visits": 7,
+          "value": -1.0,
+          "avg_value": -0.1429
+        },
+        "inventory": {
+          "visits": 4,
+          "value": -4.0,
+          "avg_value": -1.0
+        },
+        "task": {
+          "visits": 16,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "look around": {
+          "visits": 3,
+          "value": -3.0,
+          "avg_value": -1.0
+        },
+        "close door to west": {
+          "visits": 20,
+          "value": 0.0,
+          "avg_value": 0.0
+        },
+        "open door to east": {
+          "visits": 50,
+          "value": 20.0,
+          "avg_value": 0.4
+        }
+      }
+    },
+    {
+      "move_number": 19,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=3|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=1,3:west=1,4:west=1|steps=18|rng=0",
+      "state_key": "type=coin|variant=punishment|room=3|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=1,3:west=1,4:west=1|steps=18|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "move east",
+        "close door to east"
+      ],
+      "action_chosen": "move east",
+      "root_visits": 100,
+      "children_stats": {
+        "move east": {
+          "visits": 50,
+          "value": 36.0,
+          "avg_value": 0.72
+        },
+        "move west": {
+          "visits": 3,
+          "value": -1.0,
+          "avg_value": -0.3333
+        },
+        "inventory": {
+          "visits": 2,
+          "value": -2.0,
+          "avg_value": -1.0
+        },
+        "look around": {
+          "visits": 5,
+          "value": -1.0,
+          "avg_value": -0.2
+        },
+        "task": {
+          "visits": 15,
+          "value": 7.0,
+          "avg_value": 0.4667
+        },
+        "close door to west": {
+          "visits": 13,
+          "value": 5.0,
+          "avg_value": 0.3846
+        },
+        "close door to east": {
+          "visits": 12,
+          "value": 4.0,
+          "avg_value": 0.3333
+        }
+      }
+    },
+    {
+      "move_number": 20,
+      "player": 0,
+      "state_before": "type=coin|variant=punishment|room=4|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=1,3:west=1,4:west=1|steps=19|rng=0",
+      "state_key": "type=coin|variant=punishment|room=4|goal=4|map_read=0|done=0|inv=|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=1,3:west=1,4:west=1|steps=19|rng=0",
+      "legal_actions": [
+        "look around",
+        "inventory",
+        "task",
+        "move west",
+        "close door to west",
+        "take coin"
+      ],
+      "action_chosen": "take coin",
+      "root_visits": 100,
+      "children_stats": {
+        "take coin": {
+          "visits": 37,
+          "value": 37.0,
+          "avg_value": 1.0
+        },
+        "move west": {
+          "visits": 6,
+          "value": 2.0,
+          "avg_value": 0.3333
+        },
+        "look around": {
+          "visits": 16,
+          "value": 10.0,
+          "avg_value": 0.625
+        },
+        "inventory": {
+          "visits": 7,
+          "value": 1.0,
+          "avg_value": 0.1429
+        },
+        "task": {
+          "visits": 16,
+          "value": 10.0,
+          "avg_value": 0.625
+        },
+        "close door to west": {
+          "visits": 18,
+          "value": 14.0,
+          "avg_value": 0.7778
+        }
+      }
+    }
+  ],
+  "outcome": {
+    "solved": true,
+    "steps": 20,
+    "returns": [
+      1.0
+    ],
+    "final_state": "type=coin|variant=punishment|room=4|goal=4|map_read=0|done=1|inv=coin|doors=0:east=1,1:east=0,1:west=1,2:east=1,2:west=0,3:east=1,3:west=1,4:west=1|steps=20|rng=0"
+  }
+}

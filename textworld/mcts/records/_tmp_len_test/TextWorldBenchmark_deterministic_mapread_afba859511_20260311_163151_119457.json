@@ -1,0 +1,7 @@
+{
+  "metadata": {
+    "game": "TextWorldBenchmark(deterministic, mapreader, numLocations=2,maxDistanceApart=1,includeDoors=0,maxDistractorItemsPerLocation=0, seed=3)"
+  },
+  "moves": [],
+  "outcome": {}
+}

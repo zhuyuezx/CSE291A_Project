@@ -20,7 +20,9 @@ Usage (via engine, not directly)::
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -77,11 +79,27 @@ class TraceLogger:
     # Internal
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def _safe_game_tag(game_name: str, max_len: int = 40) -> str:
+        """
+        Build a short, filesystem-safe tag from game_name.
+
+        Windows can fail with long file paths; keep the human-readable part
+        short and append a stable hash suffix to preserve uniqueness.
+        """
+        cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", game_name).strip("._-")
+        if not cleaned:
+            cleaned = "unknown"
+        short = cleaned[:max_len]
+        digest = hashlib.sha1(game_name.encode("utf-8")).hexdigest()[:10]
+        return f"{short}_{digest}"
+
     def _write_trace(self, trace: dict) -> Path:
         """Write a trace dict to a JSON file and return the path."""
         game_name = trace["metadata"].get("game", "unknown")
+        game_tag = self._safe_game_tag(str(game_name))
         ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"{game_name}_{ts}.json"
+        filename = f"{game_tag}_{ts}.json"
         filepath = self.records_dir / filename
         with open(filepath, "w") as f:
             json.dump(trace, f, indent=2, default=str)
