@@ -1,0 +1,266 @@
+\documentclass{article}
+
+\usepackage{neurips_2025}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{graphicx}       % resizebox
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{amsmath}        % math environments
+\usepackage{algorithm}      % algorithm environment
+\usepackage{algorithmic}    % algorithmic pseudocode
+
+\title{Self-Evolving Game Agent with MCTS and Tool-Integration}
+
+\author{%
+  Jason Zhu\thanks{Equal contribution.} \\
+  UC San Diego\\
+  \texttt{zhuyuezx@ucsd.edu} \\
+  \And
+  Yinuo Zhou\footnotemark[1] \\
+  UC San Diego\\
+  \And
+  Hongrui (Frank) Zhang\footnotemark[1] \\
+  UC San Diego\\
+  \And
+  Yaran Yang\footnotemark[1] \\
+  UC San Diego\\
+  \And
+  Zavier Zhao\footnotemark[1] \\
+  UC San Diego\\
+  \And
+  Fengfei Yu\footnotemark[1] \\
+  UC San Diego\\
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+% TODO: Write abstract based on the following key points from the presentation:
+% - We develop a self-evolving LLM tool-creation agent for turn-based games
+% - The agent interacts with game environments (Sokoban, TextWorld, Zork), collects traces, analyzes feedback, and generates pluggable heuristics
+% - Uses MCTS as a foundational framework and also explores A* for games where MCTS struggles
+% - LLM acts as an offline coding agent producing human-understandable code-based heuristics, in contrast to online LLM decision agents or deep neural network training
+% - Generated heuristics show improvement even with low iterations and demonstrate transferability
+% - Evaluated on Sokoban (A*), TextWorld benchmarks (MCTS), and Zork, showing significant improvements over baselines
+\end{abstract}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+% Motivation and core problems:
+% - Solving turn-based games as MDP problems has been an effective strategy (Go, etc.)
+% - Monte Carlo Tree Search searches the game environment and finds promising paths algorithmically
+% - AlphaZero-style MCTS trains deep neural networks for state value estimations, which is hard to set up and has massive entry cost
+% - Earlier MCTS+LLM work focused on online, step-wise LLM guidance, which is costly and constrained by static local views
+% - Emergence of LLM skills/MCP gave motivation for another direction: policy improvement with rule-based heuristics proposed autonomously by LLM
+
+% Our contribution:
+% - We developed a LLM tool-evolving agent for turn-based games that:
+%   - Interacts with different game environments (Sokoban, TextWorld, etc.)
+%   - Collects game traces, analyzes feedback, does task proposal, generates pluggable heuristics, improves upon successful validation, and iterates
+%   - Mainly uses MCTS as a foundational framework, but also explores A* for games where MCTS struggles
+%   - Generates heuristics for MCTS, with improvement seen even at low iterations
+%   - LLM acts as an offline coding agent, while code-based heuristics run online efficiently
+%   - Generated heuristics are human-understandable code artifacts instead of opaque weights
+
+% Audience of interest:
+% - LLM users and researchers: explores LLM tool creation and self-evolving agent paradigm
+% - Task proposal: LLM's ability to learn from environment feedback and propose improvements autonomously
+% - Game players: generating heuristics offline is less expensive and leads to efficient gameplay improvements
+
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{A Survey of Monte Carlo Tree Search Methods}
+% [2012] Cameron Browne et al.
+% - Challenge: How to find optimal decisions in a given domain (complex game as MDP)?
+% - Paper: Maps the problem to a search tree, performs 4 stages (selection, exploration, simulation, back-propagation) with tree policy to understand game states and identify optimal decisions
+% - Exploration heuristics like UCT balance exploration and exploitation with simple data
+% - Limitation: Lacks reasoning over environment data, constrained by limited information
+% - Our learning: Solve complex games based on an MCTS framework
+% - Our approach: Use LLM to enhance reasoning over environment and state information
+
+\subsection{MC-DML: Monte-Carlo Planning with Dynamic Memory-Guided LLM}
+% [ICLR 2025] Zijing Shi et al.
+% - Challenge: Past MCTS+RL limitations, like uncertain exploration and lack of reasoning
+% - Paper: Deploys LLM as a policy (action decision) maker in text games, enriches context with dynamic memory mechanism (in-track, cross-track memory)
+% - Limitation: High cost, confusion with local memory management
+% - Our learning: Utilize LLM's reasoning capabilities and memory management
+% - Our approach: We generate heuristics used for many steps; we study summarized traces from a global point of view for tool generation
+
+\subsection{Yunjue Agent: A Self-Evolving Agent System for Open-Ended Tasks}
+% [2026] Haotian Li et al.
+% - Challenge: LLM requires human supervision to solve hard problems
+% - Paper: Multi-agent architecture that solves sequences of real-world problems by generating, synthesizing, optimizing, and reusing tools (python scripts) in parallel
+% - Limitation: Focuses on deterministic problems, can benefit from targeted workflow
+% - Our learning: Novel tool generation paradigm reduces supervision in our system
+% - Our approach: Using LLM to analyze, generate, and improve MCTS or other heuristics as tools for validated agentic task proposals
+
+
+\section{Method}
+\label{sec:method}
+
+\subsection{System Architecture}
+% - RL framework not limited to MCTS
+% - Modularize optimizable sections, allowing LLM creation and modification
+% - Adaptable to all turn-based games
+% - Codebase: https://github.com/zhuyuezx/CSE291A_Project
+
+% Framework selection rationale:
+% - A* is suitable for games with simple action space and easy-to-get heuristics but complex, irreversible state space (e.g., Sokoban)
+% - MCTS is suitable for games with complex action space and hard-to-get heuristics (e.g., Go, Quoridor)
+
+\subsection{Task Proposal Loop}
+% - Input: Current tool code + environment feedback given current tools
+% - Mutable source for improvement seed
+% - Improvement ideas generated iteratively
+% - Verified and tested before being incorporated
+% - Task proposal quality is the most important fault point
+
+
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Sokoban (A* Optimization)}
+% - Environment description: Sokoban puzzle game with boxes and goals on a grid
+% - Heuristic example: Naive Manhattan Distance (sum of Manhattan distances from each box to nearest goal)
+% - Baseline: Greedy matching + mobility penalty
+% - Hyperparameters: 10 iterations, maximum 30,000 search steps
+% - Training on 20 Sokoban levels
+% - Interesting finding: comparison of training on 20 levels vs selecting 20 from 50 levels (50-select-20)
+% TODO: Add results figures and tables
+
+\subsection{TextWorld Benchmark}
+% Experiment setup:
+% 1. Introduced two games: Coin and MapReader
+% 2. Used train environments to collect gameplay traces
+% 3. Selected the 3 hardest/failure cases for LLM heuristic optimization
+% 4. Evaluated on larger, unseen test environments
+
+% Behavior example:
+% - Compared baseline heuristic vs. LLM-optimized heuristics for 4 phases
+% - Base heuristic gets stuck in local loops
+% - Optimized heuristic encourages global exploration
+
+% Optimization results (Simulation heuristic difference):
+% - Baseline: uniform random rollout
+% - Optimized: score-guided rollout that rewards task actions and goal progress
+% - Simulation optimization improves test correctness → generalized heuristic
+
+\begin{table*}[t]
+  \caption{Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta$ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps.}
+  \label{tab:textworld-results}
+  \centering
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccc|cccc}
+    \toprule
+    Configuration & Train Correct & Train $\Delta$ & Train Ret & Train Steps & Test Correct & Test $\Delta$ & Test Ret & Test Steps \\
+    \midrule
+    baseline & 62/72 & 0 & 0.861 & 9.9 & 55/90 & 0 & 0.606 & 14.4 \\
+    \midrule
+    + selection & 63/72 & 1 & 0.875 & 12.8 & 75/90 & 20 & 0.833 & 15.8 \\
+    + expansion & 62/72 & 0 & 0.819 & 10.9 & 55/90 & 0 & 0.478 & 11.3 \\
+    + simulation & \textbf{\underline{72/72}} & \textbf{\underline{10}} & \textbf{\underline{1.000}} & 41.0 & \textbf{\underline{90/90}} & \textbf{\underline{35}} & \textbf{\underline{1.000}} & 45.1 \\
+    + backpropagation & 64/72 & 2 & 0.889 & \textbf{\underline{8.5}} & 60/90 & 5 & 0.656 & \textbf{\underline{10.2}} \\
+    + full & 70/72 & 8 & 0.972 & 14.9 & 89/90 & 34 & 0.989 & 16.2 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table*}
+
+\subsection{Heuristic Generalizability}
+% - LLM-MCTS pass rate: 60~90 (full) out of 90
+% - DQN pass rate: 27~33 (optimized) out of 90 (test blind — not trained on test environment)
+% - DQN techniques used: Boltzmann exploration, success replay buffer, stagnation threshold, early stopping, step cost penalty
+% - Key finding: LLM-generated heuristics generalize better than DQN to unseen test environments
+
+\subsection{Zork}
+% Environment complexity (vs. TextWorld):
+% - Up to 22 interconnected rooms (vs. simple grid), with surface + underground layers
+% - 6 treasures to collect AND deposit back at base (vs. pick up 1 coin)
+% - Multi-step dependencies: get lantern → light it → go underground → kill troll → access treasures → return to deposit
+% - Instant death states: entering dark rooms without lantern
+% - Resource management: limited lantern fuel
+% - State space orders of magnitude larger (room × inventory × items × fuel × troll × lantern × trophy case)
+% TODO: Add Zork results figure
+
+
+\section{Limitations}
+\label{sec:limitations}
+
+% - Were not able to meaningfully evaluate long-horizon behavior of tool quality
+% - Open question: After ~1000 code iterations, does the tool quality collapse, plateau, or see eureka moments of continuous improvement?
+% - Iterative task proposal can get stuck in parameter tuning without proposing new ideas; task proposal could use more research
+% - MCTS heuristic tools show some transferability on same game with different setups
+% - Lacks investigation on cross-game transferable tools
+% - Evaluation limited to simple environments
+% - Agent demonstrated improvements on multiple simple games, but lacked a larger, more impressive game environment to evaluate high-impact improvements
+
+
+\section{Future Work}
+\label{sec:future}
+
+% Broader Agent Scope:
+% - We limited LLM agent's scope of read/write access to only specific tool files within specific RL frameworks (MCTS) for feasible evaluation
+% - The LLM agent might perform better with elevated scope — access to full tool folders, freedom to switch RL frameworks that interact with the environment, or freedom to modify its own prompt engine/LLM workflow
+
+% Task Proposal Effectiveness:
+% - Further research needed on improving the quality and diversity of task proposals
+
+% Generalizing Beyond White-Box Games:
+% - The game environments we evaluated are whitebox with explicit code endpoints for interaction
+% - Potentially allow LLM agent to figure out / implement interaction frameworks with blackbox games
+% - For example, using screenshots to learn game interaction but implementing tools to later build encapsulated movesets with mouse clicks
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+% TODO: Write conclusion summarizing:
+% - We presented a self-evolving game agent that uses LLM to generate and improve heuristics for MCTS and A*
+% - The system collects game traces, analyzes feedback, proposes tasks, and generates pluggable heuristics iteratively
+% - Evaluated on Sokoban (A*), TextWorld (MCTS), and Zork environments
+% - LLM-generated heuristics showed improvement over baselines and demonstrated generalizability to unseen environments
+% - The approach offers a cost-effective alternative to training deep neural networks or using LLM as an online agent
+
+
+\section*{References}
+
+{\small
+
+[1] Browne, C.~B., Powley, E., Whitehouse, D., Lucas, S.~M., Cowling, P.~I., Rohlfshagen, P., Tavener, S., Perez, D., Samothrakis, S., \& Colton, S. (2012). A Survey of Monte Carlo Tree Search Methods. \textit{IEEE Transactions on Computational Intelligence and AI in Games}, 4(1), 1--43.
+
+[2] Shi, Z., Fang, M., \& Chen, L. (2025). Monte Carlo Planning with Large Language Model for Text-Based Game Agents. \textit{arXiv preprint arXiv:2504.16855}.
+
+[3] Li, H., et al. (2026). Yunjue Agent Tech Report: A Fully Reproducible, Zero-Start In-Situ Self-Evolving Agent System for Open-Ended Tasks. \textit{arXiv preprint arXiv:2601.18226}.
+
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+
+\section{Technical Appendix}
+% TODO: Add any supplementary material, additional results, or proofs here.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
