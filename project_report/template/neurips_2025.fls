@@ -1,7 +1,7 @@
-PWD /Users/zhuyuezx/Documents/UCSD/Winter_2025/CSE291A/CSE291A_Project/project_report
+PWD /Users/zhuyuezx/Documents/UCSD/Winter_2025/CSE291A/CSE291A_Project/project_report/template
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/miktex/data/le/pdftex/pdflatex.fmt
-INPUT /Users/zhuyuezx/Documents/UCSD/Winter_2025/CSE291A/CSE291A_Project/project_report/final_project.tex
-OUTPUT final_project.log
+INPUT /Users/zhuyuezx/Documents/UCSD/Winter_2025/CSE291A/CSE291A_Project/project_report/template/neurips_2025.tex
+OUTPUT neurips_2025.log
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/article.cls
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/article.cls
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/size10.clo
@@ -26,6 +26,16 @@ INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/gene
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.cfg
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.cfg
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.cfg
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/lineno/lineno.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/lineno/lineno.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/etoolbox/etoolbox.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/etoolbox/etoolbox.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvoptions/kvoptions.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvoptions/kvoptions.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/ltxcmds/ltxcmds.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/ltxcmds/ltxcmds.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvsetkeys/kvsetkeys.sty
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvsetkeys/kvsetkeys.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/inputenc.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/inputenc.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/fontenc.sty
@@ -36,14 +46,10 @@ INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/late
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hyperref.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hyperref.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvsetkeys/kvsetkeys.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvsetkeys/kvsetkeys.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/kvdefinekeys/kvdefinekeys.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/kvdefinekeys/kvdefinekeys.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdfescape/pdfescape.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdfescape/pdfescape.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/ltxcmds/ltxcmds.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/ltxcmds/ltxcmds.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdftexcmds/pdftexcmds.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdftexcmds/pdftexcmds.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/infwarerr/infwarerr.sty
@@ -56,10 +62,6 @@ INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/late
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/refcount/refcount.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/gettitlestring/gettitlestring.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/gettitlestring/gettitlestring.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvoptions/kvoptions.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvoptions/kvoptions.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/etoolbox/etoolbox.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/etoolbox/etoolbox.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/stringenc/stringenc.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/generic/stringenc/stringenc.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/pd1enc.def
@@ -125,36 +127,20 @@ INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/late
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/mathcolor.ltx
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/mathcolor.ltx
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/mathcolor.ltx
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsmath.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsmath.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsopn.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amstext.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amstext.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsgen.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsgen.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsbsy.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsbsy.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsopn.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/algorithms/algorithm.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/algorithms/algorithm.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/float/float.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/float/float.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/algorithms/algorithmic.sty
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/algorithms/algorithmic.sty
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/l3backend/l3backend-pdftex.def
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/l3backend/l3backend-pdftex.def
-INPUT ./final_project.aux
-INPUT ./final_project.aux
-INPUT final_project.aux
-OUTPUT final_project.aux
-INPUT ./final_project.out
-INPUT ./final_project.out
-INPUT final_project.out
-INPUT final_project.out
-OUTPUT final_project.pdf
-INPUT ./final_project.out
-INPUT ./final_project.out
-OUTPUT final_project.out
+INPUT ./neurips_2025.aux
+INPUT ./neurips_2025.aux
+INPUT neurips_2025.aux
+OUTPUT neurips_2025.aux
+INPUT ./neurips_2025.out
+INPUT ./neurips_2025.out
+INPUT neurips_2025.out
+INPUT neurips_2025.out
+OUTPUT neurips_2025.pdf
+INPUT ./neurips_2025.out
+INPUT ./neurips_2025.out
+OUTPUT neurips_2025.out
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/context/base/mkii/supp-pdf.mkii
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/context/base/mkii/supp-pdf.mkii
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/context/base/mkii/supp-pdf.mkii
@@ -194,6 +180,35 @@ INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tf
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8t.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/jknappen/ec/ectt1000.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/psnfss/t1phv.fd
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/psnfss/t1phv.fd
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/psnfss/t1phv.fd
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/helvetic/phvr8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmri8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/helvetic/phvr8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/helvetic/phvr8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmri8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmri8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8r.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr9.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr6.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmmi9.tfm
@@ -206,109 +221,35 @@ INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tf
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msam7.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8t.vf
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8r.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8t.tfm
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/self-evolving-game-agent.png
-INPUT ./imgs/RL_framework_MCTS.png
-INPUT ./imgs/RL_framework_MCTS.png
-INPUT ./imgs/RL_framework_MCTS.png
-INPUT ./imgs/RL_framework_MCTS.png
-INPUT ./imgs/RL_framework_MCTS.png
-INPUT ./imgs/RL_framework_MCTS.png
-INPUT ./imgs/RL_framework_MCTS.png
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/psnfss/ts1ptm.fd
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/psnfss/ts1ptm.fd
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/psnfss/ts1ptm.fd
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8c.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8t.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8r.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8t.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8r.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmri8t.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmr8c.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmri8t.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmri8r.tfm
-INPUT ./imgs/MCTS_based.png
-INPUT ./imgs/MCTS_based.png
-INPUT ./imgs/MCTS_based.png
-INPUT ./imgs/MCTS_based.png
-INPUT ./imgs/MCTS_based.png
-INPUT ./imgs/MCTS_based.png
-INPUT ./imgs/MCTS_based.png
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmr8t.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx10.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx7.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx5.tfm
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_20/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_50/output0.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_20/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT ./imgs/first_50/output2.png
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx9.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx6.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8t.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmri8t.tfm
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmb8t.vf
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmb8r.tfm
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/vf/adobe/times/ptmri8t.vf
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/times/ptmri8r.tfm
-INPUT final_project.aux
-INPUT ./final_project.out
-INPUT ./final_project.out
+INPUT neurips_2025.aux
+INPUT ./neurips_2025.out
+INPUT ./neurips_2025.out
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/enc/dvips/base/8r.enc
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1000.pk
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1000.pk
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx10.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr9.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr9.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy6.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy6.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy7.pfb
-INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy7.pfb
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/symbols/msbm10.pfb
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/symbols/msbm10.pfb
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/helvetic/uhvr8a.pfb
+INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/helvetic/uhvr8a.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/times/utmb8a.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/times/utmb8a.pfb
 INPUT /Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/times/utmr8a.pfb
