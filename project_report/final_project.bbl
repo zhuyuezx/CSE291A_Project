@@ -1,0 +1,94 @@
+\begin{thebibliography}{10}
+
+\bibitem{Part2MCSurvey}
+Cameron~B. Browne, Edward Powley, Daniel Whitehouse, Simon~M. Lucas, Peter~I.
+  Cowling, Philipp Rohlfshagen, Stephen Tavener, Diego Perez, Spyridon
+  Samothrakis, and Simon Colton.
+\newblock A survey of monte carlo tree search methods.
+\newblock {\em IEEE Transactions on Computational Intelligence and AI in
+  Games}, 4(1):1--43, 2012.
+
+\bibitem{Part2MCTSCoulom}
+R\'{e}mi Coulom.
+\newblock Efficient selectivity and backup operators in monte-carlo tree
+  search.
+\newblock In {\em Proceedings of the 5th International Conference on Computers
+  and Games}, CG'06, page 72–83, Berlin, Heidelberg, 2006. Springer-Verlag.
+
+\bibitem{Part2GoNNMCTS}
+David Silver, Aja Huang, Chris~J. Maddison, Arthur Guez, Laurent Sifre, George
+  van~den Driessche, Julian Schrittwieser, Ioannis Antonoglou, Veda
+  Panneershelvam, Marc Lanctot, Sander Dieleman, Dominik Grewe, John Nham, Nal
+  Kalchbrenner, Ilya Sutskever, Timothy Lillicrap, Madeleine Leach, Koray
+  Kavukcuoglu, Thore Graepel, and Demis Hassabis.
+\newblock Mastering the game of go with deep neural networks and tree search.
+\newblock {\em Nature}, 529(7587):484--489, 2016.
+
+\bibitem{Part2PGTS}
+Yang Li.
+\newblock Policy guided tree search for enhanced llm reasoning, 2025.
+
+\bibitem{Part2MCLLM}
+Zijing Shi, Meng Fang, and Ling Chen.
+\newblock Monte carlo planning with large language model for text-based game
+  agents, 2025.
+
+\bibitem{Part2PlanHeuris}
+Hui Wang, Xufeng Zhang, and Chaoxu Mu.
+\newblock Planning of heuristics: Strategic planning on large language models
+  with monte carlo tree search for automating heuristic optimization, 2025.
+
+\bibitem{Part1Jericho}
+Matthew Hausknecht, Prithviraj Ammanabrolu, Marc-Alexandre Côté, and Xingdi
+  Yuan.
+\newblock Interactive fiction games: A colossal adventure, 2020.
+
+\bibitem{Part1SokobanMCTS}
+Bilal Kartal, Nicholas Sohre, and Stephen~J. Guy.
+\newblock Data driven sokoban puzzle generation with monte carlo tree search.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial Intelligence
+  and Interactive Digital Entertainment (AIIDE)}, volume~12, pages 58--64. AAAI
+  Press, 2016.
+
+\bibitem{Part1SokobanDRL}
+Sergey Pastukhov.
+\newblock Solving sokoban using hierarchical reinforcement learning with
+  landmarks.
+\newblock {\em arXiv preprint arXiv:2504.04366}, 2025.
+
+\bibitem{Part1NAIL}
+Matthew Hausknecht, Ricky Loynd, Greg Yang, Adith Swaminathan, and Jason~D.
+  Williams.
+\newblock Nail: A general interactive fiction agent, 2019.
+
+\bibitem{Part3SEA}
+Huan ang Gao, Jiayi Geng, Wenyue Hua, Mengkang Hu, Xinzhe Juan, Hongzhang Liu,
+  Shilong Liu, Jiahao Qiu, Xuan Qi, Yiran Wu, Hongru Wang, Han Xiao, Yuhang
+  Zhou, Shaokun Zhang, Jiayi Zhang, Jinyu Xiang, Yixiong Fang, Qiwen Zhao,
+  Dongrui Liu, Qihan Ren, Cheng Qian, Zhenhailong Wang, Minda Hu, Huazheng
+  Wang, Qingyun Wu, Heng Ji, and Mengdi Wang.
+\newblock A survey of self-evolving agents: What, when, how, and where to
+  evolve on the path to artificial super intelligence, 2026.
+
+\bibitem{Part3ToolYunjue}
+Haotian Li, Shijun Yang, Weizhen Qi, Silei Zhao, Rui Hua, Mingzhu Song,
+  Xiaojian Yang, and Chao Peng.
+\newblock Yunjue agent tech report: A fully reproducible, zero-start in-situ
+  self-evolving agent system for open-ended tasks, 2026.
+
+\bibitem{Part3ReAct}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan,
+  and Yuan Cao.
+\newblock React: Synergizing reasoning and acting in language models, 2023.
+
+\bibitem{Part3DPAgent}
+Xiaoxi Li, Wenxiang Jiao, Jiarui Jin, Guanting Dong, Jiajie Jin, Yinuo Wang,
+  Hao Wang, Yutao Zhu, Ji-Rong Wen, Yuan Lu, and Zhicheng Dou.
+\newblock Deepagent: A general reasoning agent with scalable toolsets, 2026.
+
+\bibitem{Part3LiveSWE}
+Chunqiu~Steven Xia, Zhe Wang, Yan Yang, Yuxiang Wei, and Lingming Zhang.
+\newblock Live-swe-agent: Can software engineering agents self-evolve on the
+  fly?, 2025.
+
+\end{thebibliography}

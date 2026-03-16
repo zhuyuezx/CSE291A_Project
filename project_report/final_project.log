@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.1) (preloaded format=pdflatex 2025.2.1)  14 MAR 2026 15:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.1) (preloaded format=pdflatex 2025.2.1)  16 MAR 2026 14:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -285,31 +285,40 @@ File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
 \Gin@req@height=\dimen154
 \Gin@req@width=\dimen155
 )
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/wr
+apfig/wrapfig.sty
+\wrapoverhang=\dimen156
+\WF@size=\dimen157
+\c@WF@wrappedlines=\count286
+\WF@box=\box52
+\WF@everypar=\toks22
+Package: wrapfig 2003/01/31  v 3.6
+)
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/bo
 oktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen156
-\lightrulewidth=\dimen157
-\cmidrulewidth=\dimen158
-\belowrulesep=\dimen159
-\belowbottomsep=\dimen160
-\aboverulesep=\dimen161
-\abovetopsep=\dimen162
-\cmidrulesep=\dimen163
-\cmidrulekern=\dimen164
-\defaultaddspace=\dimen165
-\@cmidla=\count286
-\@cmidlb=\count287
-\@aboverulesep=\dimen166
-\@belowrulesep=\dimen167
-\@thisruleclass=\count288
-\@lastruleclass=\count289
-\@thisrulewidth=\dimen168
+\heavyrulewidth=\dimen158
+\lightrulewidth=\dimen159
+\cmidrulewidth=\dimen160
+\belowrulesep=\dimen161
+\belowbottomsep=\dimen162
+\aboverulesep=\dimen163
+\abovetopsep=\dimen164
+\cmidrulesep=\dimen165
+\cmidrulekern=\dimen166
+\defaultaddspace=\dimen167
+\@cmidla=\count287
+\@cmidlb=\count288
+\@aboverulesep=\dimen168
+\@belowrulesep=\dimen169
+\@thisruleclass=\count289
+\@lastruleclass=\count290
+\@thisrulewidth=\dimen170
 )
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/am
 sfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
-\@emptytoks=\toks22
+\@emptytoks=\toks23
 \symAMSa=\mathgroup4
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
@@ -330,18 +339,18 @@ Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/mi
 crotype/microtype.sty
 Package: microtype 2025/07/09 v3.2b Micro-typographical refinements (RS)
-\MT@toks=\toks23
-\MT@tempbox=\box52
-\MT@count=\count290
+\MT@toks=\toks24
+\MT@tempbox=\box53
+\MT@count=\count291
 LaTeX Info: Redefining \noprotrusionifhmode on input line 1087.
 LaTeX Info: Redefining \leftprotrusion on input line 1088.
-\MT@prot@toks=\toks24
+\MT@prot@toks=\toks25
 LaTeX Info: Redefining \rightprotrusion on input line 1107.
 LaTeX Info: Redefining \textls on input line 1449.
-\MT@outer@kern=\dimen169
+\MT@outer@kern=\dimen171
 LaTeX Info: Redefining \microtypecontext on input line 2053.
 LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
-\MT@listname@count=\count291
+\MT@listname@count=\count292
 
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/mi
 crotype/microtype-pdftex.def
@@ -395,63 +404,63 @@ Package: amstext 2021/08/26 v2.01 AMS text
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/am
 smath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks25
-\ex@=\dimen170
+\@emptytoks=\toks26
+\ex@=\dimen172
 ))
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/am
 smath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen171
+\pmbraise@=\dimen173
 )
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/am
 smath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count292
+\inf@bad=\count293
 LaTeX Info: Redefining \frac on input line 233.
-\uproot@=\count293
-\leftroot@=\count294
+\uproot@=\count294
+\leftroot@=\count295
 LaTeX Info: Redefining \overline on input line 398.
 LaTeX Info: Redefining \colon on input line 409.
-\classnum@=\count295
-\DOTSCASE@=\count296
+\classnum@=\count296
+\DOTSCASE@=\count297
 LaTeX Info: Redefining \ldots on input line 495.
 LaTeX Info: Redefining \dots on input line 498.
 LaTeX Info: Redefining \cdots on input line 619.
-\Mathstrutbox@=\box53
-\strutbox@=\box54
+\Mathstrutbox@=\box54
+\strutbox@=\box55
 LaTeX Info: Redefining \big on input line 721.
 LaTeX Info: Redefining \Big on input line 722.
 LaTeX Info: Redefining \bigg on input line 723.
 LaTeX Info: Redefining \Bigg on input line 724.
-\big@size=\dimen172
+\big@size=\dimen174
 LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
-\macc@depth=\count297
+\macc@depth=\count298
 LaTeX Info: Redefining \bmod on input line 904.
 LaTeX Info: Redefining \pmod on input line 909.
 LaTeX Info: Redefining \smash on input line 939.
 LaTeX Info: Redefining \relbar on input line 969.
 LaTeX Info: Redefining \Relbar on input line 970.
-\c@MaxMatrixCols=\count298
+\c@MaxMatrixCols=\count299
 \dotsspace@=\muskip18
-\c@parentequation=\count299
-\dspbrk@lvl=\count300
-\tag@help=\toks26
-\row@=\count301
-\column@=\count302
-\maxfields@=\count303
-\andhelp@=\toks27
-\eqnshift@=\dimen173
-\alignsep@=\dimen174
-\tagshift@=\dimen175
-\tagwidth@=\dimen176
-\totwidth@=\dimen177
-\lineht@=\dimen178
-\@envbody=\toks28
+\c@parentequation=\count300
+\dspbrk@lvl=\count301
+\tag@help=\toks27
+\row@=\count302
+\column@=\count303
+\maxfields@=\count304
+\andhelp@=\toks28
+\eqnshift@=\dimen175
+\alignsep@=\dimen176
+\tagshift@=\dimen177
+\tagwidth@=\dimen178
+\totwidth@=\dimen179
+\lineht@=\dimen180
+\@envbody=\toks29
 \multlinegap=\skip61
 \multlinetaggap=\skip62
-\mathdisplay@stack=\toks29
+\mathdisplay@stack=\toks30
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
 )
@@ -463,51 +472,115 @@ nment
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/fl
 oat/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count304
-\float@exts=\toks30
-\float@box=\box55
-\@float@everytoks=\toks31
-\@floatcapt=\box56
+\c@float@type=\count305
+\float@exts=\toks31
+\float@box=\box56
+\@float@everytoks=\toks32
+\@floatcapt=\box57
 )
-\@float@every@algorithm=\toks32
-\c@algorithm=\count305
+\@float@every@algorithm=\toks33
+\c@algorithm=\count306
 )
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/al
 gorithms/algorithmic.sty
 Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
-\c@ALC@unique=\count306
-\c@ALC@line=\count307
-\c@ALC@rem=\count308
-\c@ALC@depth=\count309
+\c@ALC@unique=\count307
+\c@ALC@line=\count308
+\c@ALC@rem=\count309
+\c@ALC@depth=\count310
 \ALC@tlm=\skip63
 \algorithmicindent=\skip64
 )
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/ca
+ption/subcaption.sty
+Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
+
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/ca
+ption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/ca
+ption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen181
+\captionmargin=\dimen182
+\caption@leftmargin=\dimen183
+\caption@rightmargin=\dimen184
+\caption@width=\dimen185
+\caption@indent=\dimen186
+\caption@parindent=\dimen187
+\caption@hangindent=\dimen188
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count311
+\c@continuedfloat=\count312
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: wrapfig package is loaded.
+)
+Package caption Info: New subtype `subfigure' on input line 238.
+\c@subfigure=\count313
+Package caption Info: New subtype `subtable' on input line 238.
+\c@subtable=\count314
+)
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/li
+stings/listings.sty
+\lst@mode=\count315
+\lst@gtempboxa=\box58
+\lst@token=\toks34
+\lst@length=\count316
+\lst@currlwidth=\dimen189
+\lst@column=\count317
+\lst@pos=\count318
+\lst@lostspace=\dimen190
+\lst@width=\dimen191
+\lst@newlines=\count319
+\lst@lineno=\count320
+\lst@maxwidth=\dimen192
+
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/li
+stings/lstpatch.sty
+File: lstpatch.sty 2024/09/23 1.10c (Carsten Heinz)
+)
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/li
+stings/lstmisc.sty
+File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
+\c@lstnumber=\count321
+\lst@skipnumbers=\count322
+\lst@framebox=\box59
+)
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/li
+stings/listings.cfg
+File: listings.cfg 2024/09/23 1.10c listings configuration
+))
+Package: listings 2024/09/23 1.10c (Carsten Heinz)
+
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/l3
 backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count310
-\l__pdf_internal_box=\box57
+\l__color_backend_stack_int=\count323
+\l__pdf_internal_box=\box60
 ) (final_project.aux)
 \openout1 = `final_project.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -575,7 +648,7 @@ LaTeX Font Info:    ... okay on input line 43.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 43.
+Package hyperref Info: Link coloring OFF on input line 60.
 (final_project.out) (final_project.out)
 \@outlinefile=\write3
 \openout3 = `final_project.out'.
@@ -584,17 +657,17 @@ Package hyperref Info: Link coloring OFF on input line 43.
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/context/
 base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count311
-\scratchdimen=\dimen179
-\scratchbox=\box58
-\nofMPsegments=\count312
-\nofMParguments=\count313
-\everyMPshowfont=\toks33
-\MPscratchCnt=\count314
-\MPscratchDim=\dimen180
-\MPnumerator=\count315
-\makeMPintoPDFobject=\count316
-\everyMPtoPDFconversion=\toks34
+\scratchcounter=\count324
+\scratchdimen=\dimen193
+\scratchbox=\box61
+\nofMPsegments=\count325
+\nofMParguments=\count326
+\everyMPshowfont=\toks35
+\MPscratchCnt=\count327
+\MPscratchDim=\dimen194
+\MPnumerator=\count328
+\makeMPintoPDFobject=\count329
+\everyMPtoPDFconversion=\toks36
 )
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/ep
 stopdf-pkg/epstopdf-base.sty
@@ -606,13 +679,13 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 miktex/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-LaTeX Info: Redefining \microtypecontext on input line 43.
-Package microtype Info: Applying patch `item' on input line 43.
-Package microtype Info: Applying patch `toc' on input line 43.
-Package microtype Info: Applying patch `eqnum' on input line 43.
-Package microtype Info: Applying patch `footnote' on input line 43.
-Package microtype Info: Applying patch `verbatim' on input line 43.
-LaTeX Info: Redefining \microtypesetup on input line 43.
+LaTeX Info: Redefining \microtypecontext on input line 60.
+Package microtype Info: Applying patch `item' on input line 60.
+Package microtype Info: Applying patch `toc' on input line 60.
+Package microtype Info: Applying patch `eqnum' on input line 60.
+Package microtype Info: Applying patch `footnote' on input line 60.
+Package microtype Info: Applying patch `verbatim' on input line 60.
+LaTeX Info: Redefining \microtypesetup on input line 60.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -628,12 +701,17 @@ Package microtype Info: No adjustment of character kerning.
 crotype/mt-ptm.cfg
 File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
 )
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: listings package is loaded.
+Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count330
+
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/mi
 crotype/mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 47.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 64.
 
 
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/am
@@ -644,7 +722,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 crotype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 47.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 64.
 
 
 (/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/am
@@ -659,153 +737,318 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-<imgs/self-evolving-game-agent.png, id=92, 646.415pt x 947.54pt>
-File: imgs/self-evolving-game-agent.png Graphic file (type png)
-<use imgs/self-evolving-game-agent.png>
-Package pdftex.def Info: imgs/self-evolving-game-agent.png  used on input line 
-127.
-(pdftex.def)             Requested size: 190.79109pt x 279.66646pt.
-<imgs/RL_framework_MCTS.png, id=94, 724.7075pt x 947.54pt>
-File: imgs/RL_framework_MCTS.png Graphic file (type png)
-<use imgs/RL_framework_MCTS.png>
-Package pdftex.def Info: imgs/RL_framework_MCTS.png  used on input line 134.
-(pdftex.def)             Requested size: 190.79109pt x 249.44865pt.
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
-44.
 
-(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/ps
-nfss/ts1ptm.fd
-File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
 
 [1
 
 
 {/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdfte
 x/pdftex.map}]
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 8
+0.
 
-[2
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.157 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.157 
-       <./imgs/self-evolving-game-agent.png> <./imgs/RL_framework_MCTS.png>]
-<imgs/MCTS_based.png, id=118, 1800.7275pt x 1413.28pt>
+(/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/tex/latex/ps
+nfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+)
+<imgs/self-evolving-game-agent.png, id=160, 646.415pt x 947.54pt>
+File: imgs/self-evolving-game-agent.png Graphic file (type png)
+<use imgs/self-evolving-game-agent.png>
+Package pdftex.def Info: imgs/self-evolving-game-agent.png  used on input line 
+133.
+(pdftex.def)             Requested size: 157.24205pt x 230.49385pt.
+<imgs/RL_framework_MCTS.png, id=162, 724.7075pt x 947.54pt>
+File: imgs/RL_framework_MCTS.png Graphic file (type png)
+<use imgs/RL_framework_MCTS.png>
+Package pdftex.def Info: imgs/RL_framework_MCTS.png  used on input line 138.
+(pdftex.def)             Requested size: 179.18787pt x 234.28192pt.
+
+
+[2]
+
+[3 <./imgs/self-evolving-game-agent.png> <./imgs/RL_framework_MCTS.png>]
+Underfull \hbox (badness 1303) in paragraph at lines 163--164
+[]\T1/ptm/b/n/10 (+20) Refinement (Critique): \T1/ptm/m/n/10 (+20) The drafted 
+code is critiqued for common logic errors,
+ []
+
+<imgs/MCTS_based.png, id=194, 1800.7275pt x 1413.28pt>
 File: imgs/MCTS_based.png Graphic file (type png)
 <use imgs/MCTS_based.png>
-Package pdftex.def Info: imgs/MCTS_based.png  used on input line 175.
-(pdftex.def)             Requested size: 317.9892pt x 249.57045pt.
+Package pdftex.def Info: imgs/MCTS_based.png  used on input line 179.
+(pdftex.def)             Requested size: 210.66655pt x 165.338pt.
+
+Underfull \hbox (badness 3919) in paragraph at lines 180--180
+\T1/ptm/m/n/10 (+20) Game Agent. The top ``Game & Controller''
+ []
 
 
-[3]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \hbox (badness 5288) in paragraph at lines 180--180
+\T1/ptm/m/n/10 (+20) module acts as the core connector, governing
+ []
+
+
+Underfull \hbox (badness 1622) in paragraph at lines 180--180
+\T1/ptm/m/n/10 (+20) the interactions between the Tool-Evolving LLM
+ []
+
+
+Underfull \hbox (badness 4531) in paragraph at lines 180--180
+\T1/ptm/m/n/10 (+20) (online execution/offline logging) via predefined
+ []
+
+
+Underfull \hbox (badness 4048) in paragraph at lines 186--187
+\T1/ptm/m/n/10 (+20) TextWorld, and Zork. The central
+ []
+
+
+Underfull \hbox (badness 7415) in paragraph at lines 186--187
+\T1/ptm/m/n/10 (+20) gameplay loop and orchestrates the
+ []
+
+
+Underfull \hbox (badness 2556) in paragraph at lines 186--187
+\T1/ptm/m/n/10 (+20) interactions between the two primary
+ []
+
+
+Underfull \hbox (badness 7203) in paragraph at lines 186--187
+\T1/ptm/m/n/10 (+20) system modules. Specifically, the
+ []
+
+
+Underfull \hbox (badness 6775) in paragraph at lines 188--189
+\T1/ptm/b/n/10 (+20) Hyperparameters: \T1/ptm/m/n/10 (+20) Our architecture
+ []
+
+
+Underfull \hbox (badness 5077) in paragraph at lines 188--189
+\T1/ptm/m/n/10 (+20) separates the game logic and meta-
+ []
+
+
+Underfull \hbox (badness 3128) in paragraph at lines 188--189
+\T1/ptm/m/n/10 (+20) training configuration from the LLM
+ []
+
+
+Underfull \hbox (badness 2221) in paragraph at lines 188--189
+\T1/ptm/m/n/10 (+20) agent's responsibilities. A dedicated
+ []
 
 
 
-[4
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.206 
-       <./imgs/MCTS_based.png>]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 213.
-
-
-[5]
-<imgs/first_20/output0.png, id=171, 693.792pt x 346.896pt>
+[4 <./imgs/MCTS_based.png>]
+<imgs/first_20/output0.png, id=202, 693.792pt x 346.896pt>
 File: imgs/first_20/output0.png Graphic file (type png)
 <use imgs/first_20/output0.png>
-Package pdftex.def Info: imgs/first_20/output0.png  used on input line 256.
+Package pdftex.def Info: imgs/first_20/output0.png  used on input line 215.
 (pdftex.def)             Requested size: 190.79109pt x 95.39404pt.
-<imgs/first_50/output0.png, id=172, 694.5147pt x 346.896pt>
+<imgs/first_50/output0.png, id=203, 694.5147pt x 346.896pt>
 File: imgs/first_50/output0.png Graphic file (type png)
 <use imgs/first_50/output0.png>
-Package pdftex.def Info: imgs/first_50/output0.png  used on input line 261.
+Package pdftex.def Info: imgs/first_50/output0.png  used on input line 220.
 (pdftex.def)             Requested size: 190.79109pt x 95.29347pt.
-<imgs/first_20/output2.png, id=173, 905.5431pt x 159.7167pt>
+
+
+[5 <./imgs/first_20/output0.png> <./imgs/first_50/output0.png>]
+<imgs/first_20/output2.png, id=213, 905.5431pt x 159.7167pt>
 File: imgs/first_20/output2.png Graphic file (type png)
 <use imgs/first_20/output2.png>
-Package pdftex.def Info: imgs/first_20/output2.png  used on input line 272.
-(pdftex.def)             Requested size: 190.79109pt x 33.65115pt.
-<imgs/first_50/output2.png, id=174, 913.4928pt x 419.8887pt>
+Package pdftex.def Info: imgs/first_20/output2.png  used on input line 240.
+(pdftex.def)             Requested size: 238.49341pt x 42.06395pt.
+<imgs/first_50/output2.png, id=214, 913.4928pt x 419.8887pt>
 File: imgs/first_50/output2.png Graphic file (type png)
 <use imgs/first_50/output2.png>
-Package pdftex.def Info: imgs/first_50/output2.png  used on input line 277.
-(pdftex.def)             Requested size: 190.79109pt x 87.69229pt.
+Package pdftex.def Info: imgs/first_50/output2.png  used on input line 241.
+(pdftex.def)             Requested size: 238.49341pt x 109.62338pt.
+
+
+Package wrapfig Warning: Stationary wrapfigure forced to float on input line 24
+8.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 251--252
+[]\T1/ptm/m/n/10 (+20) Quantitative results demonstrate
+ []
+
+
+Underfull \hbox (badness 1694) in paragraph at lines 251--252
+\T1/ptm/m/n/10 (+20) that the LLM-driven optimization
+ []
+
+
+
+[6 <./imgs/first_20/output2.png> <./imgs/first_50/output2.png>]
+
+[7]
+<imgs/dqnzork/comparedqn.png, id=245, 3804.71437pt x 2023.56pt>
+File: imgs/dqnzork/comparedqn.png Graphic file (type png)
+<use imgs/dqnzork/comparedqn.png>
+Package pdftex.def Info: imgs/dqnzork/comparedqn.png  used on input line 352.
+(pdftex.def)             Requested size: 174.89436pt x 93.00151pt.
+
+Underfull \hbox (badness 1253) in paragraph at lines 353--353
+[]\T1/ptm/m/n/9 (+20) (a) |\T1/ptm/b/n/9 (+20) TextWorld generalization\T1/ptm/
+m/n/9 (+20) : our method
+ []
+
+<imgs/dqnzork/comparezork.png, id=246, 1203.7472pt x 526.21594pt>
+File: imgs/dqnzork/comparezork.png Graphic file (type png)
+<use imgs/dqnzork/comparezork.png>
+Package pdftex.def Info: imgs/dqnzork/comparezork.png  used on input line 359.
+(pdftex.def)             Requested size: 214.63922pt x 93.82352pt.
+(final_project.bbl
+
+[8 <./imgs/dqnzork/comparedqn.png> <./imgs/dqnzork/comparezork.png>])
+
+[9]
+Underfull \vbox (badness 1735) has occurred while \output is active []
+
+
+
+[10]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 464.
+
+
+LaTeX Warning: Float too large for page by 7.02853pt on input line 669.
+
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-[6
-pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
- been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.388 [
-       2] Shi, Z., Fang, M., \& Chen, L. (2025). Monte Carlo Planning with L...
+[11]
+<imgs/textworld/baseline_Step-004.png, id=310, 1010.77625pt x 883.3pt>
+File: imgs/textworld/baseline_Step-004.png Graphic file (type png)
+<use imgs/textworld/baseline_Step-004.png>
+Package pdftex.def Info: imgs/textworld/baseline_Step-004.png  used on input li
+ne 685.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/optimized_Step-004.png, id=311, 1010.77625pt x 883.3pt>
+File: imgs/textworld/optimized_Step-004.png Graphic file (type png)
+<use imgs/textworld/optimized_Step-004.png>
+Package pdftex.def Info: imgs/textworld/optimized_Step-004.png  used on input l
+ine 686.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/baseline_Step-005.png, id=312, 1010.77625pt x 883.3pt>
+File: imgs/textworld/baseline_Step-005.png Graphic file (type png)
+<use imgs/textworld/baseline_Step-005.png>
+Package pdftex.def Info: imgs/textworld/baseline_Step-005.png  used on input li
+ne 687.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/optimized_Step-005.png, id=313, 1010.77625pt x 883.3pt>
+File: imgs/textworld/optimized_Step-005.png Graphic file (type png)
+<use imgs/textworld/optimized_Step-005.png>
+Package pdftex.def Info: imgs/textworld/optimized_Step-005.png  used on input l
+ine 688.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/baseline_Step-006.png, id=314, 1010.77625pt x 883.3pt>
+File: imgs/textworld/baseline_Step-006.png Graphic file (type png)
+<use imgs/textworld/baseline_Step-006.png>
+Package pdftex.def Info: imgs/textworld/baseline_Step-006.png  used on input li
+ne 689.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/optimized_Step-006.png, id=315, 1010.77625pt x 883.3pt>
+File: imgs/textworld/optimized_Step-006.png Graphic file (type png)
+<use imgs/textworld/optimized_Step-006.png>
+Package pdftex.def Info: imgs/textworld/optimized_Step-006.png  used on input l
+ine 690.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/baseline_Step-007.png, id=316, 1010.77625pt x 883.3pt>
+File: imgs/textworld/baseline_Step-007.png Graphic file (type png)
+<use imgs/textworld/baseline_Step-007.png>
+Package pdftex.def Info: imgs/textworld/baseline_Step-007.png  used on input li
+ne 691.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/optimized_Step-007.png, id=317, 1010.77625pt x 883.3pt>
+File: imgs/textworld/optimized_Step-007.png Graphic file (type png)
+<use imgs/textworld/optimized_Step-007.png>
+Package pdftex.def Info: imgs/textworld/optimized_Step-007.png  used on input l
+ine 692.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/baseline_Step-008.png, id=318, 1010.77625pt x 883.3pt>
+File: imgs/textworld/baseline_Step-008.png Graphic file (type png)
+<use imgs/textworld/baseline_Step-008.png>
+Package pdftex.def Info: imgs/textworld/baseline_Step-008.png  used on input li
+ne 693.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
+<imgs/textworld/optimized_Step-008.png, id=319, 1010.77625pt x 883.3pt>
+File: imgs/textworld/optimized_Step-008.png Graphic file (type png)
+<use imgs/textworld/optimized_Step-008.png>
+Package pdftex.def Info: imgs/textworld/optimized_Step-008.png  used on input l
+ine 694.
+(pdftex.def)             Requested size: 139.12216pt x 121.57205pt.
 
-pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.388 [
-       2] Shi, Z., Fang, M., \& Chen, L. (2025). Monte Carlo Planning with L...
 
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.388 [
-       2] Shi, Z., Fang, M., \& Chen, L. (2025). Monte Carlo Planning with L...
- <./imgs/first_20/output0.png> <./imgs/first_50/output0.png> <./imgs/first_20/o
-utput2.png> <./imgs/first_50/output2.png>]
+LaTeX Warning: Float too large for page by 2.75534pt on input line 699.
 
-[7] (final_project.aux)
+
+Underfull \vbox (badness 1831) has occurred while \output is active []
+
+
+
+[12]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+[13]
+
+[14]
+
+[15]
+
+[16 <./imgs/textworld/baseline_Step-004.png (PNG copy)> <./imgs/textworld/optim
+ized_Step-004.png (PNG copy)> <./imgs/textworld/baseline_Step-005.png (PNG copy
+)> <./imgs/textworld/optimized_Step-005.png (PNG copy)> <./imgs/textworld/basel
+ine_Step-006.png (PNG copy)> <./imgs/textworld/optimized_Step-006.png (PNG copy
+)> <./imgs/textworld/baseline_Step-007.png (PNG copy)> <./imgs/textworld/optimi
+zed_Step-007.png (PNG copy)> <./imgs/textworld/baseline_Step-008.png (PNG copy)
+> <./imgs/textworld/optimized_Step-008.png (PNG copy)>] (final_project.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 1
 L3 programming layer <2024-12-25>
  ***********
 Package rerunfilecheck Info: File `final_project.out' has not changed.
-(rerunfilecheck)             Checksum: F319EC29A2132AB3D117C988CF16C1A5;3803.
+(rerunfilecheck)             Checksum: E5739E681CB2CBF206431A3DD5EB216D;4705.
  ) 
 Here is how much of TeX's memory you used:
- 13827 strings out of 475472
- 222190 string characters out of 2764329
- 656930 words of memory out of 3000000
- 36319 multiletter control sequences out of 15000+600000
- 603561 words of font info for 212 fonts, out of 8000000 for 9000
+ 17355 strings out of 475472
+ 281941 string characters out of 2764329
+ 1409273 words of memory out of 3000000
+ 39573 multiletter control sequences out of 15000+600000
+ 623553 words of font info for 273 fonts, out of 8000000 for 9000
  0 hyphenation exceptions out of 8191
- 75i,12n,79p,1012b,608s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/enc/
-dvips/base/8r.enc} </Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/d
-ata/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1000.pk></Users/zhuyuezx/Library/App
-lication Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx10.pf
-b></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type
-1/public/amsfonts/cm/cmmi10.pfb></Users/zhuyuezx/Library/Application Support/Mi
-KTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/zhuyuezx/L
-ibrary/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm
-/cmr9.pfb></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fo
-nts/type1/public/amsfonts/cm/cmsy10.pfb></Users/zhuyuezx/Library/Application Su
-pport/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy6.pfb></Users/zh
-uyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/ams
-fonts/cm/cmsy7.pfb></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/i
-nstall/fonts/type1/urw/times/utmb8a.pfb></Users/zhuyuezx/Library/Application Su
-pport/MiKTeX/texmfs/install/fonts/type1/urw/times/utmr8a.pfb></Users/zhuyuezx/L
-ibrary/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/times/utmri8a.
-pfb>
-Output written on final_project.pdf (7 pages, 667908 bytes).
+ 75i,12n,79p,2628b,1405s stack positions out of 5000i,500n,10000p,200000b,80000s
+ </Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljf
+our/jknappen/ec/dpi525/ectt0800.pk>{/Users/zhuyuezx/Library/Application Support
+/MiKTeX/texmfs/install/fonts/enc/dvips/base/8r.enc} </Users/zhuyuezx/Library/Ap
+plication Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/ectt100
+0.pk></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/t
+ype1/public/amsfonts/cm/cmbx10.pfb></Users/zhuyuezx/Library/Application Support
+/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/zhuyue
+zx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfont
+s/cm/cmmi7.pfb></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/insta
+ll/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/zhuyuezx/Library/Applicatio
+n Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr7.pfb></Users
+/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/
+amsfonts/cm/cmr9.pfb></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs
+/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/zhuyuezx/Library/App
+lication Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy6.pfb
+></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1
+/public/amsfonts/cm/cmsy7.pfb></Users/zhuyuezx/Library/Application Support/MiKT
+eX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy9.pfb></Users/zhuyuezx/Lib
+rary/Application Support/MiKTeX/texmfs/install/fonts/type1/urw/times/utmb8a.pfb
+></Users/zhuyuezx/Library/Application Support/MiKTeX/texmfs/install/fonts/type1
+/urw/times/utmr8a.pfb></Users/zhuyuezx/Library/Application Support/MiKTeX/texmf
+s/install/fonts/type1/urw/times/utmri8a.pfb>
+Output written on final_project.pdf (16 pages, 8243012 bytes).
 PDF statistics:
- 269 PDF objects out of 1000 (max. 8388607)
- 69 named destinations out of 1000 (max. 500000)
- 48852 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 709 PDF objects out of 1000 (max. 8388607)
+ 227 named destinations out of 1000 (max. 500000)
+ 59704 words of extra memory for PDF output out of 61914 (max. 10000000)
 

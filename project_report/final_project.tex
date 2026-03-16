@@ -1,12 +1,13 @@
 \documentclass{article}
 
-\usepackage[main, final]{neurips_2025}
+\usepackage[main, preprint]{neurips_2025}
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{graphicx}       % resizebox
+\usepackage{wrapfig}        % wrap figures/tables with text
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
@@ -15,6 +16,17 @@
 \usepackage{amsmath}        % math environments
 \usepackage{algorithm}      % algorithm environment
 \usepackage{algorithmic}    % algorithmic pseudocode
+\usepackage{subcaption}     % subfigures
+\usepackage{listings}       % code snippets
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false
+}
 
 \title{Self-Evolving Game Agent with MCTS and Tool-Integration}
 
@@ -25,18 +37,23 @@
   \And
   Yinuo Zhou\footnotemark[1] \\
   UC San Diego\\
+  \texttt{e9zhou@ucsd.edu} \\
   \And
   Hongrui (Frank) Zhang\footnotemark[1] \\
   UC San Diego\\
+  \texttt{hrzhang@ucsd.edu} \\
   \And
   Yaran Yang\footnotemark[1] \\
   UC San Diego\\
+\texttt{yay025@ucsd.edu}
   \And
   Zavier Zhao\footnotemark[1] \\
   UC San Diego\\
+  \texttt{zhz214@ucsd.edu}
   \And
   Fengfei Yu\footnotemark[1] \\
   UC San Diego\\
+  \texttt{fey006@ucsd.edu}
 }
 
 
@@ -47,34 +64,23 @@
 
 
 \begin{abstract}
-% TODO: Write abstract based on the following key points from the presentation:
-% - We develop a self-evolving LLM tool-creation agent for turn-based games
-% - The agent interacts with game environments (Sokoban, TextWorld, Zork), collects traces, analyzes feedback, and generates pluggable heuristics
-% - Uses MCTS as a foundational framework and also explores A* for games where MCTS struggles
-% - LLM acts as an offline coding agent producing human-understandable code-based heuristics, in contrast to online LLM decision agents or deep neural network training
-% - Generated heuristics show improvement even with low iterations and demonstrate transferability
-% - Evaluated on Sokoban (A*), TextWorld benchmarks (MCTS), and Zork, showing significant improvements over baselines
+We present a self-evolving agent architecture where a large language model (LLM) improves search algorithms by \emph{writing and iteratively refining} executable heuristic tools offline, rather than making costly per-step decisions online. This framework introduces a novel decoupling: slow, reasoning-intensive LLM analysis is separated from fast, execution-heavy planning cores like Monte Carlo Tree Search (MCTS) and A*. During gameplay, the agent relies solely on the planning core equipped with pluggable Python heuristics. Post-gameplay, an offline continuous learning loop leverages LLM-driven trace analysis, task proposal, and code generation to autonomously evolve these heuristics based on failure traces. This architecture eliminates runtime LLM latency bottlenecks and yields transparent, auditable code artifacts instead of opaque neural weights. As detailed in our experiments (Section~\ref{sec:experiments}), this approach demonstrates strong generalizability across diverse domains. Evaluated on Sokoban, TextWorld, and Zork, our evolved heuristics achieved up to 74.4\% reductions in search node expansions and substantially improved zero-shot success rates on complex, unseen test instances. Code is available at \url{https://github.com/zhuyuezx/CSE291A_Project}.
 \end{abstract}
 
 
 \section{Introduction}
 \label{sec:intro}
 
-% Motivation and core problems:
-% - Solving turn-based games as MDP problems has been an effective strategy (Go, etc.)
-% - Monte Carlo Tree Search searches the game environment and finds promising paths algorithmically
-% - AlphaZero-style MCTS trains deep neural networks for state value estimations, which is hard to set up and has massive entry cost
-% - Earlier MCTS+LLM work focused on online, step-wise LLM guidance, which is costly and constrained by static local views
-% - Emergence of LLM skills/MCP gave motivation for another direction: policy improvement with rule-based heuristics proposed autonomously by LLM
+Solving turn-based games as Markov decision processes (MDPs) has proven to be an effective strategy, exemplified by successes in games such as Go. Monte Carlo Tree Search (MCTS) in particular searches the game environment and identifies promising paths algorithmically. AlphaZero-style approaches combine MCTS with deep neural networks for state value estimation, but they are difficult to set up and incur substantial entry cost. Meanwhile, prior work that integrates MCTS with large language models (LLMs) has largely focused on online, step-wise LLM guidance, which is costly and constrained by static, local views of the game state. The emergence of LLM-based tool creation and skill frameworks motivates an alternative direction: improving the policy by autonomously proposing and refining rule-based heuristics by LLM that the search algorithm can use.
 
-% Our contribution:
-% - We developed a LLM tool-evolving agent for turn-based games that:
-%   - Interacts with different game environments (Sokoban, TextWorld, etc.)
-%   - Collects game traces, analyzes feedback, does task proposal, generates pluggable heuristics, improves upon successful validation, and iterates
-%   - Mainly uses MCTS as a foundational framework, but also explores A* for games where MCTS struggles
-%   - Generates heuristics for MCTS, with improvement seen even at low iterations
-%   - LLM acts as an offline coding agent, while code-based heuristics run online efficiently
-%   - Generated heuristics are human-understandable code artifacts instead of opaque weights
+We develop a self-evolving game agent where an LLM acts as an offline tool-creation agent. The system interacts with diverse environments (Sokoban, TextWorld, Zork), collects traces, analyzes feedback, and generates pluggable heuristics that are validated and iteratively improved. We use MCTS as the main framework. The LLM produces human-understandable code for key search phases and improvement appears even with few iterations. The LLM runs offline; heuristics run online effectively. This offers a cheaper path than per-step LLM calls or neural training, and yields interpretable code rather than weights.
+
+To operationalize this offline tool-creation perspective and quantify its benefits, we make the following contributions toward robust, interpretable, low-cost planning:
+\begin{itemize}
+    \item We propose a self-evolving heuristic framework in which an LLM improves planning algorithms by generating executable, pluggable heuristic tools.
+    \item We design an offline tool-evolution loop that analyzes gameplay traces and iteratively improves search policies without any runtime LLM calls.
+    \item We demonstrate the framework across multiple domains including Sokoban, TextWorld, and Zork, achieving substantial gains in search efficiency and generalization.
+\end{itemize}
 
 % Audience of interest:
 % - LLM users and researchers: explores LLM tool creation and self-evolving agent paradigm
@@ -82,34 +88,34 @@
 % - Game players: generating heuristics offline is less expensive and leads to efficient gameplay improvements
 
 
+% \textbf{Monte Carlo Tree Search.}
+% Monte Carlo Tree Search (MCTS) method excels at deriving optimal decisions in environments with complex decision space because it balances efficient exploration through monte carlo sampling and exploitation of promising subparts of the search tree\cite{Part2MCSurvey} \cite{Part2MCTSCoulom}. Over time, MCTS demonstrates robust applications in real-world problems like combinatorial games\cite{Part2MCSurvey}\cite{Part2GoNNMCTS} and policy optimization \cite{Part2PGTS}, along with immense potential in its improvements. Other than the theoretical breakthroughs in MCTS, such as better exploration heuristics like PUCT \cite{Part2MCSurvey}, studies of MCTS also utilized the incorporations with rapidly developing machine learning techniques like neural networks and LLM \cite{Part2MCLLM}\cite{Part2GoNNMCTS}. In AlphaGo, MCTS searches through the game state search tree to guide better policies, while neural network's capability to provide accurate predictions of state values for MCTS\cite{Part2GoNNMCTS}. With the progression of studies in large language models, MCTS thrives in empowering novel LLM agents through various forms of applications, ranging from applying MCTS as a tool for improving LLM performances \cite{Part2PGTS} to incorporating LLM as a component of the MCTS\cite{Part2MCLLM}. Modern incorporations between MCTS and LLM demonstrates more utilization of LLM's reasoning capability and autonomy, such as applying LLM as a heuristic optimizer for MCTS\cite{Part2PlanHeuris}. Our work recognizes the foundational strength of MCTS in deriving solutions in complex decision space, such as complex combinatorial games\cite{Part2GoNNMCTS}, and the forefront research products in incorporating state-of-the-art machine learning techniques into the MCTS framework, such as optimizing MCTS components with LLM\cite{Part2PlanHeuris}. In such, our work attempts to adapt a MCTS framework while optimizing it with LLM agents. 
+
+
+% \textbf{Sequential Decision-Making Games.}
+% Sequential decision-making games are defined as games that requires the iteration of observing the state, issuing an action, and receiving the state change and potential rewards\cite{Part1Jericho}\cite{Part2MCSurvey}. Solve such game environments with algorithms, like interactive-fiction (IF) games like Zork\cite{Part1Jericho} and turn-based games like Go and Sokoban\cite{Part1SokobanMCTS}, enjoys benefit in their conversion into Markov decision processes\cite{Part1Jericho} while addresses challenges like the explosion of combinatorial state or action spaces, the requirement for commonsense reasoning, and the demand for effective knowledge representation\cite{Part1Jericho}. In such, though shortest path-finding algorithms like A* presents perfect solutions for simple puzzle games, they might fall short in complex combinatorial games due to state space explosion. MCTS, due to its capability of exploiting optimal solution with limited sampling, emerged as a choice to solve complex games like complex Sokoban maps\cite{Part1SokobanMCTS}\cite{Part1SokobanDRL} or Go, leading to breakthroughs like the high performance of AlphaGo \cite{Part2GoNNMCTS}. However, early explorations in solving test-based games with MCTS mainly focused on incorporation with neural network\cite{Part1Jericho} or hardcoding transition probabilities for specific states and actions \cite{Part1NAIL}. Such methodologies undermines the rich semantic meanings in state descriptions and might be less transferrable across different environments. The emerge of better large language models led to work that utilized LLM to optimize MCTS heuristics, rather than using neural network outputs or hardcoded instructions. MC-DML \cite{Part2MCLLM} attempts to capture the semantic meaning and past game experiences by deploying LLM agent as the initial policy of the MCTS framework, while using a dynamic memory mechanism to efficiently preserve the knowledge base of in or cross-game experiences. Building on the recent incorporation of LLM into MCTS for solving games, our work attempts to optimize different components of MCTS framework with LLM agent, in order to utilize LLM's strength in reasoning to capture the semantic meanings and higher-level logic in our target sequential-decision making games. Compared to past work like MC-DML \cite{Part2MCLLM}, our work attempts to save compute cost by adapting LLM as heuristic designer, rather than stepwise policy maker. We also address the challenge of knowledge base management by organizing and using past game traces to drive better heuristics with LLM.
+
+% \textbf{Self-Evolving Agent.}
+% Unlike static LLMs, which demonstrate less capability to adapting to novel or evolving contexts, self-evolving agents are designed to overcome such limitation by learning from real-world feedbacks and optimize its tasks\cite{Part3SEA}. The emergence of self-evolving agents attempts to redefine the AI frontier closer towards AGI\cite{Part3ToolYunjue}, while inspiring the grounding of the self-evolving agent concepts into appropriate domains that can address the questions of \textit{what to evolve, when to evolve, and how to evolve}\cite{Part3SEA}. Many recent works applies the concept of self-evolving agent with agent tools, which are callable components like code scripts that assist the agent to complete certain tasks \cite{Part3ReAct}\cite{Part3ToolYunjue}, as a target to evolve. Some past work have focused more on the agent's capability of using existing external tools\cite{Part3ReAct}, leading towards agents that can solve tasks with more autonomy \cite{Part3DPAgent}. The emerging research of self-evolving agent further enhanced such strength in higher agent autonomy, as more recent works about self-evolving agents explore the agent's workflow to generate and optimize the tools under a specified domain, such as software engineering \cite{Part3LiveSWE} and challenging real-world question solving \cite{Part3ToolYunjue}. In particular, the Yunjue Agent solves a real-world question prompt through task proposal, which the agent proposes a stream of subtasks and produce tools to gradually solve the entire problem\cite{Part3ToolYunjue}. The Yunjue Agent further highlights its strength in self-evolving concept by proposing the In-situ self evolving (ISE) framework that treats a group of task interactions as a stream for continuous knowledge accumulation and toolset optimization\cite{Part3ToolYunjue}, and this framework enables the agent to familiarize and solve diverse real-world question prompts with less human supervision. Our work built on the emerging research of self-evolving agent and agent tool generation, as we attempt to tune the LLM agent to continuously produce and optimizer MCTS heuristics as tools to solve sequential decision-making games with less human supervision. In particular, our work demonstrates an application of self-evolving agent in the domain of complex, sequential decision-making games. 
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.95\linewidth]{imgs/framework.png}
+%   \caption{Overview of the proposed framework.}
+%   \label{fig:framework}
+%   \vspace{-0.2cm}
+% \end{figure}
+
 \section{Related Work}
 \label{sec:related}
 
-\subsection{A Survey of Monte Carlo Tree Search Methods}
-% [2012] Cameron Browne et al.
-% - Challenge: How to find optimal decisions in a given domain (complex game as MDP)?
-% - Paper: Maps the problem to a search tree, performs 4 stages (selection, exploration, simulation, back-propagation) with tree policy to understand game states and identify optimal decisions
-% - Exploration heuristics like UCT balance exploration and exploitation with simple data
-% - Limitation: Lacks reasoning over environment data, constrained by limited information
-% - Our learning: Solve complex games based on an MCTS framework
-% - Our approach: Use LLM to enhance reasoning over environment and state information
+\textbf{Monte Carlo Tree Search.} MCTS balances Monte Carlo exploration and exploitation in large decision spaces, often yielding strong decisions from limited rollouts\cite{Part2MCSurvey,Part2MCTSCoulom} and has been successful in combinatorial games and policy optimization\cite{Part2MCSurvey,Part2GoNNMCTS,Part2PGTS}, with continued improvements such as PUCT\cite{Part2MCSurvey}. AlphaGo-style systems augment MCTS with learned value/policy models\cite{Part2GoNNMCTS}; more recent work also integrates LLMs with MCTS, either to improve LLM reasoning or to use LLMs as search components/heuristic optimizers\cite{Part2PGTS,Part2MCLLM,Part2PlanHeuris}. We build on this line by keeping an MCTS backbone and using the LLM to generate programmable heuristics that optimize search behavior\cite{Part2PlanHeuris}.
 
-\subsection{MC-DML: Monte-Carlo Planning with Dynamic Memory-Guided LLM}
-% [ICLR 2025] Zijing Shi et al.
-% - Challenge: Past MCTS+RL limitations, like uncertain exploration and lack of reasoning
-% - Paper: Deploys LLM as a policy (action decision) maker in text games, enriches context with dynamic memory mechanism (in-track, cross-track memory)
-% - Limitation: High cost, confusion with local memory management
-% - Our learning: Utilize LLM's reasoning capabilities and memory management
-% - Our approach: We generate heuristics used for many steps; we study summarized traces from a global point of view for tool generation
+\textbf{Sequential Decision-Making Games.} Games such as Zork, Go, and Sokoban can be formulated as MDPs\cite{Part1Jericho,Part2MCSurvey,Part1Jericho,Part1SokobanMCTS} but pose search and commonsense challenges\cite{Part1Jericho}. While A* can solve simpler puzzles, MCTS can remain effective under limited sampling and has been applied to Sokoban and Go\cite{Part1SokobanMCTS,Part1SokobanDRL,Part2GoNNMCTS}. In text games, earlier agents used neural components or hard-coded transition logic\cite{Part1Jericho,Part1NAIL}; newer approaches leverage LLM semantics and memory (e.g., MC-DML)\cite{Part2MCLLM}. Our approach similarly targets semantics-aware behavior, but shifts the LLM to an offline heuristic designer and uses logged traces to drive iterative tool improvements without per-step LLM calls\cite{Part2MCLLM}.
 
-\subsection{Yunjue Agent: A Self-Evolving Agent System for Open-Ended Tasks}
-% [2026] Haotian Li et al.
-% - Challenge: LLM requires human supervision to solve hard problems
-% - Paper: Multi-agent architecture that solves sequences of real-world problems by generating, synthesizing, optimizing, and reusing tools (python scripts) in parallel
-% - Limitation: Focuses on deterministic problems, can benefit from targeted workflow
-% - Our learning: Novel tool generation paradigm reduces supervision in our system
-% - Our approach: Using LLM to analyze, generate, and improve MCTS or other heuristics as tools for validated agentic task proposals
+\textbf{Self-Evolving Agent.} Self-evolving agents learn from feedback to overcome static behavior\cite{Part3SEA} and are motivated by questions of what/when/how to evolve\cite{Part3SEA} and broader AGI aspirations\cite{Part3ToolYunjue}. Many evolve callable tools\cite{Part3ReAct,Part3ToolYunjue} or focus on autonomous tool use\cite{Part3ReAct,Part3DPAgent}; recent systems also generate/refine tools for domains such as software engineering\cite{Part3LiveSWE} and hard real-world question answering\cite{Part3ToolYunjue}. The Yunjue Agent and its in-situ self-evolving (ISE) framework emphasize task proposal and toolset optimization over interaction streams\cite{Part3ToolYunjue}. 
 
+In contrast to runtime ``reasoning+acting'' setups (e.g., ReAct/Toolformer prompting, SWE-agent-style code execution, or LLM planning), our LLM operates offline as a synthesizer that evolves the \emph{search algorithm} itself (heuristics and phase-level control), while the MCTS executor runs without per-step LLM calls. We adapt these ideas by evolving search heuristics as reusable tools for sequential decision-making games, improving policies beyond minor action-level tweaks. For a more detailed related-work discussion and additional context, see Appendix~\ref{app:related_work}.
 
 \section{System Architecture}
 \label{sec:method}
@@ -118,75 +124,72 @@ To address the limitations of static heuristic-based planning and the high cost 
 
 \subsection{RL Framework}
 \label{sec:method_rl}
-The core gameplay engine within our architecture is a pluggable Reinforcement Learning framework. While it is adaptable to algorithms like A* or DQN, we primarily utilize a Monte Carlo Tree Search (MCTS) framework (as illustrated in Figure~\ref{fig:rl_framework}).
+The core gameplay engine within our architecture is a pluggable Reinforcement Learning framework. While it is adaptable to algorithms like A* or DQN, we primarily utilize a Monte Carlo Tree Search (MCTS) framework (Figure~\ref{fig:framework_overview}, right).
 
-\begin{figure}[htbp]
+\begin{figure}[t]
   \centering
-  \begin{minipage}[b]{0.48\textwidth}
+  \begin{subfigure}[b]{0.43\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{imgs/self-evolving-game-agent.png}
-    \caption{Tool-Evolving LLM Agent pipeline.}
-    \label{fig:tool_evolving}
-  \end{minipage}
+    \includegraphics[width=0.92\linewidth]{imgs/self-evolving-game-agent.png}
+  \end{subfigure}
   \hfill
-  \begin{minipage}[b]{0.48\textwidth}
+  \begin{subfigure}[b]{0.49\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{imgs/RL_framework_MCTS.png}
-    \caption{The modular MCTS RL Framework operates offline, using generated Tool Functions for specific phases while passively recording gameplay.}
-    \label{fig:rl_framework}
-  \end{minipage}
+    \includegraphics[width=0.92\linewidth]{imgs/RL_framework_MCTS.png}
+  \end{subfigure}
+  \caption{System components used in our method. \textbf{Left:} the offline Tool-Evolving LLM Agent pipeline. \textbf{Right:} the modular MCTS RL framework, which executes without runtime LLM calls while logging gameplay and loading generated tool functions for specific phases.}
+  \label{fig:framework_overview}
+  \vspace{-0.4cm}
 \end{figure}
 
-Crucially, the framework operates entirely offline relative to the LLM. Step-by-step LLM decision-making during gameplay is inherently slow, costly, and poorly suited for games with implicit semantics derived directly from the board status or game state. In our approach, the RL framework contains zero online LLM calls. Instead, the framework plays games at native compute speeds using programmatic heuristics, passively recording detailed gameplay traces (JSON records) that are stored offline for later optimization (as seen in the Gameplay Records box in Figure~\ref{fig:rl_framework}).
+Crucially, the framework operates entirely offline relative to the LLM. Step-by-step LLM decision-making during gameplay is inherently slow, costly, and poorly suited for games with implicit semantics derived directly from the board status or game state. In our approach, the RL framework contains zero online LLM calls. Instead, the framework plays games at native compute speeds using programmatic heuristics, passively recording detailed gameplay traces (JSON records) that are stored offline for later optimization (as seen in the Gameplay Records box in Figure~\ref{fig:framework_overview}, right).
 
-To make the search dynamic and adaptable, we isolate specific decision domains within the MCTS pipeline as optimizable ``heuristic slots'' (marked as blue boxes in Figure~\ref{fig:rl_framework}). Notably, we found that the \textbf{Selection} and \textbf{Simulation} phases offer the most significant optimization surfaces:
-\begin{itemize}
-    \item \textbf{Selection:} In traditional MCTS, the best child is selected using a static heuristic such as Upper Confidence bounds applied to Trees (UCT). We encapsulate this selection logic as a programmable tool function, allowing the LLM to write environment-specific rules for exploring the search tree.
-    \item \textbf{Simulation:} Standard simulation rollouts often fall back on iteratively selecting uniformly random legal actions until a terminal state is reached. We reinterpret the simulation rollout as a heuristic function in itself. An LLM-designed simulation tool can introduce targeted exploration or score-guided action selection to dramatically improve sample efficiency without requiring deep searches.
-\end{itemize}
+To make the search dynamic and adaptable, we isolate specific decision domains within the MCTS pipeline as optimizable ``heuristic slots'' (marked as blue boxes in Figure~\ref{fig:framework_overview}, right). In our experiments, we primarily optimize the \textbf{Selection} and \textbf{Simulation} phases; detailed rationale and formulations are provided in Appendix~\ref{app:mcts_slots}.
 
-These tool functions are encapsulated as standalone Python code snippets that are imported directly by the MCTS engine at runtime. The choice of which function to load for each phase is managed by a central configuration file. Because both the Python snippets and the configuration file are plain text, the LLM can freely create, modify, or hot-swap tools iteratively after reviewing the collected gameplay records.
+These tool functions are encapsulated as standalone Python code snippets imported by the MCTS engine at runtime. The choice of which function to load for each phase is managed by a central configuration file. Because both the Python snippets and the configuration file are plain text, the LLM can freely create, modify, or hot-swap tools iteratively after reviewing collected gameplay records.
 
 \subsection{Tool-Evolving LLM Agent}
 \label{sec:method_llm}
-The LLM serves as an offline strategy improver rather than an online decision-maker. As illustrated in Figure~\ref{fig:tool_evolving}, the policy improvement mechanism is driven by several interacting modules designed to translate raw gameplay failures into executable code improvements.
+The LLM serves as an offline strategy improver rather than an online decision-maker. As illustrated in Figure~\ref{fig:framework_overview} (left), the policy improvement mechanism is driven by several interacting modules designed to translate raw gameplay failures into executable code improvements.
 
-\paragraph{Trace Analyzer:} The first step in the improvement pipeline is the Trace Analyzer. It acts as an LLM sub-agent that ingests raw game records within a sliding history window (e.g., the last three games by default) and extracts high-level semantics. The Analyzer is tasked with identifying \textit{why} the current strategy succeeded or failed, extracting insights on necessary rule modifications, or determining if a completely novel approach is required.
+\textbf{Trace Analyzer:} The first step in the improvement pipeline is the Trace Analyzer. It acts as an LLM sub-agent that ingests raw game records within a sliding history window (e.g., the last three games by default) and extracts high-level semantics. The Analyzer is tasked with identifying \textit{why} the current strategy succeeded or failed, extracting insights on necessary rule modifications, or determining if a completely novel approach is required.
 
-\paragraph{Orchestrator and Prompt Builder:} The Orchestrator acts as the central coordinator. It receives insights from the Trace Analyzer, fetches game-specific rules and broad strategies from the Global Tools library, and retrieves the complete source code of the heuristic that produced the failure. The Orchestrator feeds this consolidated context to the Prompt Builder, which constructs the targeted prompts for code generation. By isolating the game-specific logic within Global Tools, the Orchestrator itself remains entirely game-agnostic.
+\textbf{Orchestrator and Prompt Builder:} The Orchestrator acts as the central coordinator. It receives insights from the Trace Analyzer, fetches game-specific rules and broad strategies from the Global Tools library, and retrieves the complete source code of the heuristic that produced the failure. The Orchestrator feeds this consolidated context to the Prompt Builder, which constructs the targeted prompts for code generation. By isolating the game-specific logic within Global Tools, the Orchestrator itself remains entirely game-agnostic.
 
-\paragraph{Multi-Round Query Loop:} To reliably transform abstract reasoning into executable, bug-free Python code, we utilize a multi-round query loop consisting of four distinct stages:
-\begin{enumerate}
-    \item \textbf{Task Proposal (Analyze):} 1 round. The LLM reviews the Trace Analyzer's insights against the current code to propose a concrete software modification or a new algorithmic approach.
-    \item \textbf{Code Generation (Draft):} 1 round. The LLM writes the initial draft of the proposed Python function.
-    \item \textbf{Refinement (Critique):} 1 round. The drafted code is critiqued for common logic errors, computational efficiency, and proper API usage, resulting in a refined function.
-    \item \textbf{Smoke-Test Fixes:} 1 round. The refined tool is compiled in a sandboxed namespace and run against a dummy environment state (a ``smoke test"). If a syntax or runtime exception occurs, the error traceback is fed back to the LLM for a single, immediate repair attempt. If the test passes, this step acts as a no-op.
-\end{enumerate}
+\textbf{Multi-Round Query Loop:} To reliably transform abstract reasoning into executable, bug-free Python code, we utilize a multi-round query loop consisting of four distinct stages, each implemented as a single LLM round:
+\begin{itemize}
+    \item \textbf{Task Proposal (Analyze):} The LLM reviews the Trace Analyzer's insights against the current code to propose a concrete software modification or a new algorithmic approach.
+    \item \textbf{Code Generation (Draft):} The LLM writes the initial draft of the proposed Python function.
+    \item \textbf{Refinement (Critique):} The drafted code is critiqued for common logic errors, computational efficiency, and proper API usage, resulting in a refined function.
+    \item \textbf{Smoke-Test Fixes:} The refined tool is compiled in a sandboxed namespace and run against a dummy environment state (a ``smoke test"). If a syntax or runtime exception occurs, the error traceback is fed back to the LLM for a single, immediate repair attempt. If the test passes, this step acts as a no-op.
+\end{itemize}
 
-\paragraph{Validation and Tool Library Updates:} Following a successful smoke test, the LLM agent waits for the RL framework to execute a set of evaluation ``test-runs" using the newly generated code. The Orchestrator compares the test-run performance against the existing baseline (typically a composite score of win rate and sample efficiency). 
+\textbf{Validation and Tool Library Updates:} Following a successful smoke test, the LLM agent waits for the RL framework to execute a set of evaluation ``test-runs" using the newly generated code. The Orchestrator compares the test-run performance against the existing baseline (typically a composite score of win rate and sample efficiency). 
 
 We only accept the newly generated code if it demonstrates a strict improvement over the current best heuristic. If accepted, the Local Tools library is populated with the new Python snippet (either as a modification of an existing tool or a brand-new creation), and the RL configuration file is updated to point the MCTS engine to this new function. This successful integration and update sequence constitutes one complete optimization loop.
 
 \subsection{Controller and Game Environment}
 \label{sec:method_controller}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{imgs/MCTS_based.png}
-  \vspace{0.2cm}
-  \caption{Overall Architecture of the Self-Evolving Game Agent. The top ``Game \& Controller'' module acts as the core connector, governing the interactions between the Tool-Evolving LLM Agent (offline generation) and the RL Framework (online execution/offline logging) via predefined Hyperparameters.}
-  \label{fig:mcts_based}
-\end{figure}
-
 As depicted in Figure~\ref{fig:mcts_based}, the overall architecture is mediated by the \textbf{Controller}, which acts as the core connector between the game itself, the RL framework, and the LLM agent. 
 
-\paragraph{Game Environment and Optimizer:} The underlying game environment is treated as a predefined turn-based simulation. Our framework interfaces with a diverse set of games, including Sokoban, Quoridor, TextWorld, and Zork. The central ``Optimizer'' controls the RL framework's gameplay loop and orchestrates the interactions between the two primary system modules. Specifically, the Optimizer manages the flow of offline gameplay records from the RL framework to the LLM agent's Trace Analyzer, and conversely handles the dynamic online import of newly generated heuristic tool plugins from the agent back into the search engine.
+\begin{wrapfigure}{r}{0.55\textwidth}
+  % \vspace{-0.2cm}
+  \centering
+  \includegraphics[width=0.53\textwidth]{imgs/MCTS_based.png}
+  \caption{Overall Architecture of the Self-Evolving Game Agent. The top ``Game \& Controller'' module acts as the core connector, governing the interactions between the Tool-Evolving LLM Agent (offline generation) and the RL Framework (online execution/offline logging) via predefined hyperparameters.}
+  \label{fig:mcts_based}
+  \vspace{-0.4cm}
+\end{wrapfigure}
 
-\paragraph{Hyperparameters:} Crucially, our architecture explicitly separates the game logic and meta-training configuration from the LLM agent's responsibilities. A dedicated hyperparameters section dictates the game type, level data, training strategy (e.g., number of test evaluation runs), and search algorithm limits (e.g., maximum MCTS rollouts). These are system-level parameters that require human pre-definition and remain strictly outside of the LLM agent's control, ensuring stable and bounded experimentation.
 
-\paragraph{Game-Agnostic Modularity:} The core competitiveness of this architecture lies in its modularity. Because the game transition logic and the hyperparameter definitions are entirely encapsulated within the top-level Controller, transferring the system to train on a completely different game requires zero changes to the underlying LLM agent or RL codebases. We simply swap the controller-level game endpoint and hyperparameter file while keeping the core modules intact.
+\noindent\textbf{Game Environment and Optimizer:} The underlying game environment is treated as a predefined turn-based simulation. Our framework interfaces with a diverse set of games, including Sokoban, Quoridor, TextWorld, and Zork. The central ``Optimizer'' controls the RL framework's gameplay loop and orchestrates the interactions between the two primary system modules. Specifically, the Optimizer manages the flow of offline gameplay records from the RL framework to the LLM agent's Trace Analyzer, and conversely handles the dynamic online import of newly generated heuristic tool plugins from the agent back into the search engine.
 
-\paragraph{Framework Flexibility:} Furthermore, the architecture is not strictly tied to MCTS. Any search framework that contains optimizable, programmable components can be plugged into the right-hand ``RL Framework'' module. For instance, the static heuristic function used in the A* algorithm can perfectly serve as an optimizable ``blue box.'' By targeting the A* distance heuristic for LLM optimization instead of MCTS selection/simulation, the exact same system can evolve performant pathfinding strategies, as we will demonstrate later in Section~\ref{sec:experiments}.
+\noindent\textbf{Hyperparameters:} Our architecture separates the game logic and meta-training configuration from the LLM agent's responsibilities. A dedicated hyperparameters section dictates the game type, level data, training strategy (e.g., number of test evaluation runs), and search algorithm limits (e.g., maximum MCTS rollouts). These are system-level parameters that require human pre-definition and remain strictly outside of the LLM agent's control, ensuring stable and bounded experimentation.
+
+\noindent\textbf{Game-Agnostic Modularity:} The core competitiveness of this architecture lies in its modularity. Because the game transition logic and the hyperparameter definitions are entirely encapsulated within the top-level Controller, transferring the system to train on a completely different game requires zero changes to the underlying LLM agent or RL codebases. We simply swap the controller-level game endpoint and hyperparameter file while keeping the core modules intact.
+
+\noindent\textbf{Framework Flexibility:} Furthermore, the architecture is not strictly tied to MCTS. Any search framework that contains optimizable, programmable components can be plugged into the right-hand ``RL Framework'' module. For instance, the static heuristic function used in the A* algorithm can perfectly serve as an optimizable ``blue box.'' By targeting the A* distance heuristic for LLM optimization instead of MCTS selection/simulation, the exact same system can evolve performant pathfinding strategies, as we will demonstrate later in Section~\ref{sec:experiments}.
 
 \subsection{Task Proposal Loop}
 \label{sec:method_task_proposal}
@@ -198,16 +201,264 @@ To extract consistently higher-quality proposals, future iterations could incorp
 \section{Experiments}
 \label{sec:experiments}
 
-\subsection{Sokoban (A* Optimization)}
+\subsection{Sokoban Benchmark}
 \label{sec:exp_sokoban}
 
-\subsubsection{Sokoban Environment}
+% \subsubsection{Sokoban Environment}
 Sokoban is a classic puzzle video game where the player pushes boxes or crates around in a warehouse, trying to get them to storage locations. The game is notoriously difficult due to its high branching factor and common deadlock states (e.g., pushing a box into a corner). It requires deep planning, making it an ideal testbed for search heuristic optimization.
+
+
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{imgs/first_20/output0.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{imgs/first_50/output0.png}
+  \end{minipage}
+  \vspace{0.2cm}
+  \caption{Comparison of the Output 0 metric between straight 20-level training (left) and generalized 50-select-20 training (right).}
+  \label{fig:sokoban_comparison_0}
+  \vspace{-0.4cm}
+\end{figure}
+
 
 \subsubsection{A* Heuristic Optimization}
 While our core architecture relies on MCTS, we demonstrate its flexibility by plugging an A* search engine into the RL Framework module. Instead of optimizing selection and simulation phases, the LLM agent optimizes the A* cost heuristic function. 
 
-Algorithm~\ref{alg:sokoban_astar} outlines the core pseudo-code for our A* implementation. The bolded line highlights the exact insertion point where the LLM-generated heuristic code evaluates the board state. Because the framework isolates this logic, the LLM can freely evolve complex strategies without breaking the underlying search mechanics.
+Algorithm~\ref{alg:sokoban_astar} outlines the core pseudo-code for our A* implementation (see Appendix~\ref{app:algorithms}). The bolded line highlights the exact insertion point where the LLM-generated heuristic code evaluates the board state. Because the framework isolates this logic, the LLM can freely evolve complex strategies without breaking the underlying search mechanics.
+
+As a baseline, we employ a standard heuristic consisting of a greedy box-to-goal Manhattan distance matching combined with a mobility penalty. The system is run for 10 optimization iterations, with the underlying A* search capped at a maximum of 30,000 search steps per level.
+
+
+\begin{wrapfigure}{r}{0.6\textwidth}
+  \vspace{-0.8cm}
+  \centering
+  \includegraphics[width=\linewidth]{imgs/first_20/output2.png}\\
+  \includegraphics[width=\linewidth]{imgs/first_50/output2.png}
+  \caption{Comparison of the Output 2 metric. Top: straight 20-level training (Curriculum A). Bottom: generalized 50-select-20 training (Curriculum B).}
+  \label{fig:sokoban_comparison_2}
+  \vspace{-1cm}
+\end{wrapfigure}
+
+
+\subsubsection{Results and Generalization}
+We evaluated the learning dynamics by comparing two different training curricula: training strictly on the first 20 levels (``Curriculum A'') versus randomly sampling 20 levels from a wider pool of 50 levels per iteration (``Curriculum B''). 
+
+Quantitative results demonstrate that the LLM-driven optimization significantly prunes the A* search space. For Curriculum A, the average node exploration dropped by \textbf{74.4\%} (from an average of 1,578 nodes in the enhanced baseline to 404 nodes in the optimized version). Curriculum B showed similar prowess, yielding a \textbf{64.8\%} average reduction across the larger level set.
+
+More impressively, we observed localized cases of extreme improvement where the LLM identified high-impact heuristics (such as advanced deadlock detection and optimal push-distance assignment via DP). On \textbf{Level 2}, search effort was reduced from 1,223 nodes to just 4 nodes (\textbf{99.6\%} improvement). On \textbf{Level 6}, node exploration fell from 9,561 to 33 in the best iteration (\textbf{99.6\%} improvement). On \textbf{Level 17}, the search count improved from 304 to 17 (\textbf{94.4\%} improvement).
+
+As shown in Figures~\ref{fig:sokoban_comparison_0} and \ref{fig:sokoban_comparison_2}, diversifying the training set yields findings regarding the agent's ability to resist overfitting. When the LLM optimizes a heuristic solely on Curriculum A, the generated code strongly exploits level-specific topological oddities. Conversely, the Curriculum B approach forces the prompt builder to provide the LLM with varied failure states across permutations, resulting in a more generalized code heuristic that performs more consistently across larger level distributions.
+
+\subsection{TextWorld Benchmark}
+% Experiment setup:
+% 1. Introduced two games: Coin and MapReader
+% 2. Used train environments to collect gameplay traces
+% 3. Selected the 3 hardest/failure cases for LLM heuristic optimization
+% 4. Evaluated on larger, unseen test environments
+
+% Behavior example:
+% - Compared baseline heuristic vs. LLM-optimized heuristics for 4 phases
+% - Base heuristic gets stuck in local loops
+% - Optimized heuristic encourages global exploration
+
+% Optimization results (Simulation heuristic difference):
+% - Baseline: uniform random rollout
+% - Optimized: score-guided rollout that rewards task actions and goal progress
+% - Simulation optimization improves test correctness → generalized heuristic
+
+% \subsubsection{TextWorld Environment}
+\label{sec:textworld_env}
+We evaluate our MCTS tool-creation loop on the \textit{TextWorld} benchmark using two games: \textit{Coin} and \textit{MapReader}. Both games emphasize exploration under partial progress signals and highlight the need for semantics-aware, efficient rollouts, making them sensitive to how MCTS balances novelty, task progress, and rollout quality. For detailed evaluation setup, see Appendix~\ref{app:textworld_setup} for full details.
+
+\subsubsection{MCTS Heuristic Optimization}
+We run an iterative heuristic optimization process over the four standard MCTS phases (selection, expansion, simulation, and backpropagation). At each optimization iteration, we evaluate the current heuristic set on the train environments with three independent runs per game (\textit{Coin} and \textit{MapReader}). From these three runs, we compute each environment's average return and pass-rate, then rank environments by difficulty and select the three hardest failure cases for the LLM to analyze. The LLM proposes code edits for the chosen phases, warm-started from the previous iteration's heuristics. Algorithm~\ref{alg:textworld_mcts} summarizes this loop (see Appendix~\ref{app:algorithms}).
+
+\textbf{Behavior example.}
+Qualitatively, the baseline MCTS tends to over-exploit locally attractive actions (e.g., repeatedly re-entering the same rooms or oscillating between a few states), which yields deceptively stable but low-progress rollouts. After optimization, we observe more purposeful exploration: the agent covers more distinct rooms early, avoids obvious short cycles, and commits more often to trajectories that increase task-relevant signals (e.g., reaching new areas that unlock the coin or improve map coverage). A qualitative comparison of baseline vs. optimized TextWorld trajectories is provided in Appendix~\ref{app:textworld_qualitative} (Figure~\ref{fig:textworld-behavior}).
+
+
+\begin{table*}[t]
+  \caption{Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta$ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps. ``+'' indicates which MCTS phase(s) are optimized.}
+  \label{tab:textworld-results}
+  \centering
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccc|cccc}
+    \toprule
+    Configuration & Train Correct & Train $\Delta$ & Train Ret & Train Steps & Test Correct & Test $\Delta$ & Test Ret & Test Steps \\
+    \midrule
+    baseline & 62/72 & 0 & 0.861 & 9.9 & 55/90 & 0 & 0.606 & 14.4 \\
+    \midrule
+    + selection & 63/72 & 1 & 0.875 & 12.8 & 75/90 & 20 & 0.833 & 15.8 \\
+    + expansion & 62/72 & 0 & 0.819 & 10.9 & 55/90 & 0 & 0.478 & 11.3 \\
+    + simulation & \textbf{\underline{72/72}} & \textbf{\underline{10}} & \textbf{\underline{1.000}} & 41.0 & \textbf{\underline{90/90}} & \textbf{\underline{35}} & \textbf{\underline{1.000}} & 45.1 \\
+    + backpropagation & 64/72 & 2 & 0.889 & \textbf{\underline{8.5}} & 60/90 & 5 & 0.656 & \textbf{\underline{10.2}} \\
+    + full & 70/72 & 8 & 0.972 & 14.9 & 89/90 & 34 & 0.989 & 16.2 \\
+    \bottomrule
+  \end{tabular}%
+  }
+  \vspace{-0.2cm}
+\end{table*}
+
+
+\subsubsection{Results and Generalization}
+\textbf{Optimization results across MCTS phases.} Table~\ref{tab:textworld-results} reports ablations where we optimize each phase independently, as well as a full configuration. Optimizing selection improves test correctness substantially by better prioritizing promising branches, while backpropagation improves stability and reduces steps by propagating returns more effectively. Optimizing expansion alone provides limited gains and can reduce test performance, suggesting that naive widening can increase branching noise without improving long-horizon credit assignment. The strongest single-phase improvement comes from simulation, which directly improves rollout signal quality and yields the largest increase in correctness on both train and test. Combining all phase updates (full) performs near the best configuration across metrics, indicating that the phase-specific heuristics are complementary when warm-started and co-evolved. Appendix~\ref{app:textworld_combo_ablations} reports the full set of multi-phase combinations.
+
+
+
+\subsection{Heuristic Generalizability}
+% - LLM-MCTS pass rate: 60~90 (full) out of 90
+% - DQN pass rate: 27~33 (optimized) out of 90 (test blind — not trained on test environment)
+% - DQN techniques used: Boltzmann exploration, success replay buffer, stagnation threshold, early stopping, step cost penalty
+% - Key finding: LLM-generated heuristics generalize better than DQN to unseen test environments
+
+\textbf{Generalization performance.} Following the train/test split described in Section~\ref{sec:textworld_env}, we aggregate metrics over repeated runs to compute correctness (pass-rate), mean return, and mean steps on both splits. Overall, the optimized heuristics improve training performance and also improve test correctness on the harder non-overlapping environments. This indicates that trace-conditioned edits can yield heuristics that transfer beyond the specific training instances.
+
+\textbf{Generalization vs. DQN.} To further stress-test transfer, we compare our LLM--MCTS heuristics to a canonical deep RL baseline (DQN) under a unified-policy setting: learn from a set of training variants and evaluate on harder, unseen TextWorld instances. For DQN, we use the same text-tokenizer state encoding and discretize the TextWorld action space into action ids.
+
+LLM-generated heuristics transfer more reliably to unseen environments. DQN learns a specific MDP and often fails to generalize when test instances introduce new states or larger maps (e.g., unseen encodings and non-commutative room additions), even after common enhancements such as Boltzmann exploration, a success replay buffer, stagnation-threshold boosting, early stopping, and step-cost penalties. In contrast, the LLM tends to produce rule-based tools that are less level-specific and can serve as reusable (and potentially hierarchical) heuristics across game variants.
+
+
+\subsection{Zork Benchmark}
+% Environment complexity (vs. TextWorld):
+% - Up to 22 interconnected rooms (vs. simple grid), with surface + underground layers
+% - 6 treasures to collect AND deposit back at base (vs. pick up 1 coin)
+% - Multi-step dependencies: get lantern → light it → go underground → kill troll → access treasures → return to deposit
+% - Instant death states: entering dark rooms without lantern
+% - Resource management: limited lantern fuel
+% - State space orders of magnitude larger (room × inventory × items × fuel × troll × lantern × trophy case)
+% TODO: Add Zork results figure
+
+% Next, we have extend the evaluation to more complex text game Zork.
+% While TextWorld serves as a manageable baseline with its procedurally generated, deterministic grid worlds and single objective goals, Zork introduces complexity that pushes Monte Carlo Tree Search (MCTS) to its limits due to its sparse reward structure and high stakes, long horizon dependencies. Unlike the simple "find and flip" mechanics of TextWorld, Zork requires agents to navigate a hand crafted, multi layered map to retrieve and deposit six treasures, necessitating sophisticated "round trip" planning that can span hundreds of steps. This challenge is further intensified by irreversible failure states (such as instant death by a grue in unlit rooms) and strict resource management, like conserving limited lantern fuel. These factors, combined with a combinatorial state space and stochastic combat, force MCTS to navigate a larger and more treacherous search tree where a single suboptimal exploration branch often leads to a permanent game over rather than a simple detour. \\
+% Since Zork is a significantly more complex game, we aim to evaluate the efficiency of the LLM heuristic in accelerating learning speed within a fixed step budget. To facilitate this, we subdivided the full Zork map into smaller sub-regions. In each sub-region, a maximum score is achieved once all treasures are collected. Consequently, our comparison is limited to a 13-room subset of the Zork map, as the agent is unable to produce a plausible solution beyond this scale within a 100-step limit.
+% From Fig.~\ref{fig:zorkcomp} we can see that in general the llm heuristic can improve 20\% performance score compared to baseline MCTS within 100 steps. However, we admit that our framework meets the same complexity wall as baseline, providing that the LLM do not generalize the Zork heuristic enough to cover all kinds of Zork games from its knowledge base. Detailed data comparison can be found in Appendix~\ref{apdx:zork}.
+
+Next, we extend the evaluation to the more complex text game \textit{Zork}. Compared to TextWorld's procedurally generated, single-objective navigation tasks, Zork features sparse rewards and high-stakes, long-horizon dependencies. The agent must traverse a hand-crafted, multi-layer map to retrieve \emph{and deposit} multiple treasures, which requires ``round-trip'' planning over many steps. The environment also contains irreversible failure modes (e.g., death in dark rooms without a lit lantern) and resource constraints such as limited lantern fuel, yielding a much larger combinatorial state space.
+
+To test whether LLM-generated heuristics can meaningfully accelerate MCTS under a fixed interaction budget, we subdivide the full Zork map into smaller sub-regions and evaluate on a 13-room subset (the largest scale where either method can produce plausible progress within a 100-step limit). As shown in Figure~\ref{fig:zorkcomp}, the LLM-optimized heuristic provides about a 20\% score improvement over baseline MCTS within 100 steps in solvable settings (8--10 rooms). However, both methods hit a similar complexity wall starting around 12 rooms, indicating that additional steps and/or stronger Zork-specific generalization are needed. Detailed comparisons are provided in Appendix~\ref{apdx:zork}.
+
+\begin{figure*}[t]
+  \centering
+
+  \begin{subfigure}[t]{0.44\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{imgs/dqnzork/comparedqn.png}
+    \caption{\textbf{TextWorld generalization}: our method shows near-perfect return scores and efficient execution across all game complexities, while DQN hits a complexity wall around 11 rooms, beyond which no generalization is possible.}
+    \label{fig:dqncomp}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.54\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{imgs/dqnzork/comparezork.png}
+    \caption{\textbf{Zork subset scaling}: the llm-optimized MCTS algorithm provides a $\sim 20\%$ performance lift in solvable environments (8--10 rooms), but is limited by the complexity wall starting at 12 rooms where state-space dependencies peak without more steps.}
+    \label{fig:zorkcomp}
+  \end{subfigure}
+  \caption{Generalization/scaling comparisons for TextWorld (left) and Zork (right).}
+  \vspace{-0.4cm}
+\end{figure*}
+
+\section{Limitations}
+\label{sec:limitations}
+
+% - Were not able to meaningfully evaluate long-horizon behavior of tool quality
+% - Open question: After ~1000 code iterations, does the tool quality collapse, plateau, or see eureka moments of continuous improvement?
+% - Iterative task proposal can get stuck in parameter tuning without proposing new ideas; task proposal could use more research
+% - MCTS heuristic tools show some transferability on same game with different setups
+% - Lacks investigation on cross-game transferable tools
+% - Evaluation limited to simple environments
+% - Agent demonstrated improvements on multiple simple games, but lacked a larger, more impressive game environment to evaluate high-impact improvements
+
+\textbf{LLM and agent scope.}
+We restricted the LLM agent to read/write access only to specific tool files within a fixed RL framework (MCTS) for feasible evaluation. We did not evaluate long-horizon tool quality: after hundreds or thousands of iterations, it is unclear about heuristic quality. Expanding the agent's scope and improving how the LLM proposes and refines tools could address these limits.
+
+\textbf{Task proposal.}
+The iterative task proposal loop can get stuck in local parameter tuning without proposing structurally new ideas; when the LLM repeatedly suggests small tweaks rather than paradigm shifts, the system may fail to escape suboptimal heuristics. Task proposal quality is the most critical fault point in our pipeline. Improving the diversity and effectiveness of proposals is a central direction for future work.
+
+\textbf{Generalization.}
+We observed same-game differnt level transfer but did not investigate cross-game transfer. Evaluation was limited to relatively simple or medium-complexity, white-box environments with explicit code APIs. We lacked both a larger, more demanding game benchmark and any setting where the agent must interact with black-box games (e.g., via pixels or screenshots).
+
+\section{Future Work}
+\label{sec:future}
+
+\textbf{Broader agent scope.}
+We limited the LLM agent's read/write access to specific tool files within a fixed RL framework (MCTS) to keep evaluation feasible and controlled. The agent might perform better with elevated scope: access to full tool folders, the freedom to switch or combine RL frameworks that interact with the environment, or even the ability to modify its own prompt engine and LLM workflow. Exploring such expanded agent boundaries could reveal whether self-evolving tool creation scales with greater autonomy.
+
+\textbf{Task proposal effectiveness.}
+Improving the quality and diversity of task proposals is important. Techniques such as few-shot chain-of-thought reasoning, multi-agent debate over root causes, or explicit curriculum over failure modes could help the LLM propose more impactful and varied heuristic changes, reducing the risk of getting stuck in parameter tuning.
+
+\textbf{Generalizing beyond white-box games.}
+The game environments we evaluated are white-box: they expose explicit code APIs for state queries and actions. A natural extension is to allow the LLM agent to discover or implement interaction frameworks for black-box games---for example, using screenshots or pixel observations to learn the game interface and then implementing tools that produce encapsulated action sequences (e.g., mouse clicks or key presses). Such a step would broaden the applicability of the self-evolving tool paradigm to games without programmatic access.
+% Broader Agent Scope:
+% - We limited LLM agent's scope of read/write access to only specific tool files within specific RL frameworks (MCTS) for feasible evaluation
+% - The LLM agent might perform better with elevated scope — access to full tool folders, freedom to switch RL frameworks that interact with the environment, or freedom to modify its own prompt engine/LLM workflow
+
+% Task Proposal Effectiveness:
+% - Further research needed on improving the quality and diversity of task proposals
+
+% Generalizing Beyond White-Box Games:
+% - The game environments we evaluated are whitebox with explicit code endpoints for interaction
+% - Potentially allow LLM agent to figure out / implement interaction frameworks with blackbox games
+% - For example, using screenshots to learn game interaction but implementing tools to later build encapsulated movesets with mouse clicks
+
+
+
+% \cite{Part1MCSurvey}
+% \cite{Part2MCLLM}
+% \cite{Part3ToolYunjue}
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\appendix
+
+\section{Technical Appendix}
+
+\subsection{Detailed Related Work}
+\label{app:related_work}
+\textbf{Monte Carlo Tree Search.}
+Monte Carlo Tree Search (MCTS) method excels at deriving optimal decisions in environments with complex decision space because it balances efficient exploration through monte carlo sampling and exploitation of promising subparts of the search tree\cite{Part2MCSurvey} \cite{Part2MCTSCoulom}. Over time, MCTS demonstrates robust applications in real-world problems like combinatorial games\cite{Part2MCSurvey}\cite{Part2GoNNMCTS} and policy optimization \cite{Part2PGTS}, along with immense potential in its improvements. Other than the theoretical breakthroughs in MCTS, such as better exploration heuristics like PUCT \cite{Part2MCSurvey}, studies of MCTS also utilized the incorporations with rapidly developing machine learning techniques like neural networks and LLM \cite{Part2MCLLM}\cite{Part2GoNNMCTS}. In AlphaGo, MCTS searches through the game state search tree to guide better policies, while neural network's capability to provide accurate predictions of state values for MCTS\cite{Part2GoNNMCTS}. With the progression of studies in large language models, MCTS thrives in empowering novel LLM agents through various forms of applications, ranging from applying MCTS as a tool for improving LLM performances \cite{Part2PGTS} to incorporating LLM as a component of the MCTS\cite{Part2MCLLM}. Modern incorporations between MCTS and LLM demonstrates more utilization of LLM's reasoning capability and autonomy, such as applying LLM as a heuristic optimizer for MCTS\cite{Part2PlanHeuris}. Our work recognizes the foundational strength of MCTS in deriving solutions in complex decision space, such as complex combinatorial games\cite{Part2GoNNMCTS}, and the forefront research products in incorporating state-of-the-art machine learning techniques into the MCTS framework, such as optimizing MCTS components with LLM\cite{Part2PlanHeuris}. In such, our work attempts to adapt a MCTS framework while optimizing it with LLM agents. 
+
+
+\textbf{Sequential Decision-Making Games.}
+Sequential decision-making games are defined as games that requires the iteration of observing the state, issuing an action, and receiving the state change and potential rewards\cite{Part1Jericho}\cite{Part2MCSurvey}. Solve such game environments with algorithms, like interactive-fiction (IF) games like Zork\cite{Part1Jericho} and turn-based games like Go and Sokoban\cite{Part1SokobanMCTS}, enjoys benefit in their conversion into Markov decision processes\cite{Part1Jericho} while addresses challenges like the explosion of combinatorial state or action spaces, the requirement for commonsense reasoning, and the demand for effective knowledge representation\cite{Part1Jericho}. In such, though shortest path-finding algorithms like A* presents perfect solutions for simple puzzle games, they might fall short in complex combinatorial games due to state space explosion. MCTS, due to its capability of exploiting optimal solution with limited sampling, emerged as a choice to solve complex games like complex Sokoban maps\cite{Part1SokobanMCTS}\cite{Part1SokobanDRL} or Go, leading to breakthroughs like the high performance of AlphaGo \cite{Part2GoNNMCTS}. However, early explorations in solving test-based games with MCTS mainly focused on incorporation with neural network\cite{Part1Jericho} or hardcoding transition probabilities for specific states and actions \cite{Part1NAIL}. Such methodologies undermines the rich semantic meanings in state descriptions and might be less transferrable across different environments. The emerge of better large language models led to work that utilized LLM to optimize MCTS heuristics, rather than using neural network outputs or hardcoded instructions. MC-DML \cite{Part2MCLLM} attempts to capture the semantic meaning and past game experiences by deploying LLM agent as the initial policy of the MCTS framework, while using a dynamic memory mechanism to efficiently preserve the knowledge base of in or cross-game experiences. Building on the recent incorporation of LLM into MCTS for solving games, our work attempts to optimize different components of MCTS framework with LLM agent, in order to utilize LLM's strength in reasoning to capture the semantic meanings and higher-level logic in our target sequential-decision making games. Compared to past work like MC-DML \cite{Part2MCLLM}, our work attempts to save compute cost by adapting LLM as heuristic designer, rather than stepwise policy maker. We also address the challenge of knowledge base management by organizing and using past game traces to drive better heuristics with LLM.
+
+\textbf{Self-Evolving Agent.}
+Unlike static LLMs, which demonstrate less capability to adapting to novel or evolving contexts, self-evolving agents are designed to overcome such limitation by learning from real-world feedbacks and optimize its tasks\cite{Part3SEA}. The emergence of self-evolving agents attempts to redefine the AI frontier closer towards AGI\cite{Part3ToolYunjue}, while inspiring the grounding of the self-evolving agent concepts into appropriate domains that can address the questions of \textit{what to evolve, when to evolve, and how to evolve}\cite{Part3SEA}. Many recent works applies the concept of self-evolving agent with agent tools, which are callable components like code scripts that assist the agent to complete certain tasks \cite{Part3ReAct}\cite{Part3ToolYunjue}, as a target to evolve. Some past work have focused more on the agent's capability of using existing external tools\cite{Part3ReAct}, leading towards agents that can solve tasks with more autonomy \cite{Part3DPAgent}. The emerging research of self-evolving agent further enhanced such strength in higher agent autonomy, as more recent works about self-evolving agents explore the agent's workflow to generate and optimize the tools under a specified domain, such as software engineering \cite{Part3LiveSWE} and challenging real-world question solving \cite{Part3ToolYunjue}. In particular, the Yunjue Agent solves a real-world question prompt through task proposal, which the agent proposes a stream of subtasks and produce tools to gradually solve the entire problem\cite{Part3ToolYunjue}. The Yunjue Agent further highlights its strength in self-evolving concept by proposing the In-situ self evolving (ISE) framework that treats a group of task interactions as a stream for continuous knowledge accumulation and toolset optimization\cite{Part3ToolYunjue}, and this framework enables the agent to familiarize and solve diverse real-world question prompts with less human supervision. Our work built on the emerging research of self-evolving agent and agent tool generation, as we attempt to tune the LLM agent to continuously produce and optimizer MCTS heuristics as tools to solve sequential decision-making games with less human supervision. In particular, our work demonstrates an application of self-evolving agent in the domain of complex, sequential decision-making games. 
+
+
+\subsection{TextWorld evaluation setup}
+\label{app:textworld_setup}
+We evaluate three environment variants (deterministic, stochastic, and punishment) and average results over three random seeds (0--2). For each optimization iteration, training uses a disjoint set of seeds (3--5). We train and test on both Coin and MapReader using a level-size curriculum: training instances use 2/4/6/8 locations, while testing uses harder 5/7/9/11/13-location instances. For Coin, all instances include doors and use zero distractor items. For MapReader, we disable doors and use zero distractor items per location, with the maximum distance apart increasing with the number of locations (1--4 for training; 3--7 for testing). All MCTS phase ablations are drawn from the same four phases: selection, expansion, simulation, and backpropagation.
+
+\noindent\textbf{Notes.} This setup cleanly separates \emph{within-configuration robustness} (across stochasticity/punishment variants and seeds) from \emph{generalization} (to larger, harder held-out maps). The disjoint seed split also prevents leakage of memorized trajectories between optimization iterations and evaluation, so improvements more directly reflect the quality of the evolved heuristics rather than lucky rollouts.
+
+\subsection{MCTS heuristic slots (Selection and Simulation)}
+\label{app:mcts_slots}
+\noindent\textbf{Selection.} In traditional MCTS, the best child is chosen using a static heuristic such as Upper Confidence bounds applied to Trees (UCT). We encapsulate this selection logic as a programmable tool function, allowing the LLM to write environment-specific rules for exploring the search tree.
+
+\noindent\textbf{Simulation.} Standard simulation rollouts often fall back on iteratively selecting uniformly random legal actions until a terminal state is reached. We reinterpret the rollout policy as a heuristic function in itself. An LLM-designed simulation tool can introduce targeted exploration or score-guided action selection to improve sample efficiency without requiring deeper searches.
+
+\subsection{Algorithms}
+\label{app:algorithms}
+\noindent This section collects the core algorithmic loops referenced in the main text for completeness.
+
+\noindent\textbf{Takeaway.} Across both Sokoban (A*) and TextWorld (MCTS), the implementation is intentionally structured to expose a small number of \emph{pluggable} decision points to the LLM (e.g., a heuristic function in A*, or phase-specific heuristics in MCTS). This keeps the planner mechanics fixed while allowing the tool-evolution loop to make targeted, auditable code changes.
+
+\noindent Algorithm~\ref{alg:sokoban_astar} shows the A* search skeleton used in our Sokoban experiments. The key design point is the pluggable heuristic call (highlighted in bold), which is the only component modified by the LLM across optimization iterations.
+
+\noindent Algorithm~\ref{alg:textworld_mcts} summarizes the TextWorld optimization loop: repeated train rollouts are logged, the hardest failure cases are selected, and the LLM proposes phase-specific heuristic updates that are then evaluated on held-out test environments.
+
 
 \begin{algorithm}[htbp]
 \caption{Sokoban A* Search with Pluggable Heuristic}
@@ -235,74 +486,230 @@ Algorithm~\ref{alg:sokoban_astar} outlines the core pseudo-code for our A* imple
 \end{algorithmic}
 \end{algorithm}
 
-As a baseline, we employ a standard heuristic consisting of a greedy box-to-goal Manhattan distance matching combined with a mobility penalty. The system is run for 10 optimization iterations, with the underlying A* search capped at a maximum of 30,000 search steps per level.
+\begin{algorithm}[htbp]
+\caption{TextWorld MCTS with Iterative LLM Heuristic Optimization}
+\label{alg:textworld_mcts}
+\begin{algorithmic}[1]
+\STATE Choose phases $\mathcal{P} \subseteq \{\textsc{Sel},\textsc{Exp},\textsc{Sim},\textsc{Back}\}$
+\STATE $h^{(0)} \gets$ baseline heuristics
+\FOR{$t \gets 1$ to $N$}
+  \STATE $h^{(t)} \gets h^{(t-1)}$
+  \STATE $\mathcal{D} \gets \emptyset$
+  \FOR{$g \in \{\textit{Coin},\textit{MapReader}\}$}
+    \FOR{$r \gets 1$ to $3$}
+      \STATE $\mathcal{D} \gets \mathcal{D} \cup \text{RunTrain}(g,\; \text{MCTS}(h^{(t)}))$
+    \ENDFOR
+  \ENDFOR
+  \STATE Compute $(\overline{R}_e,\; \text{Pass}_e)$ from the 3 runs for each train env $e$
+  \STATE $\mathcal{F} \gets \text{TopKHard}(\mathcal{D},\; K{=}3,\; \text{key}{=}(\overline{R},\text{Pass}))$
+  \STATE $h^{(t)}_{\mathcal{P}} \gets \text{LLMOptimize}(h^{(t)}_{\mathcal{P}},\; \mathcal{F})$
+\ENDFOR
+\STATE Evaluate \text{MCTS}($h^{(N)}$) on unseen test environments
+\end{algorithmic}
+\end{algorithm}
 
-\subsubsection{Results and Generalization}
-We evaluated the learning dynamics by comparing two different training curricula: training strictly on the first 20 levels (``Curriculum A'') versus randomly sampling 20 levels from a wider pool of 50 levels per iteration (``Curriculum B''). 
 
-Quantitative results demonstrate that the LLM-driven optimization significantly prunes the A* search space. For Curriculum A, the average node exploration dropped by \textbf{74.4\%} (from an average of 1,578 nodes in the enhanced baseline to 404 nodes in the optimized version). Curriculum B showed similar prowess, yielding a \textbf{64.8\%} average reduction across the larger level set.
-
-More impressively, we observed localized cases of extreme improvement where the LLM identified high-impact heuristics (such as advanced deadlock detection and optimal push-distance assignment via DP). For example:
-\begin{itemize}
-    \item \textbf{Level 2:} Search effort was reduced from 1,223 nodes to just 4 nodes (\textbf{99.6\%} improvement).
-    \item \textbf{Level 6:} Node exploration fell from 9,561 to 33 in the best iteration (\textbf{99.6\%} improvement).
-    \item \textbf{Level 17:} Search count improved from 304 to 17 (\textbf{94.4\%} improvement).
-\end{itemize}
-
-\begin{figure}[htbp]
+\begin{figure*}[p]
   \centering
-  \begin{minipage}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{imgs/first_20/output0.png}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{imgs/first_50/output0.png}
-  \end{minipage}
-  \vspace{0.2cm}
-  \caption{Comparison of the Output 0 metric between straight 20-level training (left) and generalized 50-select-20 training (right).}
-  \label{fig:sokoban_comparison_0}
-\end{figure}
 
-\begin{figure}[htbp]
+  \begin{subfigure}[t]{0.98\textwidth}
+    \centering
+    \caption{Baseline rollout: uniform random simulation}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+# baseline rollout: uniform random simulation
+def default_simulation(state, perspective_player, max_depth=1000):
+    sim_state = state.clone()
+    depth = 0
+
+    while not sim_state.is_terminal() and depth < max_depth:
+        legal = sim_state.legal_actions()
+        action = random.choice(legal)
+        sim_state.apply_action(action)
+        depth += 1
+
+        if getattr(sim_state, "task_completed", False):
+            break
+
+    return sim_state.returns()[perspective_player]
+\end{lstlisting}
+  \end{subfigure}
+
+  \vspace{0.35cm}
+  \begin{subfigure}[t]{0.98\textwidth}
+    \centering
+    \caption{Step 1: weighted action sampling with cheap progress heuristic}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+# step 1: weighted action sampling with cheap progress heuristic
+
+def _action_score(state, action):
+    if is_movement(action):
+        return 10.0
+    if is_take_map(action) and not state.map_read:
+        return 9.0
+    if is_read_map(action) and not state.map_read:
+        return 8.0
+    if is_take(action):
+        return 7.0
+    if is_door_action(action):
+        return 2.0
+    if is_noop(action):                # look / inventory / task
+        return 0.5
+    return 1.0
+
+def default_simulation(state, perspective_player, max_depth=1000):
+    sim_state = state.clone()
+    max_depth = realistic_max_depth(sim_state, max_depth)
+
+    while not sim_state.is_terminal():
+        action = weighted_sample(sim_state.legal_actions(),
+                                 weights=[_action_score(sim_state, a)
+                                          for a in sim_state.legal_actions()])
+        sim_state.apply_action(action)
+        if getattr(sim_state, "task_completed", False):
+            break
+
+    return sim_state.returns()[perspective_player]
+\end{lstlisting}
+  \end{subfigure}
+
+  \caption{Evolution of the TextWorld rollout policy from the baseline to successive optimized variants.}
+  \label{fig:textworld-code}
+\end{figure*}
+
+\begin{figure*}[p]
+  \ContinuedFloat
   \centering
-  \begin{minipage}[b]{0.48\textwidth}
+
+  \begin{subfigure}[t]{0.98\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{imgs/first_20/output2.png}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[b]{0.48\textwidth}
+    \caption{Step 2: score actions using simulated effects}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+# step 2: score actions using simulated effects
+def _action_score(state, action):
+    success, room_changed, (before, after) = simulate_action(state, action)
+
+    if is_movement(action):
+        if not success:
+            return 0.1
+        score = 10.0
+        if room_changed:
+            score *= 1.5
+        if improves_distance(before, after):
+            score *= 1.5
+        elif same_distance(before, after):
+            score *= 0.5
+        return score
+
+    if is_take_map(action):
+        return 0.2 if already_has_map(state) else 9.0
+    if is_read_map(action):
+        return 0.2 if state.map_read else 8.0
+    if is_take(action):
+        return 0.2 if already_in_inventory(state, action) else 7.0
+    if is_door_action(action):
+        return 0.1 if not success or no_effect(room_changed, before, after) else 2.0
+    if is_noop(action):
+        return 0.05 if variant(state) == "punishment" else 0.1
+    return 1.0
+\end{lstlisting}
+  \end{subfigure}
+
+  \vspace{0.35cm}
+
+  \begin{subfigure}[t]{0.98\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{imgs/first_50/output2.png}
-  \end{minipage}
-  \vspace{0.2cm}
-  \caption{Comparison of the Output 2 metric between straight 20-level training (left) and generalized 50-select-20 training (right).}
-  \label{fig:sokoban_comparison_2}
-\end{figure}
+    \caption{Step 3: anti-oscillation rollout with fallback distance estimation}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+# step 3: anti-oscillation rollout with fallback distance estimation
+def _action_score(state, action):
+    success, room_changed, (before, after) = simulate_action_or_estimate(state, action)
 
-As shown in Figures~\ref{fig:sokoban_comparison_0} and \ref{fig:sokoban_comparison_2}, diversifying the training set yields interesting findings regarding the agent's ability to resist overfitting. When the LLM optimizes a heuristic solely on Curriculum A, the generated code strongly exploits level-specific topological oddities. Conversely, the Curriculum B approach forces the prompt builder to provide the LLM with varied failure states across permutations, resulting in a more generalized code heuristic that performs more consistently across larger level distributions.
+    if is_movement(action):
+        score = 10.0
+        if room_changed:
+            score *= 1.5
+        if improves_distance(before, after):
+            score *= 1.5
+        elif worsens_distance(before, after):
+            score *= 0.5
+        return score
 
-\subsection{TextWorld Benchmark}
-% Experiment setup:
-% 1. Introduced two games: Coin and MapReader
-% 2. Used train environments to collect gameplay traces
-% 3. Selected the 3 hardest/failure cases for LLM heuristic optimization
-% 4. Evaluated on larger, unseen test environments
+    if is_visible_take_action(state, action):
+        return 20.0
+    if is_door_action(action):
+        if not success or no_effect(room_changed, before, after):
+            return 0.1
+        if improves_distance(before, after):
+            return 1.0
+        if variant(state) == "punishment" and worsens_distance(before, after):
+            return 0.05
+        return 0.5
 
-% Behavior example:
-% - Compared baseline heuristic vs. LLM-optimized heuristics for 4 phases
-% - Base heuristic gets stuck in local loops
-% - Optimized heuristic encourages global exploration
+    if is_noop(action):
+        return 0.05 if variant(state) == "punishment" else 0.1
+    return 1.0
 
-% Optimization results (Simulation heuristic difference):
-% - Baseline: uniform random rollout
-% - Optimized: score-guided rollout that rewards task actions and goal progress
-% - Simulation optimization improves test correctness → generalized heuristic
+def default_simulation(state, perspective_player, max_depth=1000):
+    sim_state = state.clone()
+    last_action = None
+
+    while not sim_state.is_terminal():
+        action = weighted_sample_avoiding_opposite(sim_state, last_action)
+        sim_state.apply_action(action)
+        last_action = action
+
+        if getattr(sim_state, "task_completed", False):
+            break
+
+    return sim_state.returns()[perspective_player]
+\end{lstlisting}
+  \end{subfigure}
+
+  \caption[]{Evolution of the TextWorld rollout policy from the baseline to successive optimized variants (continued).}
+\end{figure*}
+
+\subsection{TextWorld qualitative trajectories}
+\label{app:textworld_qualitative}
+\noindent Figure~\ref{fig:textworld-behavior} visualizes how the optimized rollout policy changes the agent's early trajectory compared to the baseline. Each row shows the same timestep in the episode, with baseline (left) and optimized (right).
+
+\noindent Across steps 4--8, the baseline trajectory exhibits short oscillations and revisits of recently seen rooms, which limits state coverage and produces low-information rollouts. In contrast, the optimized trajectory tends to expand into new rooms earlier and maintains forward progress toward task-relevant observations (e.g., reaching previously unseen areas that can reveal the coin or improve map coverage). This qualitative shift matches the quantitative gains in correctness reported in Table~\ref{tab:textworld-results}, where SIM-driven rollout improvements contribute the largest test performance increase.
+
+
+\begin{figure*}[p]
+  \centering
+
+  % 5x2 grid: each row compares baseline vs. optimized at the same step
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.0}
+  \begin{tabular}{cc}
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/baseline_Step-004.png} &
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/optimized_Step-004.png} \\
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/baseline_Step-005.png} &
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/optimized_Step-005.png} \\
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/baseline_Step-006.png} &
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/optimized_Step-006.png} \\
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/baseline_Step-007.png} &
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/optimized_Step-007.png} \\
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/baseline_Step-008.png} &
+    \includegraphics[width=0.35\textwidth]{imgs/textworld/optimized_Step-008.png} \\
+  \end{tabular}
+
+  \caption{Qualitative comparison on TextWorld trajectories for baseline vs. optimized heuristics. Each row shows the same step (4--8), with baseline on the left and optimized on the right.}
+  \label{fig:textworld-behavior}
+\end{figure*}
+
+\subsection{TextWorld ablations: full combination results}
+\label{app:textworld_combo_ablations}
+
+\textbf{Notation.}
+SEL = selection, EXP = expansion, SIM = simulation, and BACK = backpropagation. A leading ``+'' indicates which phase(s) are optimized.
+
+\textbf{Additional observations.}
+Across combinations, SIM is consistently the strongest contributor to train/test correctness (often reaching perfect test correctness), while EXP can be harmful when combined with SEL (e.g., +SEL+EXP). BACK tends to improve efficiency (fewer steps) and stability, and combinations that include SIM typically dominate overall performance.
 
 \begin{table*}[t]
-  \caption{Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta$ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps.}
-  \label{tab:textworld-results}
+  \caption{Full TextWorld ablations across multi-phase combinations (additional to Table~\ref{tab:textworld-results}).}
+  \label{tab:textworld-combos}
   \centering
   \small
   \setlength{\tabcolsep}{4pt}
@@ -311,95 +718,103 @@ As shown in Figures~\ref{fig:sokoban_comparison_0} and \ref{fig:sokoban_comparis
     \toprule
     Configuration & Train Correct & Train $\Delta$ & Train Ret & Train Steps & Test Correct & Test $\Delta$ & Test Ret & Test Steps \\
     \midrule
-    baseline & 62/72 & 0 & 0.861 & 9.9 & 55/90 & 0 & 0.606 & 14.4 \\
+    baseline & 61/72 & 0 & 0.847 & 10.5 & 57/90 & 0 & 0.617 & 13.2 \\
     \midrule
-    + selection & 63/72 & 1 & 0.875 & 12.8 & 75/90 & 20 & 0.833 & 15.8 \\
-    + expansion & 62/72 & 0 & 0.819 & 10.9 & 55/90 & 0 & 0.478 & 11.3 \\
-    + simulation & \textbf{\underline{72/72}} & \textbf{\underline{10}} & \textbf{\underline{1.000}} & 41.0 & \textbf{\underline{90/90}} & \textbf{\underline{35}} & \textbf{\underline{1.000}} & 45.1 \\
-    + backpropagation & 64/72 & 2 & 0.889 & \textbf{\underline{8.5}} & 60/90 & 5 & 0.656 & \textbf{\underline{10.2}} \\
-    + full & 70/72 & 8 & 0.972 & 14.9 & 89/90 & 34 & 0.989 & 16.2 \\
+    + SEL & 63/72 & 2 & 0.875 & 11.3 & 78/90 & 21 & 0.867 & 15.5 \\
+    + EXP & 63/72 & 2 & 0.833 & 9.8 & 55/90 & -2 & 0.478 & 10.8 \\
+    + SIM & \textbf{72/72} & \textbf{11} & \textbf{1.000} & 41.0 & \textbf{90/90} & \textbf{33} & \textbf{1.000} & 44.9 \\
+    + BACK & 65/72 & 4 & 0.903 & \textbf{8.1} & 59/90 & 2 & 0.633 & \textbf{9.2} \\
+    \midrule
+    + SEL+EXP & 51/72 & -10 & 0.667 & 13.1 & 43/90 & -14 & 0.356 & 9.3 \\
+    + SEL+SIM & 68/72 & 7 & 0.944 & 10.5 & 89/90 & 32 & 0.989 & 12.7 \\
+    + SEL+BACK & 69/72 & 8 & 0.958 & 10.7 & \textbf{90/90} & \textbf{33} & \textbf{1.000} & 14.3 \\
+    + EXP+SIM & \textbf{72/72} & \textbf{11} & \textbf{1.000} & 24.2 & \textbf{90/90} & \textbf{33} & \textbf{1.000} & 27.7 \\
+    + EXP+BACK & 62/72 & 1 & 0.861 & \textbf{7.3} & 60/90 & 3 & 0.656 & \textbf{9.1} \\
+    + SIM+BACK & \textbf{72/72} & \textbf{11} & \textbf{1.000} & 20.0 & \textbf{90/90} & \textbf{33} & \textbf{1.000} & 27.3 \\
+    \midrule
+    + SEL+EXP+SIM & 67/72 & 6 & 0.931 & 27.6 & 89/90 & 32 & 0.989 & 27.3 \\
+    + SEL+EXP+BACK & 69/72 & 8 & 0.958 & \textbf{11.1} & 89/90 & 32 & 0.989 & 15.3 \\
+    + SEL+SIM+BACK & 69/72 & 8 & 0.958 & 12.5 & 89/90 & 32 & 0.989 & \textbf{12.6} \\
+    + EXP+SIM+BACK & \textbf{72/72} & \textbf{11} & \textbf{1.000} & 19.8 & \textbf{90/90} & \textbf{33} & \textbf{1.000} & 27.4 \\
+    \midrule
+    + SEL+EXP+SIM+BACK & \textbf{70/72} & \textbf{9} & \textbf{0.972} & \textbf{15.3} & \textbf{89/90} & \textbf{32} & \textbf{0.989} & \textbf{15.7} \\
     \bottomrule
   \end{tabular}%
   }
 \end{table*}
 
-\subsection{Heuristic Generalizability}
-% - LLM-MCTS pass rate: 60~90 (full) out of 90
-% - DQN pass rate: 27~33 (optimized) out of 90 (test blind — not trained on test environment)
-% - DQN techniques used: Boltzmann exploration, success replay buffer, stagnation threshold, early stopping, step cost penalty
-% - Key finding: LLM-generated heuristics generalize better than DQN to unseen test environments
-
-\subsection{Zork}
-% Environment complexity (vs. TextWorld):
-% - Up to 22 interconnected rooms (vs. simple grid), with surface + underground layers
-% - 6 treasures to collect AND deposit back at base (vs. pick up 1 coin)
-% - Multi-step dependencies: get lantern → light it → go underground → kill troll → access treasures → return to deposit
-% - Instant death states: entering dark rooms without lantern
-% - Resource management: limited lantern fuel
-% - State space orders of magnitude larger (room × inventory × items × fuel × troll × lantern × trophy case)
-% TODO: Add Zork results figure
-
-
-\section{Limitations}
-\label{sec:limitations}
-
-% - Were not able to meaningfully evaluate long-horizon behavior of tool quality
-% - Open question: After ~1000 code iterations, does the tool quality collapse, plateau, or see eureka moments of continuous improvement?
-% - Iterative task proposal can get stuck in parameter tuning without proposing new ideas; task proposal could use more research
-% - MCTS heuristic tools show some transferability on same game with different setups
-% - Lacks investigation on cross-game transferable tools
-% - Evaluation limited to simple environments
-% - Agent demonstrated improvements on multiple simple games, but lacked a larger, more impressive game environment to evaluate high-impact improvements
-
-
-\section{Future Work}
-\label{sec:future}
-
-% Broader Agent Scope:
-% - We limited LLM agent's scope of read/write access to only specific tool files within specific RL frameworks (MCTS) for feasible evaluation
-% - The LLM agent might perform better with elevated scope — access to full tool folders, freedom to switch RL frameworks that interact with the environment, or freedom to modify its own prompt engine/LLM workflow
-
-% Task Proposal Effectiveness:
-% - Further research needed on improving the quality and diversity of task proposals
-
-% Generalizing Beyond White-Box Games:
-% - The game environments we evaluated are whitebox with explicit code endpoints for interaction
-% - Potentially allow LLM agent to figure out / implement interaction frameworks with blackbox games
-% - For example, using screenshots to learn game interaction but implementing tools to later build encapsulated movesets with mouse clicks
-
-
-\section{Conclusion}
-\label{sec:conclusion}
-
-% TODO: Write conclusion summarizing:
-% - We presented a self-evolving game agent that uses LLM to generate and improve heuristics for MCTS and A*
-% - The system collects game traces, analyzes feedback, proposes tasks, and generates pluggable heuristics iteratively
-% - Evaluated on Sokoban (A*), TextWorld (MCTS), and Zork environments
-% - LLM-generated heuristics showed improvement over baselines and demonstrated generalizability to unseen environments
-% - The approach offers a cost-effective alternative to training deep neural networks or using LLM as an online agent
-
-
-\section*{References}
-
-{\small
-
-[1] Browne, C.~B., Powley, E., Whitehouse, D., Lucas, S.~M., Cowling, P.~I., Rohlfshagen, P., Tavener, S., Perez, D., Samothrakis, S., \& Colton, S. (2012). A Survey of Monte Carlo Tree Search Methods. \textit{IEEE Transactions on Computational Intelligence and AI in Games}, 4(1), 1--43.
-
-[2] Shi, Z., Fang, M., \& Chen, L. (2025). Monte Carlo Planning with Large Language Model for Text-Based Game Agents. \textit{arXiv preprint arXiv:2504.16855}.
-
-[3] Li, H., et al. (2026). Yunjue Agent Tech Report: A Fully Reproducible, Zero-Start In-Situ Self-Evolving Agent System for Open-Ended Tasks. \textit{arXiv preprint arXiv:2601.18226}.
-
-}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\appendix
-
-\section{Technical Appendix}
 % TODO: Add any supplementary material, additional results, or proofs here.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Generalization test compared with DQN}
+\begin{table*}[h]
+  \caption{DQN rewards for Coin and Mapreader tasks across variants with environmental parameters, whereas our llm-MCTS obtained full score across all cases (data for Fig.~\ref{fig:dqncomp}).}
+  \label{tab:textworld-final-aligned}
+  \centering
+  \small
+  \setlength{\tabcolsep}{3pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{ccc ccc | ccc ccc}
+    \toprule
+    \multicolumn{6}{c|}{\textbf{Coin Tasks}} & \multicolumn{6}{c}{\textbf{Mapreader Tasks}} \\
+    \cmidrule(lr){1-6} \cmidrule(lr){7-12}
+    Rooms & Seed & Parameters & Det. & Stoch. & Pun. & Rooms & Seed & Parameters & Det. & Stoch. & Pun. \\
+    \midrule
+    5  & 0 & \scriptsize loc=5, door=1, distr=0 & 1.0 & 1.0 & 1.0 & 5  & 0 & \scriptsize loc=5, dist=3, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    5  & 1 & \scriptsize loc=5, door=1, distr=0 & 1.0 & 1.0 & 1.0 & 5  & 1 & \scriptsize loc=5, dist=3, door=0, distr=0 & 0.0 & 1.0 & 0.0 \\
+    5  & 2 & \scriptsize loc=5, door=1, distr=0 & 1.0 & 1.0 & 1.0 & 5  & 2 & \scriptsize loc=5, dist=3, door=0, distr=0 & 0.0 & 0.5 & 0.0 \\
+    \midrule
+    7  & 0 & \scriptsize loc=7, door=1, distr=0 & 0.0 & 0.0 & 0.0 & 7  & 0 & \scriptsize loc=7, dist=3, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    7  & 1 & \scriptsize loc=7, door=1, distr=0 & 0.0 & 0.0 & 0.0 & 7  & 1 & \scriptsize loc=7, dist=3, door=0, distr=0 & 0.0 & 0.5 & 0.0 \\
+    7  & 2 & \scriptsize loc=7, door=1, distr=0 & 0.0 & 1.0 & 0.0 & 7  & 2 & \scriptsize loc=7, dist=3, door=0, distr=0 & 0.5 & 0.5 & 0.5 \\
+    \midrule
+    9  & 0 & \scriptsize loc=9, door=1, distr=0 & 0.0 & 0.0 & 0.0 & 9  & 0 & \scriptsize loc=9, dist=5, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    9  & 1 & \scriptsize loc=9, door=1, distr=0 & 0.0 & 0.0 & 0.0 & 9  & 1 & \scriptsize loc=9, dist=5, door=0, distr=0 & 0.0 & 1.0 & 0.0 \\
+    9  & 2 & \scriptsize loc=9, door=1, distr=0 & 1.0 & 1.0 & 1.0 & 9  & 2 & \scriptsize loc=9, dist=5, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    \midrule
+    11 & 0 & \scriptsize loc=11, door=1, distr=0 & 0.0 & 0.0 & 0.0 & 11 & 0 & \scriptsize loc=11, dist=6, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    11 & 1 & \scriptsize loc=11, door=1, distr=0 & 0.0 & 1.0 & 0.0 & 11 & 1 & \scriptsize loc=11, dist=6, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    11 & 2 & \scriptsize loc=11, door=1, distr=0 & 0.0 & 1.0 & 0.0 & 11 & 2 & \scriptsize loc=11, dist=6, door=0, distr=0 & 0.0 & 0.0 & 0.0 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table*}
 
+
+\subsection{Comparison with baseline on Zork}
+\label{apdx:zork}
+This subsection provides the detailed numbers underlying Figure~\ref{fig:zorkcomp}. We report results for both deterministic and stochastic variants over three evaluation seeds (3--5), and vary map difficulty by increasing the number of rooms. \textit{Correct} indicates whether the agent achieved the sub-region objective within the fixed step budget, and \textit{Ret} is the normalized return (higher is better) achieved within the same budget.
+
+Overall, the optimized heuristic tends to improve return on the smaller, solvable settings (8--10 rooms), consistent with a \(\sim 20\%\) relative lift reported in the main text. However, as difficulty increases (12+ rooms), both baseline and optimized MCTS frequently fail to complete the objective within the budget, and returns collapse toward zero, illustrating the ``complexity wall'' discussed in Section~4.4.
+
+\begin{table*}[h]
+  \caption{Final evaluation on Zork with different levels of difficulty (data for Fig.~\ref{fig:zorkcomp}).}
+  \label{tab:training-eval-side-by-side}
+  \centering
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{cc cccc | cccc}
+    \toprule
+    & & \multicolumn{4}{c|}{Deterministic} & \multicolumn{4}{c}{Stochastic} \\
+    \cmidrule(lr){3-6} \cmidrule(lr){7-10}
+    Rooms & Seed & Base Correct & Opt Correct & Base Ret & Opt Ret & Base Correct & Opt Correct & Base Ret & Opt Ret \\
+    \midrule
+    8 & 3 & 0/1 & 0/1 & 0.700 & \textbf{0.850} & 0/1 & 0/1 & 0.700 & \textbf{0.850} \\
+    8 & 4 & 0/1 & 0/1 & 0.500 & \textbf{0.700} & 0/1 & 0/1 & 0.700 & \textbf{0.850} \\
+    8 & 5 & 0/1 & 0/1 & 0.500 & \textbf{0.650} & 0/1 & 0/1 & 0.350 & \textbf{0.650} \\
+    10 & 3 & 0/1 & 0/1 & 0.350 & \textbf{0.800} & 0/1 & 0/1 & 0.650 & 0.650 \\
+    10 & 4 & 0/1 & 0/1 & 0.500 & 0.500 & 0/1 & 0/1 & 0.650 & 0.650 \\
+    10 & 5 & 0/1 & 0/1 & \textbf{0.500} & 0.450 & 0/1 & 0/1 & 0.300 & \textbf{0.500} \\
+    12 & 3 & 0/1 & 0/1 & 0.000 & 0.000 & 0/1 & 0/1 & 0.000 & 0.000 \\
+    12 & 4 & 0/1 & 0/1 & 0.000 & 0.000 & 0/1 & 0/1 & 0.000 & 0.000 \\
+    12 & 5 & 0/1 & 0/1 & 0.000 & 0.000 & 0/1 & 0/1 & 0.000 & 0.000 \\
+    14 & 3 & 0/1 & 0/1 & 0.000 & 0.000 & 0/1 & 0/1 & 0.000 & 0.000 \\
+    14 & 4 & 0/1 & 0/1 & 0.000 & 0.000 & 0/1 & 0/1 & 0.000 & 0.000 \\
+    14 & 5 & 0/1 & 0/1 & 0.000 & 0.000 & 0/1 & 0/1 & 0.000 & 0.000 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table*}
 
 \end{document}

@@ -4,58 +4,154 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{1}{section.2}\protected@file@percent }
-\newlabel{sec:related}{{2}{1}{Related Work}{section.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}A Survey of Monte Carlo Tree Search Methods}{1}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}MC-DML: Monte-Carlo Planning with Dynamic Memory-Guided LLM}{1}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Yunjue Agent: A Self-Evolving Agent System for Open-Ended Tasks}{1}{subsection.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}System Architecture}{1}{section.3}\protected@file@percent }
-\newlabel{sec:method}{{3}{1}{System Architecture}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}RL Framework}{1}{subsection.3.1}\protected@file@percent }
-\newlabel{sec:method_rl}{{3.1}{1}{RL Framework}{subsection.3.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Tool-Evolving LLM Agent pipeline.}}{2}{figure.1}\protected@file@percent }
-\newlabel{fig:tool_evolving}{{1}{2}{Tool-Evolving LLM Agent pipeline}{figure.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The modular MCTS RL Framework operates offline, using generated Tool Functions for specific phases while passively recording gameplay.}}{2}{figure.2}\protected@file@percent }
-\newlabel{fig:rl_framework}{{2}{2}{The modular MCTS RL Framework operates offline, using generated Tool Functions for specific phases while passively recording gameplay}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Tool-Evolving LLM Agent}{2}{subsection.3.2}\protected@file@percent }
-\newlabel{sec:method_llm}{{3.2}{2}{Tool-Evolving LLM Agent}{subsection.3.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Trace Analyzer:}{2}{section*.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Orchestrator and Prompt Builder:}{3}{section*.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Multi-Round Query Loop:}{3}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Validation and Tool Library Updates:}{3}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Controller and Game Environment}{3}{subsection.3.3}\protected@file@percent }
-\newlabel{sec:method_controller}{{3.3}{3}{Controller and Game Environment}{subsection.3.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Game Environment and Optimizer:}{3}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Hyperparameters:}{3}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Game-Agnostic Modularity:}{3}{section*.7}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Overall Architecture of the Self-Evolving Game Agent. The top ``Game \& Controller'' module acts as the core connector, governing the interactions between the Tool-Evolving LLM Agent (offline generation) and the RL Framework (online execution/offline logging) via predefined Hyperparameters.}}{4}{figure.3}\protected@file@percent }
-\newlabel{fig:mcts_based}{{3}{4}{Overall Architecture of the Self-Evolving Game Agent. The top ``Game \& Controller'' module acts as the core connector, governing the interactions between the Tool-Evolving LLM Agent (offline generation) and the RL Framework (online execution/offline logging) via predefined Hyperparameters}{figure.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Framework Flexibility:}{4}{section*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Task Proposal Loop}{4}{subsection.3.4}\protected@file@percent }
-\newlabel{sec:method_task_proposal}{{3.4}{4}{Task Proposal Loop}{subsection.3.4}{}}
+\citation{Part2MCSurvey,Part2MCTSCoulom}
+\citation{Part2MCSurvey,Part2GoNNMCTS,Part2PGTS}
+\citation{Part2MCSurvey}
+\citation{Part2GoNNMCTS}
+\citation{Part2PGTS,Part2MCLLM,Part2PlanHeuris}
+\citation{Part2PlanHeuris}
+\citation{Part1Jericho,Part2MCSurvey,Part1Jericho,Part1SokobanMCTS}
+\citation{Part1Jericho}
+\citation{Part1SokobanMCTS,Part1SokobanDRL,Part2GoNNMCTS}
+\citation{Part1Jericho,Part1NAIL}
+\citation{Part2MCLLM}
+\citation{Part2MCLLM}
+\citation{Part3SEA}
+\citation{Part3SEA}
+\citation{Part3ToolYunjue}
+\citation{Part3ReAct,Part3ToolYunjue}
+\citation{Part3ReAct,Part3DPAgent}
+\citation{Part3LiveSWE}
+\citation{Part3ToolYunjue}
+\citation{Part3ToolYunjue}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}System Architecture}{2}{section.3}\protected@file@percent }
+\newlabel{sec:method}{{3}{2}{System Architecture}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}RL Framework}{2}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:method_rl}{{3.1}{2}{RL Framework}{subsection.3.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces System components used in our method. \textbf  {Left:} the offline Tool-Evolving LLM Agent pipeline. \textbf  {Right:} the modular MCTS RL framework, which executes without runtime LLM calls while logging gameplay and loading generated tool functions for specific phases.}}{3}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:framework_overview}{{1}{3}{System components used in our method. \textbf {Left:} the offline Tool-Evolving LLM Agent pipeline. \textbf {Right:} the modular MCTS RL framework, which executes without runtime LLM calls while logging gameplay and loading generated tool functions for specific phases}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Tool-Evolving LLM Agent}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:method_llm}{{3.2}{3}{Tool-Evolving LLM Agent}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Controller and Game Environment}{4}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:method_controller}{{3.3}{4}{Controller and Game Environment}{subsection.3.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Overall Architecture of the Self-Evolving Game Agent. The top ``Game \& Controller'' module acts as the core connector, governing the interactions between the Tool-Evolving LLM Agent (offline generation) and the RL Framework (online execution/offline logging) via predefined hyperparameters.}}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:mcts_based}{{2}{4}{Overall Architecture of the Self-Evolving Game Agent. The top ``Game \& Controller'' module acts as the core connector, governing the interactions between the Tool-Evolving LLM Agent (offline generation) and the RL Framework (online execution/offline logging) via predefined hyperparameters}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Comparison of the Output 0 metric between straight 20-level training (left) and generalized 50-select-20 training (right).}}{5}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:sokoban_comparison_0}{{3}{5}{Comparison of the Output 0 metric between straight 20-level training (left) and generalized 50-select-20 training (right)}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Task Proposal Loop}{5}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:method_task_proposal}{{3.4}{5}{Task Proposal Loop}{subsection.3.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Experiments}{5}{section.4}\protected@file@percent }
 \newlabel{sec:experiments}{{4}{5}{Experiments}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Sokoban (A* Optimization)}{5}{subsection.4.1}\protected@file@percent }
-\newlabel{sec:exp_sokoban}{{4.1}{5}{Sokoban (A* Optimization)}{subsection.4.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Sokoban Environment}{5}{subsubsection.4.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}A* Heuristic Optimization}{5}{subsubsection.4.1.2}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Sokoban A* Search with Pluggable Heuristic}}{5}{algorithm.1}\protected@file@percent }
-\newlabel{alg:sokoban_astar}{{1}{5}{A* Heuristic Optimization}{algorithm.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Results and Generalization}{5}{subsubsection.4.1.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta $ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps.}}{6}{table.1}\protected@file@percent }
-\newlabel{tab:textworld-results}{{1}{6}{Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta $ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps}{table.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Comparison of the Output 0 metric between straight 20-level training (left) and generalized 50-select-20 training (right).}}{6}{figure.4}\protected@file@percent }
-\newlabel{fig:sokoban_comparison_0}{{4}{6}{Comparison of the Output 0 metric between straight 20-level training (left) and generalized 50-select-20 training (right)}{figure.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison of the Output 2 metric between straight 20-level training (left) and generalized 50-select-20 training (right).}}{6}{figure.5}\protected@file@percent }
-\newlabel{fig:sokoban_comparison_2}{{5}{6}{Comparison of the Output 2 metric between straight 20-level training (left) and generalized 50-select-20 training (right)}{figure.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}TextWorld Benchmark}{7}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Sokoban Benchmark}{5}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:exp_sokoban}{{4.1}{5}{Sokoban Benchmark}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}A* Heuristic Optimization}{5}{subsubsection.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Results and Generalization}{6}{subsubsection.4.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Comparison of the Output 2 metric. Top: straight 20-level training (Curriculum A). Bottom: generalized 50-select-20 training (Curriculum B).}}{6}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:sokoban_comparison_2}{{4}{6}{Comparison of the Output 2 metric. Top: straight 20-level training (Curriculum A). Bottom: generalized 50-select-20 training (Curriculum B)}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}TextWorld Benchmark}{6}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:textworld_env}{{4.2}{6}{TextWorld Benchmark}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}MCTS Heuristic Optimization}{6}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta $ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps. ``+'' indicates which MCTS phase(s) are optimized.}}{7}{table.caption.6}\protected@file@percent }
+\newlabel{tab:textworld-results}{{1}{7}{Results across configurations on train/test splits. Correct is \#correct/\#total; $\Delta $ is the difference in Correct vs. the baseline on the same split; Ret and Steps are the mean return and mean steps. ``+'' indicates which MCTS phase(s) are optimized}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Results and Generalization}{7}{subsubsection.4.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Heuristic Generalizability}{7}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Zork}{7}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Limitations}{7}{section.5}\protected@file@percent }
-\newlabel{sec:limitations}{{5}{7}{Limitations}{section.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Future Work}{7}{section.6}\protected@file@percent }
-\newlabel{sec:future}{{6}{7}{Future Work}{section.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{7}{section.7}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{7}{Conclusion}{section.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Technical Appendix}{7}{appendix.A}\protected@file@percent }
-\gdef \@abspage@last{7}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Zork Benchmark}{7}{subsection.4.4}\protected@file@percent }
+\bibstyle{unsrt}
+\bibdata{references}
+\newlabel{fig:dqncomp}{{5a}{8}{\textbf {TextWorld generalization}: our method shows near-perfect return scores and efficient execution across all game complexities, while DQN hits a complexity wall around 11 rooms, beyond which no generalization is possible}{figure.caption.7}{}}
+\newlabel{sub@fig:dqncomp}{{a}{8}{\textbf {TextWorld generalization}: our method shows near-perfect return scores and efficient execution across all game complexities, while DQN hits a complexity wall around 11 rooms, beyond which no generalization is possible}{figure.caption.7}{}}
+\newlabel{fig:zorkcomp}{{5b}{8}{\textbf {Zork subset scaling}: the llm-optimized MCTS algorithm provides a $\sim 20\%$ performance lift in solvable environments (8--10 rooms), but is limited by the complexity wall starting at 12 rooms where state-space dependencies peak without more steps}{figure.caption.7}{}}
+\newlabel{sub@fig:zorkcomp}{{b}{8}{\textbf {Zork subset scaling}: the llm-optimized MCTS algorithm provides a $\sim 20\%$ performance lift in solvable environments (8--10 rooms), but is limited by the complexity wall starting at 12 rooms where state-space dependencies peak without more steps}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Generalization/scaling comparisons for TextWorld (left) and Zork (right).}}{8}{figure.caption.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Limitations}{8}{section.5}\protected@file@percent }
+\newlabel{sec:limitations}{{5}{8}{Limitations}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Future Work}{8}{section.6}\protected@file@percent }
+\newlabel{sec:future}{{6}{8}{Future Work}{section.6}{}}
+\bibcite{Part2MCSurvey}{{1}{}{{}}{{}}}
+\bibcite{Part2MCTSCoulom}{{2}{}{{}}{{}}}
+\bibcite{Part2GoNNMCTS}{{3}{}{{}}{{}}}
+\bibcite{Part2PGTS}{{4}{}{{}}{{}}}
+\bibcite{Part2MCLLM}{{5}{}{{}}{{}}}
+\bibcite{Part2PlanHeuris}{{6}{}{{}}{{}}}
+\bibcite{Part1Jericho}{{7}{}{{}}{{}}}
+\bibcite{Part1SokobanMCTS}{{8}{}{{}}{{}}}
+\bibcite{Part1SokobanDRL}{{9}{}{{}}{{}}}
+\bibcite{Part1NAIL}{{10}{}{{}}{{}}}
+\bibcite{Part3SEA}{{11}{}{{}}{{}}}
+\bibcite{Part3ToolYunjue}{{12}{}{{}}{{}}}
+\bibcite{Part3ReAct}{{13}{}{{}}{{}}}
+\bibcite{Part3DPAgent}{{14}{}{{}}{{}}}
+\bibcite{Part3LiveSWE}{{15}{}{{}}{{}}}
+\citation{Part2MCSurvey}
+\citation{Part2MCTSCoulom}
+\citation{Part2MCSurvey}
+\citation{Part2GoNNMCTS}
+\citation{Part2PGTS}
+\citation{Part2MCSurvey}
+\citation{Part2MCLLM}
+\citation{Part2GoNNMCTS}
+\citation{Part2GoNNMCTS}
+\citation{Part2PGTS}
+\citation{Part2MCLLM}
+\citation{Part2PlanHeuris}
+\citation{Part2GoNNMCTS}
+\citation{Part2PlanHeuris}
+\citation{Part1Jericho}
+\citation{Part2MCSurvey}
+\citation{Part1Jericho}
+\citation{Part1SokobanMCTS}
+\citation{Part1Jericho}
+\citation{Part1Jericho}
+\citation{Part1SokobanMCTS}
+\citation{Part1SokobanDRL}
+\citation{Part2GoNNMCTS}
+\citation{Part1Jericho}
+\citation{Part1NAIL}
+\citation{Part2MCLLM}
+\citation{Part2MCLLM}
+\citation{Part3SEA}
+\citation{Part3ToolYunjue}
+\citation{Part3SEA}
+\citation{Part3ReAct}
+\citation{Part3ToolYunjue}
+\citation{Part3ReAct}
+\citation{Part3DPAgent}
+\citation{Part3LiveSWE}
+\citation{Part3ToolYunjue}
+\citation{Part3ToolYunjue}
+\citation{Part3ToolYunjue}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Technical Appendix}{10}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Detailed Related Work}{10}{subsection.A.1}\protected@file@percent }
+\newlabel{app:related_work}{{A.1}{10}{Detailed Related Work}{subsection.A.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}TextWorld evaluation setup}{11}{subsection.A.2}\protected@file@percent }
+\newlabel{app:textworld_setup}{{A.2}{11}{TextWorld evaluation setup}{subsection.A.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}MCTS heuristic slots (Selection and Simulation)}{11}{subsection.A.3}\protected@file@percent }
+\newlabel{app:mcts_slots}{{A.3}{11}{MCTS heuristic slots (Selection and Simulation)}{subsection.A.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.4}Algorithms}{11}{subsection.A.4}\protected@file@percent }
+\newlabel{app:algorithms}{{A.4}{11}{Algorithms}{subsection.A.4}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Sokoban A* Search with Pluggable Heuristic}}{12}{algorithm.1}\protected@file@percent }
+\newlabel{alg:sokoban_astar}{{1}{12}{Sokoban A* Search with Pluggable Heuristic}{algorithm.1}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces TextWorld MCTS with Iterative LLM Heuristic Optimization}}{12}{algorithm.2}\protected@file@percent }
+\newlabel{alg:textworld_mcts}{{2}{12}{TextWorld MCTS with Iterative LLM Heuristic Optimization}{algorithm.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.5}TextWorld qualitative trajectories}{12}{subsection.A.5}\protected@file@percent }
+\newlabel{app:textworld_qualitative}{{A.5}{12}{TextWorld qualitative trajectories}{subsection.A.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.6}TextWorld ablations: full combination results}{12}{subsection.A.6}\protected@file@percent }
+\newlabel{app:textworld_combo_ablations}{{A.6}{12}{TextWorld ablations: full combination results}{subsection.A.6}{}}
+\providecommand\NAT@force@numbers{}\NAT@force@numbers
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Full TextWorld ablations across multi-phase combinations (additional to Table~\ref {tab:textworld-results}).}}{13}{table.caption.12}\protected@file@percent }
+\newlabel{tab:textworld-combos}{{2}{13}{Full TextWorld ablations across multi-phase combinations (additional to Table~\ref {tab:textworld-results})}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.7}Generalization test compared with DQN}{13}{subsection.A.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces DQN rewards for Coin and Mapreader tasks across variants with environmental parameters, whereas our llm-MCTS obtained full score across all cases (data for Fig.~\ref {fig:dqncomp}).}}{13}{table.caption.13}\protected@file@percent }
+\newlabel{tab:textworld-final-aligned}{{3}{13}{DQN rewards for Coin and Mapreader tasks across variants with environmental parameters, whereas our llm-MCTS obtained full score across all cases (data for Fig.~\ref {fig:dqncomp})}{table.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.8}Comparison with baseline on Zork}{13}{subsection.A.8}\protected@file@percent }
+\newlabel{apdx:zork}{{A.8}{13}{Comparison with baseline on Zork}{subsection.A.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Final evaluation on Zork with different levels of difficulty (data for Fig.~\ref {fig:zorkcomp}).}}{14}{table.caption.14}\protected@file@percent }
+\newlabel{tab:training-eval-side-by-side}{{4}{14}{Final evaluation on Zork with different levels of difficulty (data for Fig.~\ref {fig:zorkcomp})}{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Evolution of the TextWorld rollout policy from the baseline to successive optimized variants.}}{14}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:textworld-code}{{6}{14}{Evolution of the TextWorld rollout policy from the baseline to successive optimized variants}{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Qualitative comparison on TextWorld trajectories for baseline vs. optimized heuristics. Each row shows the same step (4--8), with baseline on the left and optimized on the right.}}{16}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:textworld-behavior}{{7}{16}{Qualitative comparison on TextWorld trajectories for baseline vs. optimized heuristics. Each row shows the same step (4--8), with baseline on the left and optimized on the right}{figure.caption.11}{}}
+\gdef \@abspage@last{16}
